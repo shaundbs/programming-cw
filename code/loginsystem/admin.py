@@ -1,7 +1,7 @@
 import sqlite3
 import bcrypt
 import getpass  # hide password when inputting
-from Database import Database
+from database import Database
 
 
 class Admin:

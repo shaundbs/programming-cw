@@ -1,5 +1,5 @@
 import sqlite3
-from Database import Database
+from database import Database
 
 # TODO: WHEN TO CLOSE DB?
 
