@@ -19,24 +19,135 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="" />
+    <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="db build script runs on DB initialisation">
+      <change afterPath="$PROJECT_DIR$/code/gp_func/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/gp_func/gp.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/gp_func/gp_testing.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions-0.8.5.dist-info/INSTALLER" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions-0.8.5.dist-info/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions-0.8.5.dist-info/METADATA" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions-0.8.5.dist-info/RECORD" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions-0.8.5.dist-info/REQUESTED" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions-0.8.5.dist-info/WHEEL" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions-0.8.5.dist-info/top_level.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/core.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/asyncio.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/diagrams.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/diagrams_graphviz.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/diagrams_pygraphviz.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/factory.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/locking.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/markup.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/nesting.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/nesting_legacy.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/extensions/states.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/transitions/version.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/loginsystem/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/loginsystem/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Setup Script" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1lmlOK4QjR4hN5Mgcin8XIv5OdW" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RunManager" selected="Python.GP Test">
+    <configuration name="GP Test" type="PythonConfigurationType" factoryName="Python">
+      <module name="programming-cw" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/code/gp_func" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/code/gp_func/gp_testing.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="programming-cw" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/code/loginsystem" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/code/loginsystem/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="programming-cw" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/code/loginsystem" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/code/loginsystem/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.main" />
+      <item itemvalue="Python.GP Test" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -47,7 +158,25 @@
       <option name="presentableId" value="Default" />
       <updated>1608210113514</updated>
     </task>
+    <task id="LOCAL-00001" summary="Added Venv">
+      <created>1608302508961</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1608302508961</updated>
+    </task>
+    <task id="LOCAL-00002" summary="db build script runs on DB initialisation">
+      <created>1608305982245</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1608305982245</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.sql" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -59,19 +188,54 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="Added Venv" />
+    <MESSAGE value="db build script runs on DB initialisation" />
+    <option name="LAST_COMMIT_MESSAGE" value="db build script runs on DB initialisation" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="1223" y="287" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1608302099938">
+    <state x="1223" y="287" width="1071" height="706" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1608313191692">
       <screen x="0" y="25" width="3440" height="1415" />
     </state>
-    <state x="1223" y="287" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.3440.1415@0.25.3440.1415" timestamp="1608302099938" />
+    <state x="1223" y="287" width="1071" height="706" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.3440.1415@0.25.3440.1415" timestamp="1608313191692" />
+    <state x="680" y="527" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1608313022791">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state x="680" y="527" key="#com.intellij.fileTypes.FileTypeChooser/0.25.3440.1415@0.25.3440.1415" timestamp="1608313022791" />
+    <state x="648" y="529" key="FileDocumentManager.FileCacheConflict" timestamp="1608312289376">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state x="648" y="529" key="FileDocumentManager.FileCacheConflict/0.25.3440.1415@0.25.3440.1415" timestamp="1608312289376" />
+    <state width="1811" height="572" key="GridCell.Tab.0.bottom" timestamp="1608313729954">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state width="1811" height="572" key="GridCell.Tab.0.bottom/0.25.3440.1415@0.25.3440.1415" timestamp="1608313729954" />
+    <state width="1811" height="572" key="GridCell.Tab.0.center" timestamp="1608313729953">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state width="1811" height="572" key="GridCell.Tab.0.center/0.25.3440.1415@0.25.3440.1415" timestamp="1608313729953" />
+    <state width="1811" height="572" key="GridCell.Tab.0.left" timestamp="1608313729953">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state width="1811" height="572" key="GridCell.Tab.0.left/0.25.3440.1415@0.25.3440.1415" timestamp="1608313729953" />
+    <state width="1811" height="572" key="GridCell.Tab.0.right" timestamp="1608313729954">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state width="1811" height="572" key="GridCell.Tab.0.right/0.25.3440.1415@0.25.3440.1415" timestamp="1608313729954" />
     <state x="1268" y="264" key="SettingsEditor" timestamp="1608302362343">
       <screen x="0" y="25" width="3440" height="1415" />
     </state>
     <state x="1268" y="264" key="SettingsEditor/0.25.3440.1415@0.25.3440.1415" timestamp="1608302362343" />
-    <state x="1565" y="546" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1608301931705">
+    <state x="550" y="413" key="Vcs.Push.Dialog.v2" timestamp="1608306021934">
       <screen x="0" y="25" width="3440" height="1415" />
     </state>
-    <state x="1565" y="546" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.3440.1415@0.25.3440.1415" timestamp="1608301931705" />
+    <state x="550" y="413" key="Vcs.Push.Dialog.v2/0.25.3440.1415@0.25.3440.1415" timestamp="1608306021934" />
+    <state x="1565" y="546" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1608302425147">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state x="1565" y="546" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.3440.1415@0.25.3440.1415" timestamp="1608302425147" />
   </component>
 </project>

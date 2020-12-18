@@ -28,3 +28,8 @@ class Database:
     def exec(self, query):
         self.c.execute(query)
         self.connection.commit()
+
+    def fetch_data(self, query_string):
+        self.c.execute(query_string)
+        data = self.c.fetchall()
+        return data
