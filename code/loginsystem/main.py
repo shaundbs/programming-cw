@@ -3,6 +3,7 @@ from panel import Panel, Database
 from patients import Patient
 from gp import GP
 from admin import Admin
+from gp_func import gp
 
 # Welcome Page.
 Panel().welcome()
