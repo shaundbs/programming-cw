@@ -7,7 +7,7 @@ class Database:
         self.c = self.connection.cursor()
 
     def patient_email_list(self):
-        self.c.execute("SELECT email FROM Patients")
+        self.c.execute("SELECT email FROM Users WHERE AccountType = 'patient'")
         email_list = []
         for i in self.c.fetchall():
             email_list.append(i[0])

@@ -41,14 +41,14 @@ class Patient:
         hashed = bcrypt.hashpw(pWord, salt)
         a = [(fName, lName, email, hashed), ]
         self.db.exec_many(
-            "INSERT INTO Patients(firstName,lastName,email,password) Values (?,?,?,?)", a)
+            "INSERT INTO Users(firstName,lastName,email,password) Values (?,?,?,?)", a)
 
     def log_in(self):
         email = input('Email:')
         pWord = getpass.getpass('Password:')
         a = (email,)
         self.db.exec_one(
-            "SELECT password, userId, valid_status FROM Patients WHERE email = ?", a)
+            "SELECT password, userId, valid_status FROM Users WHERE email = ?", a)
         record = self.db.c.fetchone()
         pWord = pWord.encode('utf-8')
 
