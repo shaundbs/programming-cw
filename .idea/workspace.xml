@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/admin.py" afterDir="false" />
-    </list>
+    <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,6 +36,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -31,5 +48,30 @@
       <updated>1608210113514</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="1223" y="287" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1608302099938">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state x="1223" y="287" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.3440.1415@0.25.3440.1415" timestamp="1608302099938" />
+    <state x="1268" y="264" key="SettingsEditor" timestamp="1608302362343">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state x="1268" y="264" key="SettingsEditor/0.25.3440.1415@0.25.3440.1415" timestamp="1608302362343" />
+    <state x="1565" y="546" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1608301931705">
+      <screen x="0" y="25" width="3440" height="1415" />
+    </state>
+    <state x="1565" y="546" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.3440.1415@0.25.3440.1415" timestamp="1608301931705" />
   </component>
 </project>
