@@ -20,7 +20,7 @@ while True:
             a = Patient()
             if a.log_in():
                 # Our patient successfully log in(after unlimited tries).
-                print('Log_in Successfull!')
+                print('Log_in Successful!')
                 print(' ')
                 while True:
                     # Our patient is presented with available privileges.
