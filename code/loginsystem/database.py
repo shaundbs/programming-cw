@@ -5,6 +5,10 @@ class Database:
     def __init__(self):
         self.connection = sqlite3.connect('database/ehealth.db')
         self.c = self.connection.cursor()
+        #     run db build on initalisation
+        self.build_script = open('../../ehealth.db.sql', "r").read()
+        self.c.executescript(self.build_script)
+
 
     def patient_email_list(self):
         self.c.execute("SELECT email FROM Users")
