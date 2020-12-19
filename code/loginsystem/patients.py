@@ -1,21 +1,30 @@
 import sqlite3
-# hide password when inputting
+import bcrypt
+import getpass  # hide password when inputting
 from database import Database
 import re
+<<<<<<< HEAD
 import datetime as datetime
+=======
+>>>>>>> parent of 94c19df... Update login system
 
 
 class Patient:
     patient_id = 0
+    login_status = False
+    registration_status = False
 
-    def __init__(self, id):
-        self.patient_id = id
+    def __init__(self):
+        self.db = Database()
 
-    @classmethod
-    def register(cls):
+    def register(self):
         # Register. User input.
         # TODO: data validation.
+<<<<<<< HEAD
         fName = input('First Name:')
+=======
+        fName = input('Fist Name:')
+>>>>>>> parent of 94c19df... Update login system
         lName = input('Last Name:')
 
 
@@ -39,18 +48,29 @@ class Patient:
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(pWord, salt)
+<<<<<<< HEAD
         aType = "patient"
         time_now = datetime.datetime.now()
         date_time = time_now.strftime("%m/%d/%Y %H:%M:%S")
         a = [(fName, lName, email, hashed, aType, date_time, ), ]
         self.db.exec_many(
             "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
+=======
+        a = [(fName, lName, email, hashed), ]
+        self.db.exec_many(
+            "INSERT INTO Patients(firstName,lastName,email,password) Values (?,?,?,?)", a)
+
+>>>>>>> parent of 94c19df... Update login system
     def log_in(self):
         email = input('Email:')
         pWord = getpass.getpass('Password:')
         a = (email,)
         self.db.exec_one(
+<<<<<<< HEAD
             "SELECT password, userId, valid_status FROM Users WHERE email = ?", a)
+=======
+            "SELECT password, userId, valid_status FROM Patients WHERE email = ?", a)
+>>>>>>> parent of 94c19df... Update login system
         record = self.db.c.fetchone()
         pWord = pWord.encode('utf-8')
 
@@ -58,7 +78,11 @@ class Patient:
             print('Sorry, your account does not exist in the system')
             self.log_in()
 
+<<<<<<< HEAD
         elif bcrypt.checkpw(pWord, record[0]):  
+=======
+        elif bcrypt.checkpw(pWord, record[0]):
+>>>>>>> parent of 94c19df... Update login system
             if record[2] == 1:
                 self.patient_id = record[1]
                 self.login_status = True
@@ -74,27 +98,25 @@ class Patient:
     def select_options(self):
         print('1. Request Appointments')
         print('2. View Appointments')
-        print('3. View Prescription')
+        print('3. Cancel Appointments')
         print('4. Log out')
         option = input('Please choose an option: ')
         return option
 
     def request_appointment(self):
-        pass
+        if self.login_status:
+            print("Patient id: " + str(self.patient_id) +
+                  " request appointment\n")
+            return
 
     def view_appointment(self):
-        a = [(self.patient_id), ]
-        db = Database()
-        db.exec_one("SELECT * FROM Appointment WHERE patient_Id = ?", a)
-        result = db.c.fetchall()
-        for i in result:
-            print(i)
+        if self.login_status:
+            print("Patient id: " + str(self.patient_id) +
+                  "want to view appointment\n")
+            return
 
-    def view_prescription(self):
-        print("Patient id: " + str(self.patient_id) +
-              "want to view prescription\n")
-        return
-
-
-if __name__ == "__main__":
-    Patient(1).view_appointment()
+    def cancel_appointment(self):
+        if self.login_status:
+            print("Patient id: " + str(self.patient_id) +
+                  "want to cancel appointment\n")
+            return
