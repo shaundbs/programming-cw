@@ -3,6 +3,8 @@ import sqlite3
 from database import Database
 import re
 import datetime as datetime
+import getpass
+import bcrypt
 
 
 class Patient:
@@ -17,7 +19,7 @@ class Patient:
         # TODO: data validation.
         fName = input('First Name:')
         lName = input('Last Name:')
-
+        db = Database()
 
         email_repetition = True
         email_list = Database().patient_email_list()
@@ -43,33 +45,8 @@ class Patient:
         time_now = datetime.datetime.now()
         date_time = time_now.strftime("%m/%d/%Y %H:%M:%S")
         a = [(fName, lName, email, hashed, aType, date_time, ), ]
-        self.db.exec_many(
+        db.exec_many(
             "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
-    def log_in(self):
-        email = input('Email:')
-        pWord = getpass.getpass('Password:')
-        a = (email,)
-        self.db.exec_one(
-            "SELECT password, userId, valid_status FROM Users WHERE email = ?", a)
-        record = self.db.c.fetchone()
-        pWord = pWord.encode('utf-8')
-
-        if not record:
-            print('Sorry, your account does not exist in the system')
-            self.log_in()
-
-        elif bcrypt.checkpw(pWord, record[0]):  
-            if record[2] == 1:
-                self.patient_id = record[1]
-                self.login_status = True
-                return True
-            else:
-                print('Sorry, your registration is not approved yet.')
-                return False
-
-        else:
-            print('Your password is wrong, Please retry.')
-            self.log_in()
 
     def select_options(self):
         print('1. Request Appointments')
