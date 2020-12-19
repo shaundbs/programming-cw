@@ -75,4 +75,3 @@ class Patient:
 
 if __name__ == "__main__":
     Patient(1).view_appointment()
-    print('a')
