@@ -3,11 +3,11 @@ import sqlite3
 
 class Database:
     def __init__(self):
-        self.connection = sqlite3.connect('../../database/ehealth.db')
+        self.connection = sqlite3.connect('database/ehealth.db')
         self.c = self.connection.cursor()
 
     def patient_email_list(self):
-        self.c.execute("SELECT email FROM Patients")
+        self.c.execute("SELECT email FROM Users")
         email_list = []
         for i in self.c.fetchall():
             email_list.append(i[0])
