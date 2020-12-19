@@ -3,10 +3,12 @@ import bcrypt
 import getpass  # hide password when inputting
 from database import Database
 import re
-<<<<<<< HEAD
 import datetime as datetime
-=======
->>>>>>> parent of 94c19df... Update login system
+
+
+import getpass
+import bcrypt
+
 
 
 class Patient:
@@ -20,13 +22,9 @@ class Patient:
     def register(self):
         # Register. User input.
         # TODO: data validation.
-<<<<<<< HEAD
         fName = input('First Name:')
-=======
-        fName = input('Fist Name:')
->>>>>>> parent of 94c19df... Update login system
         lName = input('Last Name:')
-
+        db = Database()
 
         email_repetition = True
         email_list = Database().patient_email_list()
@@ -48,29 +46,19 @@ class Patient:
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(pWord, salt)
-<<<<<<< HEAD
         aType = "patient"
         time_now = datetime.datetime.now()
         date_time = time_now.strftime("%m/%d/%Y %H:%M:%S")
         a = [(fName, lName, email, hashed, aType, date_time, ), ]
-        self.db.exec_many(
+        db.exec_many(
             "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
-=======
-        a = [(fName, lName, email, hashed), ]
-        self.db.exec_many(
-            "INSERT INTO Patients(firstName,lastName,email,password) Values (?,?,?,?)", a)
 
->>>>>>> parent of 94c19df... Update login system
     def log_in(self):
         email = input('Email:')
         pWord = getpass.getpass('Password:')
         a = (email,)
         self.db.exec_one(
-<<<<<<< HEAD
             "SELECT password, userId, valid_status FROM Users WHERE email = ?", a)
-=======
-            "SELECT password, userId, valid_status FROM Patients WHERE email = ?", a)
->>>>>>> parent of 94c19df... Update login system
         record = self.db.c.fetchone()
         pWord = pWord.encode('utf-8')
 
@@ -78,11 +66,7 @@ class Patient:
             print('Sorry, your account does not exist in the system')
             self.log_in()
 
-<<<<<<< HEAD
-        elif bcrypt.checkpw(pWord, record[0]):  
-=======
         elif bcrypt.checkpw(pWord, record[0]):
->>>>>>> parent of 94c19df... Update login system
             if record[2] == 1:
                 self.patient_id = record[1]
                 self.login_status = True
@@ -94,6 +78,7 @@ class Patient:
         else:
             print('Your password is wrong, Please retry.')
             self.log_in()
+
 
     def select_options(self):
         print('1. Request Appointments')
