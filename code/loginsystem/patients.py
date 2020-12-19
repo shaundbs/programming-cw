@@ -71,7 +71,3 @@ class Patient:
         print("Patient id: " + str(self.patient_id) +
               "want to view prescription\n")
         return
-
-
-if __name__ == "__main__":
-    Patient(1).view_appointment()
