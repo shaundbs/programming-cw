@@ -24,8 +24,7 @@ CREATE TABLE IF NOT EXISTS "Users" (
 );
 
 CREATE TABLE IF NOT EXISTS "Appointment" (
-	"startDate"	TEXT,
-	"endDate"	TEXT,
+	"slot_id" INTEGER,
 	"is_confirmed"	INTEGER DEFAULT 0,
 	"is_rejected"	INTEGER DEFAULT 0,
 	"appointment_id"	INTEGER,
@@ -33,7 +32,8 @@ CREATE TABLE IF NOT EXISTS "Appointment" (
 	"gp_id" INTEGER,
 	PRIMARY KEY("appointment_id" AUTOINCREMENT),
 	FOREIGN KEY("patient_id") REFERENCES Users(UserId),
-	FOREIGN KEY("gp_id") REFERENCES Users(UserId)
+	FOREIGN KEY("gp_id") REFERENCES Users(UserId),
+        FOREIGN KEY("slot_id") REFERENCES slots(slot_id),
 );
 
 CREATE TABLE IF NOT EXISTS "slots" (
