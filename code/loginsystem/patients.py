@@ -1,21 +1,22 @@
 import sqlite3
-import bcrypt
-import getpass  # hide password when inputting
+# hide password when inputting
 from database import Database
 import re
+import bcrypt
+import getpass
 
 
 class Patient:
     patient_id = 0
-    login_status = False
-    registration_status = False
 
-    def __init__(self):
-        self.db = Database()
+    def __init__(self, id):
+        self.patient_id = id
 
-    def register(self):
+    @classmethod
+    def register(cls):
         # Register. User input.
         # TODO: data validation.
+        db = Database()
         fName = input('Fist Name:')
         lName = input('Last Name:')
 
@@ -39,58 +40,34 @@ class Patient:
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(pWord, salt)
-        a = [(fName, lName, email, hashed), ]
-        self.db.exec_many(
-            "INSERT INTO Patients(firstName,lastName,email,password) Values (?,?,?,?)", a)
-
-    def log_in(self):
-        email = input('Email:')
-        pWord = getpass.getpass('Password:')
-        a = (email,)
-        self.db.exec_one(
-            "SELECT password, userId, valid_status FROM Patients WHERE email = ?", a)
-        record = self.db.c.fetchone()
-        pWord = pWord.encode('utf-8')
-
-        if not record:
-            print('Sorry, your account does not exist in the system')
-            self.log_in()
-
-        elif bcrypt.checkpw(pWord, record[0]):
-            if record[2] == 1:
-                self.patient_id = record[1]
-                self.login_status = True
-                return True
-            else:
-                print('Sorry, your registration is not approved yet.')
-                return False
-
-        else:
-            print('Your password is wrong, Please retry.')
-            self.log_in()
+        a = [(fName, lName, email, hashed, 'patient'), ]
+        db.exec_many(
+            "INSERT INTO Users(firstName,lastName,email,password,accountType) Values (?,?,?,?,?)", a)
 
     def select_options(self):
         print('1. Request Appointments')
         print('2. View Appointments')
-        print('3. Cancel Appointments')
+        print('3. View Prescription')
         print('4. Log out')
         option = input('Please choose an option: ')
         return option
 
     def request_appointment(self):
-        if self.login_status:
-            print("Patient id: " + str(self.patient_id) +
-                  " request appointment\n")
-            return
+        pass
 
     def view_appointment(self):
-        if self.login_status:
-            print("Patient id: " + str(self.patient_id) +
-                  "want to view appointment\n")
-            return
+        a = [(self.patient_id), ]
+        db = Database()
+        db.exec_one("SELECT * FROM Appointment WHERE patient_Id = ?", a)
+        result = db.c.fetchall()
+        for i in result:
+            print(i)
 
-    def cancel_appointment(self):
-        if self.login_status:
-            print("Patient id: " + str(self.patient_id) +
-                  "want to cancel appointment\n")
-            return
+    def view_prescription(self):
+        print("Patient id: " + str(self.patient_id) +
+              "want to view prescription\n")
+        return
+
+
+if __name__ == "__main__":
+    Patient(1).view_appointment()
