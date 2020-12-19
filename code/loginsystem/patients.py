@@ -1,6 +1,5 @@
 import sqlite3
-import bcrypt
-import getpass  # hide password when inputting
+# hide password when inputting
 from database import Database
 import re
 import datetime as datetime
@@ -8,13 +7,12 @@ import datetime as datetime
 
 class Patient:
     patient_id = 0
-    login_status = False
-    registration_status = False
 
-    def __init__(self):
-        self.db = Database()
+    def __init__(self, id):
+        self.patient_id = id
 
-    def register(self):
+    @classmethod
+    def register(cls):
         # Register. User input.
         # TODO: data validation.
         fName = input('First Name:')
@@ -76,25 +74,27 @@ class Patient:
     def select_options(self):
         print('1. Request Appointments')
         print('2. View Appointments')
-        print('3. Cancel Appointments')
+        print('3. View Prescription')
         print('4. Log out')
         option = input('Please choose an option: ')
         return option
 
     def request_appointment(self):
-        if self.login_status:
-            print("Patient id: " + str(self.patient_id) +
-                  " request appointment\n")
-            return
+        pass
 
     def view_appointment(self):
-        if self.login_status:
-            print("Patient id: " + str(self.patient_id) +
-                  "want to view appointment\n")
-            return
+        a = [(self.patient_id), ]
+        db = Database()
+        db.exec_one("SELECT * FROM Appointment WHERE patient_Id = ?", a)
+        result = db.c.fetchall()
+        for i in result:
+            print(i)
 
-    def cancel_appointment(self):
-        if self.login_status:
-            print("Patient id: " + str(self.patient_id) +
-                  "want to cancel appointment\n")
-            return
+    def view_prescription(self):
+        print("Patient id: " + str(self.patient_id) +
+              "want to view prescription\n")
+        return
+
+
+if __name__ == "__main__":
+    Patient(1).view_appointment()
