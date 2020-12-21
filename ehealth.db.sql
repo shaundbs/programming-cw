@@ -1,5 +1,5 @@
 BEGIN TRANSACTION;
-
+--
 --DROP TABLE IF EXISTS USERS;
 --DROP TABLE IF EXISTS APPOINTMENT;
 --DROP TABLE IF EXISTS DEPARTMENT;
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS "Users" (
 	"is_active"	INTEGER,
 	"signUpDate" TEXT DEFAULT CURRENT_TIMESTAMP,
 	"userId"	INTEGER,
-	PRIMARY KEY("userId")
+	PRIMARY KEY("userId" AUTOINCREMENT)
 	-- UNIQUE("email") ?? 
 );
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS "Appointment" (
 	PRIMARY KEY("appointment_id" AUTOINCREMENT),
 	FOREIGN KEY("patient_id") REFERENCES Users(UserId),
 	FOREIGN KEY("gp_id") REFERENCES Users(UserId),
-        FOREIGN KEY("slot_id") REFERENCES slots(slot_id),
+    FOREIGN KEY("slot_id") REFERENCES slots(slot_id)
 );
 
 CREATE TABLE IF NOT EXISTS "slots" (
@@ -101,4 +101,7 @@ CREATE TABLE IF NOT EXISTS "Specialists" (
 -- INSERT INTO "Users" VALUES ('ya','zo','$2b$12$3qowQC3i9II7EMCkxKntCONOjLGKMITiEaCZlMXd3EpLYIF/HbETm',15,'2284@qq.com',0);
 -- INSERT INTO "Users" VALUES ('uu','aa','$2b$12$xmlFCtlvzVZhyh.le63zX.Gr6uhMAxrXyfA3qupH5tRdid.PgTaCC',16,'2285@qq.com',0);
 -- INSERT INTO "Users" VALUES ('nh','ya','$2b$12$lztUEfcj1NWlydnJEL9RYe14kaPleanTkpiQ2I0tjNYE40.c6Xvqi',17,'2886@qq.com',1);
+
+--INSERT INTO USERS(FIRSTNAME, LASTNAME, EMAIL, PASSWORD, ACCOUNTTYPE) VALUES ('Qasim', 'Razvi', 'qr@test.com','$2b$12$oAJxmL.Pa9Y7.U20pvqZ2ef65.8ls3.9U/S2EhZO7ewFo7mHUSihu', 'gp');
+
 COMMIT;

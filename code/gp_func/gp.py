@@ -5,7 +5,6 @@ import cli_ui as ui
 
 class Gp:
 
-
     def __init__(self, user_id):
         # Create object from userId object from DB
         self.user_id = user_id
@@ -28,9 +27,6 @@ class Gp:
     def print_welcome(self):
         print("Hi Dr", self.firstname, self.lastname)
 
-
     def main_options(self):
         selected = ui.ask_choice("choose an option", choices=self.states, sort=False)
         print(selected)
-
-

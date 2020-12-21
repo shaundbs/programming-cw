@@ -1,9 +1,9 @@
 import sqlite3
-from panel import Panel, Database
+from panel import Panel
 from patients import Patient
-from gp import GP
+# from gp import GP
 from admin import Admin
-from gp_func import gp
+from gp_func import Gp
 
 # Welcome Page.
 Panel().welcome()
@@ -14,7 +14,14 @@ while True:
     if option == "1":
         # Our patient want to log into the system.
         result = Panel().login()
-        if result:
+        print(result)
+
+        if result[0] == 'gp':
+            user = Gp(result[1])
+            user.print_welcome()
+            user.main_options() # call initial function for main menu state to begin state management.
+
+        elif result[0] == 'patient':
             # Our patient successfully log in(after unlimited tries).
             print('Log_in Successfull!')
             print(' ')
