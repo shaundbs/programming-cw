@@ -53,5 +53,6 @@ class Panel:
         option = input("Enter your option : ")
         return option
 
+
     def password_checker(self, pw):
         pass

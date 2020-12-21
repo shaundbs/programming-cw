@@ -23,7 +23,9 @@ while True:
                 privilege = a.select_options()
                 # TODO: design the privileges.
                 if privilege == '1':
-                    a.request_appointment()
+                    booked_slot = a.request_time()
+                    if booked_slot < '0':
+                        a.request_appointment()
                 elif privilege == '2':
                     a.view_appointment()
                 elif privilege == '3':
@@ -32,6 +34,7 @@ while True:
                     break
                 else:
                     print("Wrong input. Please try again.")
+
     elif option == "2":
         # Patient Register.
         Patient.register()
@@ -39,5 +42,3 @@ while True:
         break
     else:
         print('Wrong input. Please try again.')
-
-# asdasdasdasasasd
