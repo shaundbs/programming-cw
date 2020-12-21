@@ -13,6 +13,12 @@ class Database:
             email_list.append(i[0])
         return email_list
 
+    def delete_appointment(self, appointmentNo):
+        a = [(appointmentNo), ]
+        self.c.execute(
+            "DELETE FROM Appointment WHERE appointment_id = ?", a)
+        self.connection.commit()
+
     def exec_many(self, query, obj):
         self.c.executemany(query, obj)
         self.connection.commit()
