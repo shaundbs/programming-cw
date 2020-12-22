@@ -11,9 +11,9 @@ if __name__ == '__main__':
 
     user.print_welcome()
 
-print(user.state)
+# print(user.state)
 
-user.to_main_options() #initialise main options state
+
 
 
 # user.to_confirm_appts()

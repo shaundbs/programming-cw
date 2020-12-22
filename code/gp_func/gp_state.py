@@ -1,26 +1,7 @@
-# GP state management module. Specify states and their characteristics.
-
-"""
-We need to have a graph/tree of states.
-At each state the options presented top the user will be the children of the current state node.
-The back option will be to the parent node.
-
-Given a graph of major states we need to be able to:
-show child nodes of current state + parent node - function
-show parent node of current state (back button) - function
-
-each state also needs it's own function to control flow etc
-
-Flow:
-app has state
-state has options
-from option selected we move to that state. (to_{state} method)
-each state has it's own function to control flow, auto triggered on_enter of that state. auto function name = trim(state name) replace ' ' with _
-"""
-
 from transitions import State, Machine
+from collections import deque
 
-# state dictionary to map out possible routes from each state/node
+# state dictionary/graph to map out possible routes from each state/node
 
 states = {
     "main options": ["manage calendar", "confirm appointments", "view appointments"],
@@ -38,13 +19,22 @@ states = {
 
 
 class StateGenerator(Machine):
-    """ Take dictionary of state and generate state functions + transitions.
-     Each state node will be generated into a State object.
-     Each state object will have on_enter function generate with spaces replaced with underscores.
-     This function can then be defined within the model passed to the state machine."""
+    """ Take dictionary of state and an object (that will have states applied) to generate state machine with
+    functions + transitions. Each state node (dictionary key) will be generated into a State object. Each state
+    object will have a function generated with spaces in the state name replaced with underscores. This function can
+    then be defined within the model passed to the state machine and will be automatically triggered when that state
+    is entered.
+    Example:
+        dictionary key = "main options"
+        function that can be defined within object/model -> main_options
+    (this will be auto triggered if "main options" state entered)
+
+        """
 
     def __init__(self, state_dict, state_object, initial_state='initial'):
         """
+        :type state_dict: dict
+        :type state_object: object
         :param state_dict: key value dictionary where key = state and value = children of the state
         :param state_object: The object whose state we want to manage.
         :param initial_state: inital state of the object from the state_dict provided.
@@ -53,6 +43,7 @@ class StateGenerator(Machine):
         self.state_object = state_object
         super().__init__(state_object, states=self.state_object_list(), initial=initial_state)
         self.__add_auto_transitions()
+        self.prev_states = deque()
 
     def state_object_list(self):
         """ for each dictionary key generate list of objects of the state class with an on_enter function. [ State(
@@ -86,7 +77,55 @@ class StateGenerator(Machine):
             method = "to_" + a_state.lower().strip().replace(" ", "_")
             self.add_transition(method, self.wildcard_all, a_state)
 
-    # def get_state_transition
+    def change_state(self, state_name):
+        """
+        Changes an instances state directly with state name as input. Invokes the to_<state> method.
+        :param state_name: State to be changed to - key in the state dictionary.
+        :return: True on success changed state.
+        """
+        # from state name find the correct event handler method to trigger state change
+        new_state_method = "to_" + state_name.lower().strip().replace(" ", "_")
+        try:
+            if super()._get_trigger(self.state_object, new_state_method):
+                self._store_state(state_name)
+                return True
+        except AttributeError as err:
+            print(str(err) + ": state not found.")
+
+    def _store_state(self, state_trigger_method):
+        """Stack implementation to store state methods called
+        :param state_trigger_method: to_<state> method name
+        """
+        self.prev_states.appendleft(state_trigger_method)
+
+    def clear_prev_states(self):
+        """ Clear the stack that stores prev states. e.g. if the state goes back to the main state or a high level
+        parent node, we may wish to remove what's in the stack to restart. """
+        self.prev_states.clear()
+
+    def call_prev_state(self):
+        """
+        Go back to the previous state of the state machine.
+        :return:
+        """
+        # need to popleft 2, to get prev state. This will then be replaced on stack as when we call change_state method.
+        self.prev_states.popleft()
+        prev_state = self.prev_states.popleft()
+        self.change_state(prev_state)
+
+    def call_parent_state(self, state_name='current_state'):
+        """
+        Go to state of parent for a given state. if no state specified, defaults to current state.
+        :param state_name: defaults to current state of object if not specified.
+        :return: True on successful state change.
+        """
+        # Just in case this is needed, to find the parent state of a child. Although this is not intended to be used
+        # frequently. If a child has multiple parents this will only return the first parent found.
+        if state_name == 'current_state':
+            state_name = self.state_object.state
+        for key, value in self.state_dict.items():
+            if state_name in value:
+                return self.change_state(key)
 
     @classmethod
     def create_state_machine(cls, state_dict, state_object):
@@ -97,57 +136,3 @@ class StateGenerator(Machine):
         """
         assert isinstance(state_object, object)
         return cls(state_dict, state_object)
-
-
-class MyClass:
-    def main_options(self):
-        print("hello")
-
-    def manage_calendar(self):
-        print("calendar entered!!!")
-
-    # def on_enter_mainoptions(self):
-    #     print("in state MAIN OPTIONS!!!")
-
-
-# test_class = MyClass()
-#
-# test1 = StateGenerator(state_dict=states, state_object=test_class)
-#
-# test.set_state("main options")
-#  # why on enter is it not executing the function in MYClass - ok works only when the object has been instantiated!!
-#
-# print(test_class.state)
-# # print(test_class.main_options())
-#
-# print(test.state_object_list())
-#
-# print(test.get_state_options())
-#
-# test.set_state("manage calendar")
-#
-# print(test_class.state)
-
-# test1 = Machine(test_class, states=[State(name="mainoptions",on_enter="main_options"), "manage calendar"])
-
-# test1.on_enter_mainoptions('main_options')
-
-# print(test_class.state)
-#
-# # print(test1.set_state("main options"))
-#
-# print(test_class.state)
-#
-# test_class.to_main_options()
-
-# print(test1.events)
-#
-# test1._add_auto_transitions()
-#
-# print(test1.events)
-
-
-# Generate state machine.
-# Should be able to:
-# keep track of previous state via linked list?
-# take in dict, create transitions for each state via graph.

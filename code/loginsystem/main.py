@@ -19,7 +19,7 @@ while True:
         if result[0] == 'gp':
             user = Gp(result[1])
             user.print_welcome()
-            user.main_options() # call initial function for main menu state to begin state management.
+            user.to_main_options() # call initial function for main menu state to begin state management.
 
         elif result[0] == 'patient':
             # Our patient successfully log in(after unlimited tries).
