@@ -13,7 +13,8 @@ if __name__ == '__main__':
 
 print(user.state)
 
-user.main_options()
+user.to_main_options() #initialise main options state
+
 
 # user.to_confirm_appts()
 
