@@ -67,60 +67,32 @@ class Patient:
             else:
                 print("Wrong input. Please try again.")
 
-    def request_time(self):
-        time_now = datetime.datetime.now()
-        year_now = datetime.datetime.date(time_now).strftime("%Y")
-        month_now = datetime.datetime.date(time_now).strftime("%m")
-        day_now = datetime.datetime.date(time_now).strftime("%d")
-        c = calendar.TextCalendar(calendar.MONDAY)
-        year_input, month_input, day_input = int(year_now), int(month_now), int(day_now)
-        calendar_month = c.formatmonth(year_input, month_input, day_input, 0)
-        print(calendar_month)
-        db = Database()
 
-        # improve this by making  code subjective by month
-
-        select_date = input(
-            "Please enter a day (or enter 'N' or 'n' if you would like to book a date for next month): ")
-
-        try:
-            select_date = int(select_date)
-            # print and out time slot options and booking is inputted into the database
-            if 1 <= select_date <= 31:
-                print("Please select an appointment time: ")
-                print("1. 09:00-10:00")
-                print("2. 10:00-11:00")
-                print("3. 11:00-12:00")
-                print("4. 12:00-13:00")
-                print("5. 13:00-14:00")
-                print("6. 14:00-15:00")
-                print("7. 15:00-16:00")
-                print("8. 16:00-17:00")
-                booked_slot = str(input("Enter your option : "))
-                print(booked_slot)
-                a = [(self.patient_id, booked_slot,), ]
-                db.exec_many(
-                    "INSERT INTO Appointment(patient_id,slot_id) Values (?,?)", a)
-                print("SUCCESS - You have successfully requested an appointments with one of our GP's, \n"
-                      " You will be alerted once your appointment is confirmed")
-        except ValueError:
+    def request_appointment(self):
+        print("1. Book an appointment this month \n"
+              "2. Book an appointment next month \n")
+        menu_choice = input("Please enter an option: ")
+        if menu_choice == '2':
+            this_m = datetime.datetime.today()
+            one_month = datetime.timedelta(1 * 365 / 12)
+            next_m = this_m + one_month
+            year_nm = datetime.datetime.date(next_m).strftime("%Y")
+            month_nm = datetime.datetime.date(next_m).strftime("%m")
+            day_nm = datetime.datetime.date(next_m).strftime("%d")
+            c = calendar.TextCalendar(calendar.MONDAY)
+            year_input, month_input, day_input = int(year_nm), int(month_nm), int(day_nm)
+            calendar_month = c.formatmonth(year_input, month_input, day_input, 0)
+            print(calendar_month)
+            db = Database()
             try:
-                if select_date == 'N' or 'n':
-                    this_month = datetime.datetime.today()
-                    one_month = datetime.timedelta(1 * 365 / 12)
-                    next_month = this_month + one_month
-                    year_nm = datetime.datetime.date(next_month).strftime("%Y")
-                    month_nm = datetime.datetime.date(next_month).strftime("%m")
-                    day_nm = datetime.datetime.date(next_month).strftime("%d")
-                    c = calendar.TextCalendar(calendar.MONDAY)
-                    year_input, month_input, day_input = int(year_nm), int(month_nm), int(day_nm)
-                    calendar_month = c.formatmonth(year_input, month_input, day_input, 0)
-                    print(calendar_month)
+                while True:
                     select_date = input(
-                        "Please enter a day (or enter 'N' if you would like to book a date for next month): ")
+                        "Please enter a valid date in YYYY-MM-DD format between now and the close of next month: ")
                     try:
-                        select_date = int(select_date)
-                        if 1 <= select_date <= 31:
+                        if datetime.datetime.now().date() < datetime.datetime.strptime(select_date, '%Y-%m-%d').date() \
+                                < datetime.datetime.now().date() + one_month:
+                            datetime.datetime.strptime(select_date, '%Y-%m-%d')
+                            print('The date {} is valid.'.format(select_date))
                             print("Please select an appointment time: ")
                             print("1. 09:00-10:00")
                             print("2. 10:00-11:00")
@@ -130,46 +102,90 @@ class Patient:
                             print("6. 14:00-15:00")
                             print("7. 15:00-16:00")
                             print("8. 16:00-17:00")
-                            booked_slot = str(input("Enter your option : "))
+                            booked_slot = int(input("Enter your option : "))
                             print(booked_slot)
-                            a = [(self.patient_id, booked_slot,), ]
+                            a = [(self.patient_id, booked_slot,select_date,), ]
                             db.exec_many(
-                                "INSERT INTO Appointment(patient_id,slot_id) Values (?,?)", a)
+                                "INSERT INTO Appointment(patient_id,slot_id,date) Values (?,?,?)", a)
                             print("SUCCESS - You have successfully requested an appointments with one of our GP's, \n"
                                   " You will be alerted once your appointment is confirmed")
+                            if 1 <= booked_slot <= 8:
+                                print(
+                                    "SUCCESS - You have successfully requested an appointments with one of our GP's, \n"
+                                    " You will be alerted once your appointment is confirmed")
+                                break
+                            else:
+                                print("This value is not accepted please enter a number between 1-8")
+                            continue
+                        else:
+                            print("Please select a valid date")
+                            continue
                     except ValueError:
-                        print("This input is not accepted - please try again with an integer")
-                else:
-                    print("This input is not accepted - please try again with an integer")
+                        print("This value is not accepted. Please enter a date in YYYY-MM-DD format:")
             except ValueError:
-                print("Not accepted")
+                print("No idea")
+        elif menu_choice == '1':
+            time_now = datetime.datetime.now()
+            year_now = datetime.datetime.date(time_now).strftime("%Y")
+            month_now = datetime.datetime.date(time_now).strftime("%m")
+            day_now = datetime.datetime.date(time_now).strftime("%d")
+            one_month = datetime.timedelta(1 * 365 / 12)
+            c = calendar.TextCalendar(calendar.MONDAY)
+            year_input, month_input, day_input = int(year_now), int(month_now), int(day_now)
+            calendar_month = c.formatmonth(year_input, month_input, day_input, 0)
+            print(calendar_month)
+            db = Database()
+            try:
+                while True:
+                    select_date = input(
+                        "Please enter a valid date in YYYY-MM-DD format between now and the close of the month: ")
+                    try:
+                        if datetime.datetime.now().date() < datetime.datetime.strptime(select_date, '%Y-%m-%d').date() \
+                                < datetime.datetime.now().date() + one_month:
+                            datetime.datetime.strptime(select_date, '%Y-%m-%d')
+                            print('The date {} is valid.'.format(select_date))
+                            print("Please select an appointment time: ")
+                            print("1. 09:00-10:00")
+                            print("2. 10:00-11:00")
+                            print("3. 11:00-12:00")
+                            print("4. 12:00-13:00")
+                            print("5. 13:00-14:00")
+                            print("6. 14:00-15:00")
+                            print("7. 15:00-16:00")
+                            print("8. 16:00-17:00")
+                            booked_slot = int(input("Enter your option : "))
+                            print(booked_slot)
+                            if 1 <= booked_slot <= 8:
+                                print(
+                                    "SUCCESS - You have successfully requested an appointments with one of our GP's, \n"
+                                    " You will be alerted once your appointment is confirmed")
+                                a = [(self.patient_id, booked_slot,select_date,), ]
+                                db.exec_many(
+                                    "INSERT INTO Appointment(patient_id,slot_id,date) Values (?,?,?)", a)
+                                print("SUCCESS - "
+                                      "You have successfully requested an appointments with one of our GP's, \n"
+                                      " You will be alerted once your appointment is confirmed")
+                                break
+                            else:
+                                print("This value is not accepted please enter a number between 1-8")
+                            continue
+                        else:
+                            print("Please select a valid date (from today up until the end of next month)")
+                            continue
+                    except ValueError:
+                        print("This value is not accepted. Please enter a date in YYYY-MM-DD format:")
+            except ValueError:
+                print("No idea")
+        else:
+            raise ValueError
 
-    # print array of time slots
+        # improve this by making options subjective by month and adding gp conditional booking
+        # weekend/bank holiday conditionals
+        # clean up and improve error messages
+        # fix timeslot loop so that it goes back to the timeslots instead of calendar
 
-    # if 1 <= select_date <= 31:
-    #     start_time = '9:00'
-    #     end_time = '17:00'
-    #     slot_time = 60
-    #
-    #     # Start date from today to next 5 day
-    #     start_date = datetime.datetime.now().date()
-    #     end_date = datetime.datetime.now().date() + datetime.timedelta(days=0)
-    #     days = []
-    #     date = start_date
-    #     while date <= end_date:
-    #         hours = []
-    #         time = datetime.datetime.strptime(start_time, '%H:%M')
-    #         end = datetime.datetime.strptime(end_time, '%H:%M')
-    #         while time <= end:
-    #             hours.append(time.strftime("%H:%M"))
-    #             time += datetime.timedelta(minutes=slot_time)
-    #         date += datetime.timedelta(days=1)
-    #         days.append(hours)
-    #
-    #     for hours in days:
-    #         print(hours)
 
-    def request_appointment(self):
+    def confirm_appointment(self):
         if self.request_time() == '1':
             print("Well done Shaun, you have successfully booked an appointment!")
         else:
