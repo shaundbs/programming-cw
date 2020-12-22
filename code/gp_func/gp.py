@@ -1,6 +1,22 @@
-from gp_state import StateGenerator, states
+from state_manager import StateGenerator
 from loginsystem import database as db
 import cli_ui as ui
+
+# state dictionary/graph to map out possible routes from each state/node
+
+states = {
+    "main options": ["manage calendar", "confirm appointments", "view appointments"],
+    # Calendar / holiday
+    "manage calendar": ["view calendar", "schedule time off"],
+    "view calendar": [],
+    "schedule time off": [],
+    # confirm appts
+    "confirm appointments": [],
+    # view appts
+    "view appointments": ["show appointments from another day", "show appointment details"],
+    "show appointments from another day": [],
+    "show appointment details": ["write prescriptions"]
+}
 
 
 class Gp:
@@ -15,16 +31,15 @@ class Gp:
         result = self.db.fetch_data(details_query)
         self.firstname, self.lastname = result[0][0].capitalize(), result[0][1].capitalize()
 
-
         # initialise state machine
         self.state_gen = StateGenerator(state_dict=states, state_object=self)
-        self.state_gen.change_state("main options") # initialise main options state
+        self.state_gen.change_state("main options")  # initialise main options state
 
     def print_welcome(self):
         print("Hi Dr", self.firstname, self.lastname)
 
     def main_options(self):
-        self.print_welcome() # say hi to the Dr.
+        self.print_welcome()  # say hi to the Dr.
 
         selected = ui.ask_choice("choose an option", choices=self.state_gen.get_state_options(), sort=False)
         print(selected + "------>")
@@ -52,4 +67,3 @@ class Gp:
 
     def confirm_appointments(self):
         pass
-

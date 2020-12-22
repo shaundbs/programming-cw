@@ -9,7 +9,7 @@ if __name__ == '__main__':
 
     user = Gp(user_id[0][0])
 
-    user.print_welcome()
+    # user.print_welcome()
 
 # print(user.state)
 
@@ -18,5 +18,5 @@ if __name__ == '__main__':
 
 # user.to_confirm_appts()
 
-print(user.state)
+# print(user.state)
 

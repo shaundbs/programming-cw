@@ -1,22 +1,6 @@
 from transitions import State, Machine
 from collections import deque
 
-# state dictionary/graph to map out possible routes from each state/node
-
-states = {
-    "main options": ["manage calendar", "confirm appointments", "view appointments"],
-    # Calendar / holiday
-    "manage calendar": ["view calendar", "schedule time off"],
-    "view calendar": [],
-    "schedule time off": [],
-    # confirm appts
-    "confirm appointments": [],
-    # view appts
-    "view appointments": ["show appointments from another day", "show appointment details"],
-    "show appointments from another day": [],
-    "show appointment details": ["write prescriptions"]
-}
-
 
 class StateGenerator(Machine):
     """ Take dictionary of state and an object (that will have states applied) to generate state machine with
