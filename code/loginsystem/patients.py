@@ -45,6 +45,9 @@ class Patient:
         aType = "patient"
         time_now = datetime.datetime.now()
         date_time = time_now.strftime("%m/%d/%Y %H:%M:%S")
+        a = [(fName, lName, email, hashed, aType, date_time,), ]
+        db.exec_many(
+            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
 
     def select_options(self):
         while True:
