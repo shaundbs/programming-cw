@@ -25,7 +25,7 @@ class Patient:
         email_list = Database().patient_email_list()
 
         while email_repetition:
-            regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+            regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
             email = input('Email:')
             if not re.search(regex, email):
                 print("Invalid Email. Please try again.")
@@ -149,3 +149,7 @@ class Patient:
         print("Patient id: " + str(self.patient_id) +
               "want to view prescription\n")
         return
+
+
+# if __name__ == "__main__":
+#     Patient(4).register()
