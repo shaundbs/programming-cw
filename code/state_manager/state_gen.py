@@ -13,6 +13,14 @@ class StateGenerator(Machine):
         function that can be defined within object/model -> main_options
     (this will be auto triggered if "main options" state entered)
 
+    After state is being tracked on the state object/model, you can manage state with the following functions via
+    this State Generator object:
+    - get child nodes of current state node: .get_state_options
+    - change state by passing in desired destination state: .change_state
+    - go back to the previous state: .call_prev_state
+    - go to parent state: .call_parent_state
+    - clear the stack which records state change history: clear_prev_states
+
         """
 
     def __init__(self, state_dict, state_object, initial_state='initial'):
@@ -21,7 +29,7 @@ class StateGenerator(Machine):
         :type state_object: object
         :param state_dict: key value dictionary where key = state and value = children of the state
         :param state_object: The object whose state we want to manage.
-        :param initial_state: inital state of the object from the state_dict provided.
+        :param initial_state: initial state of the object from the state_dict provided.
         """
         self.state_dict = state_dict
         self.state_object = state_object
@@ -57,7 +65,7 @@ class StateGenerator(Machine):
         <state> being replaced by underscores.
         """
         for a_state in self.states.keys():
-            # add all states as sources to auto transitions 'to_<state>' with dest <state>
+            # add all states as sources to auto transitions 'to_<state>' with destination <state>
             method = "to_" + a_state.lower().strip().replace(" ", "_")
             self.add_transition(method, self.wildcard_all, a_state)
 
