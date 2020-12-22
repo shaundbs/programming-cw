@@ -54,7 +54,7 @@ class Patient:
             print('4. Log out')
             option = input('Please choose an option: ')
             if option == '1':
-                self.request_appointment()
+                self.request_time()
             elif option == '2':
                 self.view_appointment()
             elif option == '3':
@@ -73,25 +73,112 @@ class Patient:
         year_input, month_input, day_input = int(year_now), int(month_now), int(day_now)
         calendar_month = c.formatmonth(year_input, month_input, day_input, 0)
         print(calendar_month)
-        select_date = int(input("Please enter a day: "))
-        print(select_date)
-        print("Please select an appointment time: ")
-        print("1. 09:00-10:00")
-        print("2. 10:00-11:00")
-        print("3. 11:00-12:00")
-        print("4. 12:00-13:00")
-        print("5. 13:00-14:00")
-        print("6. 14:00-15:00")
-        print("7. 15:00-16:00")
-        print("8. 16:00-17:00")
-        booked_slot = input("Enter your option : ")
-        return booked_slot
+        db = Database()
+
+        # improve this by making  code subjective by month
+
+        select_date = input(
+            "Please enter a day (or enter 'N' or 'n' if you would like to book a date for next month): ")
+
+        try:
+            select_date = int(select_date)
+            # print and out time slot options and booking is inputted into the database
+            if 1 <= select_date <= 31:
+                print("Please select an appointment time: ")
+                print("1. 09:00-10:00")
+                print("2. 10:00-11:00")
+                print("3. 11:00-12:00")
+                print("4. 12:00-13:00")
+                print("5. 13:00-14:00")
+                print("6. 14:00-15:00")
+                print("7. 15:00-16:00")
+                print("8. 16:00-17:00")
+                booked_slot = str(input("Enter your option : "))
+                print(booked_slot)
+                a = [(self.patient_id, booked_slot,), ]
+                db.exec_many(
+                    "INSERT INTO Appointment(patient_id,slot_id) Values (?,?)", a)
+                print("SUCCESS - You have successfully requested an appointments with one of our GP's, \n"
+                      " You will be alerted once your appointment is confirmed")
+        except ValueError:
+            try:
+                if select_date == 'N' or 'n':
+                    this_month = datetime.datetime.today()
+                    one_month = datetime.timedelta(1 * 365 / 12)
+                    next_month = this_month + one_month
+                    year_nm = datetime.datetime.date(next_month).strftime("%Y")
+                    month_nm = datetime.datetime.date(next_month).strftime("%m")
+                    day_nm = datetime.datetime.date(next_month).strftime("%d")
+                    c = calendar.TextCalendar(calendar.MONDAY)
+                    year_input, month_input, day_input = int(year_nm), int(month_nm), int(day_nm)
+                    calendar_month = c.formatmonth(year_input, month_input, day_input, 0)
+                    print(calendar_month)
+                    select_date = input(
+                        "Please enter a day (or enter 'N' if you would like to book a date for next month): ")
+                    try:
+                        select_date = int(select_date)
+                        if 1 <= select_date <= 31:
+                            print("Please select an appointment time: ")
+                            print("1. 09:00-10:00")
+                            print("2. 10:00-11:00")
+                            print("3. 11:00-12:00")
+                            print("4. 12:00-13:00")
+                            print("5. 13:00-14:00")
+                            print("6. 14:00-15:00")
+                            print("7. 15:00-16:00")
+                            print("8. 16:00-17:00")
+                            booked_slot = str(input("Enter your option : "))
+                            print(booked_slot)
+                            a = [(self.patient_id, booked_slot,), ]
+                            db.exec_many(
+                                "INSERT INTO Appointment(patient_id,slot_id) Values (?,?)", a)
+                            print("SUCCESS - You have successfully requested an appointments with one of our GP's, \n"
+                                  " You will be alerted once your appointment is confirmed")
+                    except ValueError:
+                        print("This input is not accepted - please try again with an integer")
+                else:
+                    print("This input is not accepted - please try again with an integer")
+            except ValueError:
+                print("Not accepted")
+
+    # print array of time slots
+
+    # if 1 <= select_date <= 31:
+    #     start_time = '9:00'
+    #     end_time = '17:00'
+    #     slot_time = 60
+    #
+    #     # Start date from today to next 5 day
+    #     start_date = datetime.datetime.now().date()
+    #     end_date = datetime.datetime.now().date() + datetime.timedelta(days=0)
+    #     days = []
+    #     date = start_date
+    #     while date <= end_date:
+    #         hours = []
+    #         time = datetime.datetime.strptime(start_time, '%H:%M')
+    #         end = datetime.datetime.strptime(end_time, '%H:%M')
+    #         while time <= end:
+    #             hours.append(time.strftime("%H:%M"))
+    #             time += datetime.timedelta(minutes=slot_time)
+    #         date += datetime.timedelta(days=1)
+    #         days.append(hours)
+    #
+    #     for hours in days:
+    #         print(hours)
+
+    def request_appointment(self):
+        if self.request_time() == '1':
+            print("Well done Shaun, you have successfully booked an appointment!")
+        else:
+            print("Failure")
 
     def view_appointment(self):
         a = [(self.patient_id), ]
         db = Database()
         while True:
-            db.exec_one("SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime", a)
+            db.exec_one(
+                "SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime",
+                a)
             self.appointmentList = []
             result = db.c.fetchall()
             for i in result:
@@ -115,7 +202,7 @@ class Patient:
             if option == num:
                 break
             elif option in range(1, num):
-                self.appointment_options(self.appointmentList[option-1])
+                self.appointment_options(self.appointmentList[option - 1])
 
     def appointment_options(self, appointmentData):
         # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
@@ -127,11 +214,13 @@ class Patient:
                     break
 
         elif appointmentData[-2] == 0:
-            print("\nThis appointment is confired.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
+            print(
+                "\nThis appointment is confired.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
             self.appointment_options_select(appointmentData[0])
 
         elif appointmentData[-1] == 0:
-            print("\nThis appointment is rejected.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
+            print(
+                "\nThis appointment is rejected.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
             self.appointment_options_select(appointmentData[0])
 
     def appointment_options_select(self, appointmentId):
