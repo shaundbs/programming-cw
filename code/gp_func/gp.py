@@ -2,6 +2,9 @@ from state_manager import StateGenerator
 import gp_database as db
 import cli_ui as ui
 import gp_utilities as util
+from rich.console import Console
+
+console = Console()
 
 # state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.
@@ -79,8 +82,7 @@ class Gp:
         # show requested appt booking for GP
         query = f"SELECT SLOT_ID, APPOINTMENT_ID, PATIENT_ID FROM APPOINTMENT WHERE IS_CONFIRMED = 0 AND IS_REJECTED = 0 AND GP_ID = {self.user_id}"
         res = self.db.fetch_data(query)
-        print(res)
-        util.output_sql_rows(res,0,0)
+        print(util.output_sql_rows(res, ["slot_id", "appointment_id"]))
 
 
         # accept all

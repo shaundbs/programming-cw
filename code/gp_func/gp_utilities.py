@@ -1,6 +1,7 @@
 from pick import pick
 import cli_ui as ui
-
+# from rich.table import Table
+from terminaltables import AsciiTable as table
 
 # utility functions for the GP flow
 
@@ -15,5 +16,19 @@ def user_select(title: str, choices: list):
         return selected
 
 
-def output_sql_rows(query_result, column_index_to_keep, column_name):
-    return ui.info_table(data=query_result, headers=['blah1', 'blah2'])
+def output_sql_rows(query_result, column_names: list, table_headers=[]):
+    output_list = []
+    if table_headers:
+        table_headers.insert(0, "row")
+        output_headers = table_headers
+    else:
+        column_names.insert(0, "row")
+        output_headers = column_names
+    output_list.append(output_headers)
+    for row, values in enumerate(query_result, start=1):
+        record = [row]
+        for header in column_names[1:]: # skip initial header i.e. row header
+            record.append((values[header]))
+        output_list.append(record)
+    return table(output_list).table
+
