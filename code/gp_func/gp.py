@@ -3,7 +3,8 @@ import loginsystem
 import cli_ui as ui
 import gp_utilities as util
 
-# state dictionary/graph to map out possible routes from each state/node
+# state dictionary/graph to map out possible routes from each state/node.
+# back button should be child node if available option from a state.
 
 states = {
     "main options": ["manage calendar", "confirm appointments", "view appointments"],
@@ -14,7 +15,7 @@ states = {
     # confirm appts
     "confirm appointments": [],
     # view appts
-    "view appointments": ["show appointments from another day", "show appointment details"],
+    "view appointments": ["show appointments from another day", "show appointment details", "back"],
     "show appointments from another day": [],
     "show appointment details": ["write prescriptions"]
 }
