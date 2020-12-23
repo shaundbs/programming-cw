@@ -16,8 +16,7 @@ states = {
     # view appts
     "view appointments": ["show appointments from another day", "show appointment details"],
     "show appointments from another day": [],
-    "show appointment details": ["write prescriptions"],
-    "back": []
+    "show appointment details": ["write prescriptions"]
 }
 
 
