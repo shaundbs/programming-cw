@@ -175,7 +175,7 @@ class Patient:
                     except ValueError:
                         print("This value is not accepted. Please enter a date in YYYY-MM-DD format:")
             except ValueError:
-                print("No idea")
+                print("Not accepted")
         else:
             raise ValueError
 
