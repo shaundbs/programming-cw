@@ -14,3 +14,6 @@ def user_select(title: str, choices: list):
         selected = ui.ask_choice(title, choices=user_choices, sort=False)
         return selected
 
+
+def output_sql_rows(query_result, column_index_to_keep, column_name):
+    return ui.info_table(data=query_result, headers=['blah1', 'blah2'])

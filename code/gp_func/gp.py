@@ -1,23 +1,23 @@
 from state_manager import StateGenerator
-import loginsystem
+import gp_database as db
 import cli_ui as ui
 import gp_utilities as util
 
-# state dictionary/graph to map out possible routes from each state/node.
+# state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.
 
 states = {
     "main options": ["manage calendar", "confirm appointments", "view appointments"],
     # Calendar / holiday
     "manage calendar": ["view calendar", "schedule time off", "back"],
-    "view calendar": [],
-    "schedule time off": [],
+    "view calendar": ["back"],
+    "schedule time off": ["back"],
     # confirm appts
-    "confirm appointments": [],
+    "confirm appointments": ["back"],
     # view appts
     "view appointments": ["show appointments from another day", "show appointment details", "back"],
-    "show appointments from another day": [],
-    "show appointment details": ["write prescriptions"]
+    "show appointments from another day": ["back"],
+    "show appointment details": ["write prescriptions", "back"]
 }
 
 
@@ -28,18 +28,20 @@ class Gp:
         self.user_id = user_id
 
         # Get details
-        self.db = loginsystem.database.Database()
+        self.db = db.Database()
         details_query = "SELECT FIRSTNAME, LASTNAME FROM USERS WHERE USERID = " + str(self.user_id)
         result = self.db.fetch_data(details_query)
-        self.firstname, self.lastname = result[0][0].capitalize(), result[0][1].capitalize()
+        self.firstname, self.lastname = result[0]['firstName'].capitalize(), result[0]['lastName'].capitalize()
 
         # initialise state machine
         self.state_gen = StateGenerator(state_dict=states, state_object=self)
         self.state_gen.change_state("main options")  # initialise main options state
 
     def print_welcome(self):
+        ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
         print("Hi Dr", self.firstname, self.lastname)
 
+    # to handle whether we need to change state, or whether to call parent state if "back" is selected.
     def handle_state_selection(self, selected):
         if selected == 'back':
             self.state_gen.call_parent_state()
@@ -62,7 +64,8 @@ class Gp:
         print("hi this is the calendar")
 
         selected = util.user_select("Where to go next?", self.state_gen.get_state_options())
-        self.handle_state_selection(selected) # if back is selected, the back state function above will handle going back to parent state.
+        self.handle_state_selection(
+            selected)  # if back is selected, the back state function above will handle going back to parent state.
 
     def view_calendar(self):
         pass
@@ -73,11 +76,12 @@ class Gp:
     # CONFIRM APPOINTMENTS
 
     def confirm_appointments(self):
-        pass
         # show requested appt booking for GP
         query = f"SELECT SLOT_ID, APPOINTMENT_ID, PATIENT_ID FROM APPOINTMENT WHERE IS_CONFIRMED = 0 AND IS_REJECTED = 0 AND GP_ID = {self.user_id}"
         res = self.db.fetch_data(query)
         print(res)
+        util.output_sql_rows(res,0,0)
+
 
         # accept all
         # reject all
