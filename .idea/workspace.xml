@@ -20,48 +20,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="gp package setup. Testing file set up. TODO - Add states">
-      <change afterPath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/_common.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/_version.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/easter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/parser/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/parser/_parser.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/parser/isoparser.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/relativedelta.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/rrule.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/_common.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/_factories.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/tz.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/win.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tzwin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/zoneinfo/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/zoneinfo/dateutil-zoneinfo.tar.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/zoneinfo/rebuild.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/INSTALLER" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/METADATA" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/RECORD" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/REQUESTED" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/WHEEL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/top_level.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/INSTALLER" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/METADATA" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/RECORD" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/REQUESTED" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/WHEEL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/top_level.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/zip-safe" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/programming_cw.egg-info/PKG-INFO" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/programming_cw.egg-info/SOURCES.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/programming_cw.egg-info/dependency_links.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/programming_cw.egg-info/top_level.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/easy-install.pth" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/programming-cw.egg-link" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/programming-cw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/programming-cw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_testing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/utilities.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -72,8 +44,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Setup Script" />
         <option value="Python Script" />
+        <option value="Setup Script" />
       </list>
     </option>
   </component>
@@ -100,8 +72,9 @@
       <recent name="$PROJECT_DIR$/code/loginsystem2" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/code/gp_func" />
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/code" />
+      <recent name="$PROJECT_DIR$/code/gp_func" />
     </key>
   </component>
   <component name="RunManager" selected="Python.GP Test">
@@ -189,11 +162,38 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="setup" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="programming-cw" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/code/loginsystem" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/setup.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python.GP Test" />
       <item itemvalue="Python.db_test" />
       <item itemvalue="Python.main" />
+      <item itemvalue="Python.setup" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.setup" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -225,7 +225,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608313852647</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="working on slot auto inserts into SQL table">
+      <created>1608730019955</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1608730019955</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -248,6 +255,7 @@
     <MESSAGE value="Added Venv" />
     <MESSAGE value="db build script runs on DB initialisation" />
     <MESSAGE value="gp package setup. Testing file set up. TODO - Add states" />
-    <option name="LAST_COMMIT_MESSAGE" value="gp package setup. Testing file set up. TODO - Add states" />
+    <MESSAGE value="working on slot auto inserts into SQL table" />
+    <option name="LAST_COMMIT_MESSAGE" value="working on slot auto inserts into SQL table" />
   </component>
 </project>
