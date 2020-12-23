@@ -307,5 +307,5 @@ class Patient:
         return
 
 
-if __name__ == "__main__":
-    Patient(4).select_options()
+# if __name__ == "__main__":
+#     Patient(4).select_options()
