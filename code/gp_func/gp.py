@@ -2,9 +2,7 @@ from state_manager import StateGenerator
 import gp_database as db
 import cli_ui as ui
 import gp_utilities as util
-from rich.console import Console
 
-console = Console()
 
 # state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.

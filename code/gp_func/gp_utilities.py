@@ -1,6 +1,5 @@
 from pick import pick
 import cli_ui as ui
-# from rich.table import Table
 from terminaltables import AsciiTable as table
 
 # utility functions for the GP flow
