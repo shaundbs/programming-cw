@@ -2,7 +2,7 @@ from state_manager import StateGenerator
 import gp_database as db
 import cli_ui as ui
 import gp_utilities as util
-
+from time import sleep
 
 # state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.
@@ -56,7 +56,6 @@ class Gp:
 
         selected = util.user_select("Choose and option", self.state_gen.get_state_options())
 
-        print(selected + "------>")
         self.handle_state_selection(selected)
 
     # CALENDAR HANDLING
@@ -77,11 +76,42 @@ class Gp:
     # CONFIRM APPOINTMENTS
 
     def confirm_appointments(self):
+        ui.info_section(ui.blue, "Confirm Appointments")
         # show requested appt booking for GP
-        query = f"SELECT SLOT_ID, APPOINTMENT_ID, PATIENT_ID FROM APPOINTMENT WHERE IS_CONFIRMED = 0 AND IS_REJECTED = 0 AND GP_ID = {self.user_id}"
+        query = f"SELECT SLOT_ID, APPOINTMENT_ID, PATIENT_ID FROM APPOINTMENT WHERE IS_CONFIRMED= 0 AND IS_REJECTED= " \
+                f"0 AND GP_ID = {self.user_id} "
         res = self.db.fetch_data(query)
-        print(util.output_sql_rows(res, ["slot_id", "appointment_id"]))
+        table_data = util.output_sql_rows(res, ["slot_id", "appointment_id"])
+        ui.info(ui.standout, f"You have {len(res)} unconfirmed appointments.")
 
+        # While there are unconfirmed appointments
+        while res:
+            print(table_data)
+            user_choices = ["accept all", "reject all", "accept or reject an individual appointment", "back"]
+            selected = ui.ask_choice("What would you like to do?", choices=user_choices)
+            if selected == user_choices[1]:  # accept all
+                pass
+            elif selected == user_choices[2]:  # reject all
+                pass
+            elif selected == user_choices[3]:  # action individually
+                pass
+            else:
+                self.handle_state_selection(selected)  # back
+
+        else:  # no unconfirmed appointments
+            ui.info_2("Not much else to do here without any unconfirmed appointments")
+            yes = ui.ask_yes_no("Go back to the homepage?")
+            if yes:
+                self.handle_state_selection("back")
+            else:
+                ui.info("Well I'll take you back anyway")
+                for i in range(2):
+                    ui.dot()
+                    sleep(0.8)
+                ui.dot(last=True)
+                self.handle_state_selection("back")
+
+        # User choice - what to do with unconfirmed appts
 
         # accept all
         # reject all

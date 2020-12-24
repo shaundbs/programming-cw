@@ -23,6 +23,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/render/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/render/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/REQUESTED" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/REQUESTED" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/REQUESTED" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/REQUESTED" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +45,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1lmlOK4QjR4hN5Mgcin8XIv5OdW" />
-  <component name="ProjectLevelVcsManager">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">

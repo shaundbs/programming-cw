@@ -1,6 +1,6 @@
 from pick import pick
 import cli_ui as ui
-from terminaltables import AsciiTable as table
+from terminaltables import AsciiTable as Table
 
 # utility functions for the GP flow
 
@@ -29,5 +29,5 @@ def output_sql_rows(query_result, column_names: list, table_headers=[]):
         for header in column_names[1:]: # skip initial header i.e. row header
             record.append((values[header]))
         output_list.append(record)
-    return table(output_list).table
+    return Table(output_list).table
 
