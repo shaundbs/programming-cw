@@ -5,7 +5,7 @@ import sys
 #     "/"))
 
 import gp_database as db
-from gp_func.gp import Gp
+from gp import Gp
 
 if __name__ == '__main__':
     # get test user ID bypass login for testing purposes.

@@ -36,7 +36,8 @@ class Gp:
 
         # initialise state machine
         self.state_gen = StateGenerator(state_dict=states, state_object=self)
-        self.state_gen.change_state("main options")  # initialise main options state
+        # self.state_gen.change_state("main options")  # initialise main options state
+        self.state_gen.change_state("confirm appointments")
 
     def print_welcome(self):
         ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
@@ -54,7 +55,7 @@ class Gp:
     def main_options(self):
         self.print_welcome()  # say hi to the Dr.
 
-        selected = util.user_select("Choose and option", self.state_gen.get_state_options())
+        selected = util.user_select("Choose an option", self.state_gen.get_state_options())
 
         self.handle_state_selection(selected)
 
@@ -78,25 +79,76 @@ class Gp:
     def confirm_appointments(self):
         ui.info_section(ui.blue, "Confirm Appointments")
         # show requested appt booking for GP
-        query = f"SELECT SLOT_ID, APPOINTMENT_ID, PATIENT_ID FROM APPOINTMENT WHERE IS_CONFIRMED= 0 AND IS_REJECTED= " \
-                f"0 AND GP_ID = {self.user_id} "
+        query = f"SELECT APPOINTMENT_ID,  u.firstName || ' ' || u.lastName as 'patient name',  strftime('%d/%m/%Y', " \
+                f"s.starttime) as date, strftime('%H:%M', s.starttime)  as 'appointment time' FROM APPOINTMENT  a " \
+                f"left join Users u " \
+                f" on u.userId = a.patient_id left join slots s on s.slot_id = a.slot_id WHERE IS_CONFIRMED= 0  AND " \
+                f"IS_REJECTED= 0 AND GP_ID = {self.user_id}  order by s.starttime"
         res = self.db.fetch_data(query)
-        table_data = util.output_sql_rows(res, ["slot_id", "appointment_id"])
         ui.info(ui.standout, f"You have {len(res)} unconfirmed appointments.")
 
         # While there are unconfirmed appointments
         while res:
+            table_data = util.output_sql_rows(res, ["date", "appointment time", "patient name"])
             print(table_data)
-            user_choices = ["accept all", "reject all", "accept or reject an individual appointment", "back"]
+            user_choices = ["confirm all", "reject all", "confirm or reject an individual appointment", "back"]
+
             selected = ui.ask_choice("What would you like to do?", choices=user_choices)
-            if selected == user_choices[1]:  # accept all
-                pass
-            elif selected == user_choices[2]:  # reject all
-                pass
-            elif selected == user_choices[3]:  # action individually
-                pass
+
+            # CHOICES HANDLING
+            if selected == user_choices[0]:  # accept all
+                success = util.db_update(res, "appointment", "appointment_id", **{"is_confirmed": 1})
+                if success:
+                    ui.info(ui.green, "All appointments successfully confirmed.")
+                else:
+                    ui.info("There was an error, processing your request, please try later")
+
+            elif selected == user_choices[1]:  # reject all
+                success = util.db_update(res, "appointment", "appointment_id", **{"is_rejected": 1})
+                if success:
+                    ui.info(ui.green, "All appointments successfully rejected.")
+                else:
+                    ui.info("There was an error, processing your request, please try later")
+
+            elif selected == user_choices[2]:  # action individually
+                ui.info_1(selected)
+                print(table_data)
+                choice = ""
+                valid_choices = [x for x in range(len(res))]
+                while choice not in valid_choices:
+                    try:
+                        choice = ui.ask_string(
+                            "Select an appointment to confirm or reject. Please enter an appointment's row number:")
+                        choice = int(choice) - 1  # to match index
+                        selected_row = res[choice]
+                    except ValueError:
+                        print("Please enter a number.")
+                    except IndexError:
+                        print("PLease enter a valid number found in the row column of the table.")
+
+                # choose accept or reject or back
+                further_options = ["confirm", "reject", "back"]
+                selected = ui.ask_choice("What would you like to do with this appointment?", choices=further_options)
+                if selected == further_options[2]:  # back
+                    self.to_confirm_appointments()
+                elif selected == further_options[0]:  # accept
+                    success = util.db_update([selected_row], "appointment", "appointment_id", **{"is_confirmed": 1})
+                    if success:
+                        ui.info(ui.green,
+                                f"Appointment on {selected_row['date']} with {selected_row['patient name']} successfully confirmed.")
+                    else:
+                        ui.info("There was an error, processing your request, please try later")
+                elif selected == further_options[1]:  # reject
+                    success = util.db_update([selected_row], "appointment", "appointment_id", **{"is_rejected": 1})
+                    if success:
+                        ui.info(ui.green,
+                                f"Appointment on {selected_row['date']} with {selected_row['patient name']} successfully rejected.")
+                    else:
+                        ui.info("There was an error, processing your request, please try later")
+
             else:
                 self.handle_state_selection(selected)  # back
+            res = self.db.fetch_data(query)  # refresh result.
 
         else:  # no unconfirmed appointments
             ui.info_2("Not much else to do here without any unconfirmed appointments")
@@ -104,15 +156,9 @@ class Gp:
             if yes:
                 self.handle_state_selection("back")
             else:
-                ui.info("Well I'll take you back anyway")
+                ui.info("Well, nothing to do here. I'll take you back anyway")
                 for i in range(2):
                     ui.dot()
                     sleep(0.8)
                 ui.dot(last=True)
-                self.handle_state_selection("back")
-
-        # User choice - what to do with unconfirmed appts
-
-        # accept all
-        # reject all
-        # accept/reject individual appt
+                self.handle_state_selection("back")  # back to main options

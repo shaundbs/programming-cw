@@ -14,11 +14,14 @@ class StateGenerator(Machine):
     (this will be auto triggered if "main options" state entered)
 
     After state is being tracked on the state object/model, you can manage state with the following functions via
-    this State Generator object:
+    this State Generator object connected to your model:
     - get child nodes of current state node: .get_state_options
-    - change state by passing in desired destination state: .change_state
-    - go back to the previous state: .call_prev_state
+    - change state by passing in desired destination state: .change_state(state name: str)
+    - change state directly by calling the method: to_<state name with underscores>
     - go to parent state: .call_parent_state
+
+    From an instantiated object you can also manage state with the following additional methods:
+    - go back to the previous state: .call_prev_state
     - clear the stack which records state change history: clear_prev_states
 
         """

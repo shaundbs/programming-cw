@@ -22,11 +22,11 @@
     <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="gp package setup. Testing file set up. TODO - Add states">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/gp_func/gp_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_testing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/render/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/render/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/tests/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/REQUESTED" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/REQUESTED" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/REQUESTED" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/REQUESTED" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/state_manager/state_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/state_manager/state_gen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/cli_ui/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/cli_ui/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,6 +133,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="gp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="programming-cw" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/code/loginsystem" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/code/gp_func/gp.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="programming-cw" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -180,9 +201,11 @@
       <item itemvalue="Python.db_test" />
       <item itemvalue="Python.main" />
       <item itemvalue="Python.setup" />
+      <item itemvalue="Python.gp" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.gp" />
         <item itemvalue="Python.setup" />
       </list>
     </recent_temporary>
@@ -259,7 +282,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608756729161</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="building confirm appts functionality">
+      <created>1608818007136</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1608818007136</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -287,6 +317,7 @@
     <MESSAGE value="updated comment" />
     <MESSAGE value="query results returned in dictionaries. new database class for gp to not break the class for others." />
     <MESSAGE value="output sql results as table function" />
-    <option name="LAST_COMMIT_MESSAGE" value="output sql results as table function" />
+    <MESSAGE value="building confirm appts functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="building confirm appts functionality" />
   </component>
 </project>
