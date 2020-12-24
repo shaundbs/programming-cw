@@ -89,7 +89,7 @@ class Patient:
                 try:
                     while True:
                         select_date = input(
-                            "Please enter a valid date in YYYY-MM-DD format between now and the close of next month:\n")
+                            "Please enter a valid date in YYYY-MM-DD format between now and the close of next month: \n")
                         try:
                             if datetime.datetime.now().date() < datetime.datetime.strptime(select_date, '%Y-%m-%d').date() \
                                     < datetime.datetime.now().date() + one_month:
