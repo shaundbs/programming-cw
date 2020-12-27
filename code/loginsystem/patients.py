@@ -58,11 +58,13 @@ class Patient:
 
     def select_options(self):
         while True:
+            # Display options.
             print('1. Request Appointments')
             print('2. View Appointments')
             print('3. View Prescription')
             print('4. Log out')
             option = input('Please choose an option: ')
+            # Input validation and redirects.
             if option == '1':
                 self.request_appointment()
             elif option == '2':
@@ -107,11 +109,13 @@ class Patient:
                             #   following month
 
                             if datetime.datetime.now().date() < datetime.datetime.strptime(select_date,
-                               '%Y-%m-%d').date() < datetime.datetime.now().date() + one_month:
-                                datetime.datetime.strptime(select_date, '%Y-%m-%d')
+                                                                                           '%Y-%m-%d').date() < datetime.datetime.now().date() + one_month:
+                                datetime.datetime.strptime(
+                                    select_date, '%Y-%m-%d')
 
                             # check if the date entered by the user fits the condition and is valid
-                                print('The date {} is valid. Listing appointments... \n'.format(select_date))
+                                print('The date {} is valid. Listing appointments... \n'.format(
+                                    select_date))
 
                             # get datetime object of the first and last appointments on that day = Opening hours
                                 db2 = Database()
@@ -124,8 +128,10 @@ class Patient:
                             # create table with opening hour info
                                 df2 = DataFrame(output)
                                 df2.columns = index_2
-                                print(colored('Opening hours: ' + select_date + ' ', 'green', attrs=['bold']))
-                                print(tabulate(df2, headers='keys', tablefmt='fancy_grid', showindex=False))
+                                print(colored('Opening hours: ' +
+                                              select_date + ' ', 'green', attrs=['bold']))
+                                print(tabulate(df2, headers='keys',
+                                               tablefmt='fancy_grid', showindex=False))
 
                             # query the number of Gp's available for each timeslot on the selected day
                                 db = Database()
@@ -146,7 +152,8 @@ class Patient:
                                     "WHERE U.accountType ='gp' "  # GP
                                     "and "
                                     "u.is_active = 1 "  # active GP
-                                    "AND DATE(S.startTime) = DATE('" + str(fm_date) + "') "
+                                    "AND DATE(S.startTime) = DATE('" + \
+                                    str(fm_date) + "') "
                                     # limit to date we looking for
                                     "AND A.GP_ID IS NULL "  # remove gps with appts
                                     "AND GPTO.GP_ID IS NULL "
@@ -157,14 +164,16 @@ class Patient:
 
                                 # create table with output from the above query
 
-                                index_1 = ["Start time", "End time", "No. GP's available"]
+                                index_1 = ["Start time", "End time",
+                                           "No. GP's available"]
                                 result = db.c.fetchall()
                                 df1 = DataFrame(result)
                                 df1.columns = index_1
 
                                 print(colored('Appointments available on the ' + select_date + ' ', 'green',
                                               attrs=['bold']))
-                                print(tabulate(df1, headers='keys', tablefmt='fancy_grid', showindex=True))
+                                print(tabulate(df1, headers='keys',
+                                               tablefmt='fancy_grid', showindex=True))
 
                                 # print time slots and user will use the table above as a reference to select a time
                                 # when at least one GP is available
@@ -186,7 +195,8 @@ class Patient:
                                 print("\n")
 
                                 # covert timeslots throughout the day to datetime objects
-                                apt_time = datetime.datetime.strptime(op_hours[0], '%Y-%m-%d %H:%M:%S')
+                                apt_time = datetime.datetime.strptime(
+                                    op_hours[0], '%Y-%m-%d %H:%M:%S')
                                 total = []
 
                                 for i in range(8):
@@ -206,7 +216,8 @@ class Patient:
                                              "WHERE U.accountType ='gp' "
                                              "and "
                                              "u.is_active = 1 "
-                                             "AND DATE(S.startTime) = DATE('" + str(fm_date) + "') "
+                                             "AND DATE(S.startTime) = DATE('" +
+                                             str(fm_date) + "') "
                                              "AND A.GP_ID IS NULL "
                                              "AND GPTO.GP_ID IS NULL "
                                              "GROUP BY s.startTime "
@@ -271,7 +282,8 @@ class Patient:
                                     "WHERE U.accountType='gp' "  # GP
                                     "and "
                                     "u.is_active = 1 "  # active GP
-                                    "AND DATE(S.startTime) = DATE('" + str(fm_date) + "') "
+                                    "AND DATE(S.startTime) = DATE('" + \
+                                    str(fm_date) + "') "
                                     # limit to date we looking for
                                     "AND A.GP_ID IS NULL "  # remove gps with appts
                                     "AND GPTO.GP_ID IS NULL "
@@ -289,7 +301,8 @@ class Patient:
 
                                 # randomly select a GP from the options available during that timeslot
                                 assigned_gp = random.choice(med_professionals)
-                                print("\nYou have been assigned: Dr. " + assigned_gp[0] + ' ' + assigned_gp[1])
+                                print("\nYou have been assigned: Dr. " +
+                                      assigned_gp[0] + ' ' + assigned_gp[1])
                                 print("\n")
 
                                 # get slot_id for the selected timeslot
@@ -309,7 +322,8 @@ class Patient:
                                          "WHERE U.accountType ='gp' "
                                          "and "
                                          "u.is_active = 1 "
-                                         "AND DATE(S.startTime) = DATE('" + str(fm_date) + "') "
+                                         "AND DATE(S.startTime) = DATE('" +
+                                         str(fm_date) + "') "
                                          "AND A.GP_ID IS NULL "
                                          "AND GPTO.GP_ID IS NULL "
                                          "GROUP BY s.startTime "
@@ -321,7 +335,8 @@ class Patient:
                                 # get gp_id for the GP assigned to the appointment
                                 db4 = Database()
                                 db4.exec("SELECT userId FROM Users "
-                                         "WHERE firstName = '" + assigned_gp[0] + "' "
+                                         "WHERE firstName = '" +
+                                         assigned_gp[0] + "' "
                                          "AND "
                                          "lastName = '" + assigned_gp[1] + "'")
                                 output_3 = db4.c.fetchone()
@@ -331,7 +346,8 @@ class Patient:
                                 symptoms = input("Please list any symptoms or concerns you may have so that we may"
                                                  " inform your assigned GP... \n"
                                                  "or hit enter if you do not want to disclose now: \n ")
-                                a = [(self.patient_id, assigned_gp_id, no_gps_available[3], symptoms), ]
+                                a = [(self.patient_id, assigned_gp_id,
+                                      no_gps_available[3], symptoms), ]
                                 # insert the amalgamation of data into the appointments table as one record
                                 db.exec_many(
                                     "INSERT INTO Appointment(patient_id,gp_id,slot_id,reason) Values (?,?,?,?)", a)
@@ -369,11 +385,13 @@ class Patient:
                             #   following month
 
                             if datetime.datetime.now().date() < datetime.datetime.strptime(select_date,
-                               '%Y-%m-%d').date() < datetime.datetime.now().date() + one_month:
-                                datetime.datetime.strptime(select_date, '%Y-%m-%d')
+                                                                                           '%Y-%m-%d').date() < datetime.datetime.now().date() + one_month:
+                                datetime.datetime.strptime(
+                                    select_date, '%Y-%m-%d')
 
                                 # check if the date entered by the user fits the condition and is valid
-                                print('The date {} is valid. Listing appointments... \n'.format(select_date))
+                                print('The date {} is valid. Listing appointments... \n'.format(
+                                    select_date))
 
                                 # get datetime object of the first and last appointments on that day = Opening hours
                                 db2 = Database()
@@ -386,8 +404,10 @@ class Patient:
                                 # create table with opening hour info
                                 df2 = DataFrame(output)
                                 df2.columns = index_2
-                                print(colored('Opening hours: ' + select_date + ' ', 'green', attrs=['bold']))
-                                print(tabulate(df2, headers='keys', tablefmt='fancy_grid', showindex=False))
+                                print(colored('Opening hours: ' +
+                                              select_date + ' ', 'green', attrs=['bold']))
+                                print(tabulate(df2, headers='keys',
+                                               tablefmt='fancy_grid', showindex=False))
 
                                 # query the number of Gp's available for each timeslot on the selected day
                                 db = Database()
@@ -408,7 +428,8 @@ class Patient:
                                     "WHERE U.accountType ='gp' "  # GP
                                     "and "
                                     "u.is_active = 1 "  # active GP
-                                    "AND DATE(S.startTime) = DATE('" + str(fm_date) + "') "
+                                    "AND DATE(S.startTime) = DATE('" + \
+                                    str(fm_date) + "') "
                                     # limit to date we looking for
                                     "AND A.GP_ID IS NULL "  # remove gps with appts
                                     "AND GPTO.GP_ID IS NULL "
@@ -418,14 +439,16 @@ class Patient:
 
                                 # create table with output from the above query
 
-                                index_1 = ["Start time", "End time", "No. GP's available"]
+                                index_1 = ["Start time", "End time",
+                                           "No. GP's available"]
                                 result = db.c.fetchall()
                                 df1 = DataFrame(result)
                                 df1.columns = index_1
 
                                 print(colored('Appointments available on the ' + select_date + ' ', 'green',
                                               attrs=['bold']))
-                                print(tabulate(df1, headers='keys', tablefmt='fancy_grid', showindex=True))
+                                print(tabulate(df1, headers='keys',
+                                               tablefmt='fancy_grid', showindex=True))
 
                                 # print time slots and user will use the table above as a reference to select a time
                                 # when at least one GP is available
@@ -447,7 +470,8 @@ class Patient:
                                 print("\n")
 
                                 # covert timeslots throughout the day to datetime objects
-                                apt_time = datetime.datetime.strptime(op_hours[0], '%Y-%m-%d %H:%M:%S')
+                                apt_time = datetime.datetime.strptime(
+                                    op_hours[0], '%Y-%m-%d %H:%M:%S')
                                 total = []
 
                                 for i in range(8):
@@ -467,7 +491,8 @@ class Patient:
                                              "WHERE U.accountType ='gp' "
                                              "and "
                                              "u.is_active = 1 "
-                                             "AND DATE(S.startTime) = DATE('" + str(fm_date) + "') "
+                                             "AND DATE(S.startTime) = DATE('" +
+                                             str(fm_date) + "') "
                                              "AND A.GP_ID IS NULL "
                                              "AND GPTO.GP_ID IS NULL "
                                              "GROUP BY s.startTime "
@@ -529,7 +554,8 @@ class Patient:
                                     "WHERE U.accountType='gp' "  # GP
                                     "and "
                                     "u.is_active = 1 "  # active GP
-                                    "AND DATE(S.startTime) = DATE('" + str(fm_date) + "') "
+                                    "AND DATE(S.startTime) = DATE('" + \
+                                    str(fm_date) + "') "
                                     # limit to date we looking for
                                     "AND A.GP_ID IS NULL "  # remove gps with appts
                                     "AND GPTO.GP_ID IS NULL "
@@ -546,7 +572,8 @@ class Patient:
 
                                 # randomly select a GP from the options available during that timeslot
                                 assigned_gp = random.choice(med_professionals)
-                                print("\nYou have been assigned: Dr. " + assigned_gp[0] + ' ' + assigned_gp[1])
+                                print("\nYou have been assigned: Dr. " +
+                                      assigned_gp[0] + ' ' + assigned_gp[1])
                                 print("\n")
 
                                 # get slot_id for the selected timeslot
@@ -566,7 +593,8 @@ class Patient:
                                          "WHERE U.accountType ='gp' "
                                          "and "
                                          "u.is_active = 1 "
-                                         "AND DATE(S.startTime) = DATE('" + str(fm_date) + "') "
+                                         "AND DATE(S.startTime) = DATE('" +
+                                         str(fm_date) + "') "
                                          "AND A.GP_ID IS NULL "
                                          "AND GPTO.GP_ID IS NULL "
                                          "GROUP BY s.startTime "
@@ -577,7 +605,8 @@ class Patient:
                                 # get gp_id for the GP assigned to the appointment
                                 db4 = Database()
                                 db4.exec("SELECT userId FROM Users "
-                                         "WHERE firstName = '" + assigned_gp[0] + "' "
+                                         "WHERE firstName = '" +
+                                         assigned_gp[0] + "' "
                                          "AND "
                                          "lastName = '" + assigned_gp[1] + "'")
                                 output_3 = db4.c.fetchone()
@@ -587,7 +616,8 @@ class Patient:
                                 symptoms = input("Please list any symptoms or concerns you may have so that we may"
                                                  " inform your assigned GP... "
                                                  "or hit enter if you do not want to disclose now")
-                                a = [(self.patient_id, assigned_gp_id, no_gps_available[3], symptoms), ]
+                                a = [(self.patient_id, assigned_gp_id,
+                                      no_gps_available[3], symptoms), ]
                                 # insert the amalgamation of data into the appointments table as one record
                                 db.exec_many(
                                     "INSERT INTO Appointment(patient_id,gp_id,slot_id,reason) Values (?,?,?,?)", a)
@@ -608,12 +638,11 @@ class Patient:
             # fix timeslot loop so that it goes back to the timeslots instead of calendar
             # limit on no of appointments per week
 
-
-
     def view_appointment(self):
         a = [(self.patient_id), ]
         db = Database()
         while True:
+            # Display appointments.
             db.exec_one(
                 "SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime",
                 a)
@@ -636,7 +665,7 @@ class Patient:
                 num += 1
             print(str(num) + ". Back")
             option = int(input("You choose number: "))
-
+            # Input Validation and redirects.
             if option == num:
                 break
             elif option in range(1, num):
@@ -651,27 +680,19 @@ class Patient:
                 if option == "1":
                     break
 
-        elif appointmentData[-2] == 0:
+        elif appointmentData[-2] == 0 or appointmentData[-1] == 0:
             print(
                 "\nThis appointment is confirmed.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
-            self.appointment_options_select(appointmentData[0])
-
-        elif appointmentData[-1] == 0:
-            print(
-                "\nThis appointment is rejected.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
-            self.appointment_options_select(appointmentData[0])
-
-    def appointment_options_select(self, appointmentId):
-        while True:
-            option = input("You choose number: ")
-            if option == "1":
-                self.reschedule_appointment(appointmentId)
-                break
-            elif option == "2":
-                self.cancel_appointment(appointmentId)
-                break
-            elif option == "3":
-                break
+            while True:
+                option = input("You choose number: ")
+                if option == "1":
+                    self.reschedule_appointment(appointmentData[0])
+                    break
+                elif option == "2":
+                    self.cancel_appointment(appointmentData[0])
+                    break
+                elif option == "3":
+                    break
 
     def reschedule_appointment(self, appointmentNo):
         while True:
@@ -748,14 +769,14 @@ class Patient:
             rows = []
             for i in result:
                 rows.append(list(i))
-
+            # Find available sessions.
             available_session = {}
             for i in rows:
                 if i[0] in available_session:
                     available_session[i[0]].append(i[4])
                 else:
                     available_session[i[0]] = [i[4]]
-            # print()
+            # Prompt user to select slots.
             print("Please select an appointment time:")
             sessions = ["09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00",
                         "13:00-14:00", "14:00-15:00", "15:00-16:00", "16:00-17:00"]
@@ -766,7 +787,7 @@ class Patient:
                     num += 1
             print(str(num) + ". Back")
             booked_slot = int(input("Enter your option : "))
-
+            # Insert request into database.
             if booked_slot == num:
                 break
             elif booked_slot in range(9):
