@@ -12,7 +12,7 @@ states = {
     "main options": ["manage calendar", "confirm appointments", "view my appointments", "logout"],
     # Calendar / holiday
     "manage calendar": ["view calendar", "schedule time off", "back"],
-    "view calendar": ["back"],
+    "view calendar": ["view day","view another month","back"],
     "schedule time off": ["back"],
     # confirm appts
     "confirm appointments": ["back"],
@@ -76,31 +76,31 @@ class Gp:
 
     def view_calendar(self, appt_month: str = "current_month"):
         selected_month = datetime.now()
-        ui.info(f"showing appointments for {str(appt_month)}")
         if appt_month == "current_month":
             month = '2021/01'
         else:
             month = f"'{appt_month}'"
+
         # get appointments for the GP user
-        print(month)
-        print(self.user_id)
         query = f"SELECT strftime('%Y/%m', s.starttime) as month, strftime('%d', s.starttime) as day FROM Appointment a " \
                 f"LEFT JOIN slots s on a.slot_id=s.slot_id " \
                 f"WHERE is_confirmed=1 AND GP_ID = {self.user_id} and month='{month}'"
-
         res = self.db.fetch_data(query)
+        #create calendar
         c = calendar.TextCalendar()
-
-
-        display_month = c.formatmonth(2021, 1)
-
+        display_month = c.formatmonth(int(month[:4]), int(month[5:]))
         for appt in res:
             if appt["day"][0] == "0":
                 display_month = display_month.replace(" %s " % appt["day"][1], "[%s]" % appt["day"][1])
             else:
-                display_month = display_month.replace(appt["day"], "[%s]" % appt["day"])
+                display_month = display_month.replace(" %s " % appt["day"], "[%s]" % appt["day"])
 
         print(display_month)
+        print("[Days] that you have appointments")
+
+        selected = util.user_select("Where to go next?", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
 
 
 
