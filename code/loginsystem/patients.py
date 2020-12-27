@@ -784,10 +784,10 @@ class Patient:
                       " You will be alerted once your appointment is confirmed")
                 break
 
-        def view_prescription(self):
-            print("Patient id: " + str(self.patient_id) +
-                  "want to view prescription\n")
-            return
+    def view_prescription(self):
+        print("Patient id: " + str(self.patient_id) +
+              "want to view prescription\n")
+        return
 
 
 if __name__ == "__main__":
