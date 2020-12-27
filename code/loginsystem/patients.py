@@ -608,147 +608,185 @@ class Patient:
 
 
 
-def view_appointment(self):
-    a = [(self.patient_id), ]
-    db = Database()
-    while True:
-        db.exec_one(
-            "SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime",
-            a)
-        self.appointmentList = []
-        result = db.c.fetchall()
-        for i in result:
-            self.appointmentList.append(i)
+    def view_appointment(self):
+        a = [(self.patient_id), ]
+        db = Database()
+        while True:
+            db.exec_one(
+                "SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime",
+                a)
+            self.appointmentList = []
+            result = db.c.fetchall()
+            for i in result:
+                self.appointmentList.append(i)
 
-        print("")
-        num = 1
-        for i in self.appointmentList:
-            if i[-2] + i[-1] == 0:
-                status = "not yet confirmed."
-            elif i[-2] == 1:
-                status = "confirmed."
-            else:
-                status = "rejected."
-            print(str(num) + ". Your appointment with Dr " +
-                  str(i[1]) + " " + str(i[2]) + " at " + str(i[3][:10]) + " is " + status)
-            num += 1
-        print(str(num) + ". Back")
-        option = int(input("You choose number: "))
+            print("")
+            num = 1
+            for i in self.appointmentList:
+                if i[-2] + i[-1] == 0:
+                    status = "not yet confirmed."
+                elif i[-2] == 1:
+                    status = "confirmed."
+                else:
+                    status = "rejected."
+                print(str(num) + ". Your appointment with Dr " +
+                      str(i[1]) + " " + str(i[2]) + " at " + str(i[3][:10]) + " is " + status)
+                num += 1
+            print(str(num) + ". Back")
+            option = int(input("You choose number: "))
 
-        if option == num:
-            break
-        elif option in range(1, num):
-            self.appointment_options(self.appointmentList[option - 1])
+            if option == num:
+                break
+            elif option in range(1, num):
+                self.appointment_options(self.appointmentList[option - 1])
 
+    def appointment_options(self, appointmentData):
+        # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
+        if (appointmentData[-2] + appointmentData[-1]) == 0:
+            print("\nThis appointment is not approved yet.\n1. Back")
+            while True:
+                option = input("You choose number: ")
+                if option == "1":
+                    break
 
-def appointment_options(self, appointmentData):
-    # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
-    if (appointmentData[-2] + appointmentData[-1]) == 0:
-        print("\nThis appointment is not approved yet.\n1. Back")
+        elif appointmentData[-2] == 0:
+            print(
+                "\nThis appointment is confirmed.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
+            self.appointment_options_select(appointmentData[0])
+
+        elif appointmentData[-1] == 0:
+            print(
+                "\nThis appointment is rejected.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
+            self.appointment_options_select(appointmentData[0])
+
+    def appointment_options_select(self, appointmentId):
         while True:
             option = input("You choose number: ")
             if option == "1":
+                self.reschedule_appointment(appointmentId)
+                break
+            elif option == "2":
+                self.cancel_appointment(appointmentId)
+                break
+            elif option == "3":
                 break
 
-    elif appointmentData[-2] == 0:
-        print(
-            "\nThis appointment is confirmed.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
-        self.appointment_options_select(appointmentData[0])
+    def reschedule_appointment(self, appointmentNo):
+        while True:
+            print("1. Book an appointment this month \n"
+                  "2. Book an appointment next month \n"
+                  "3. Exit")
+            m = input("Please enter an option: ")
+            if m == "1":
+                a = datetime.datetime.today()
+            elif m == "2":
+                a = datetime.datetime.today() + datetime.timedelta(1 * 365 / 12)
+            elif m == "3":
+                break
 
-    elif appointmentData[-1] == 0:
-        print(
-            "\nThis appointment is rejected.\n1. Reschedule this appointment.\n2. Cancel this appointment.\n3. Back")
-        self.appointment_options_select(appointmentData[0])
+            year_now = datetime.datetime.date(a).strftime("%Y")
+            month_now = datetime.datetime.date(a).strftime("%m")
+            day_now = datetime.datetime.date(a).strftime("%d")
+            c = calendar.TextCalendar(calendar.MONDAY)
+            year_input, month_input, day_input = int(
+                year_now), int(month_now), int(day_now)
+            calendar_month = c.formatmonth(
+                year_input, month_input, day_input, 0)
+            print(calendar_month)
+            self.select_slots(appointmentNo)
 
+    def cancel_appointment(self, appointmentNo):
+        print("Do you confirm that you want to cancel this appointment?")
+        while True:
+            a = input('1. Yes \n2. No\nYou choose number: ')
+            if a == "1":
+                appointmentNo = int(appointmentNo)
+                Database().delete_appointment(appointmentNo)
+                print("You have successfully cancelled this appointment")
+                break
+            elif a == "2":
+                break
+            else:
+                print("\nPlease input 1 or 2.\n")
+                year_now = datetime.datetime.date(a).strftime("%Y")
+                month_now = datetime.datetime.date(a).strftime("%m")
+                day_now = datetime.datetime.date(a).strftime("%d")
+                c = calendar.TextCalendar(calendar.MONDAY)
+                year_input, month_input, day_input = int(
+                    year_now), int(month_now), int(day_now)
+                calendar_month = c.formatmonth(
+                    year_input, month_input, day_input, 0)
+                print(calendar_month)
+                self.select_slots(appointmentNo)
 
-def appointment_options_select(self, appointmentId):
-    while True:
-        option = input("You choose number: ")
-        if option == "1":
-            self.reschedule_appointment(appointmentId)
-            break
-        elif option == "2":
-            self.cancel_appointment(appointmentId)
-            break
-        elif option == "3":
-            break
+    def select_slots(self, appointmentNo):
+        while True:
+            select_date = input(
+                "Please enter a valid date in YYYY-MM-DD format between now and the close of the month: ")
 
+            db = Database()
+            db.exec_one("""SELECT substr(s.startTime, 12, 2), s.slot_id, u.firstName, u.lastName, u.userId as gp_id, row_number() OVER (PARTITION by s.slot_id order by random()) as rand_order
+                    FROM SLOTS S
+                    CROSS JOIN Users U
+                    LEFT JOIN APPOINTMENT A
+                    ON S.slot_id= A.slot_id
+                    AND A.gp_id = U.userId
+                    AND ((A.IS_CONFIRMED =0 AND A.IS_REJECTED=0) OR (A.is_confirmed=1))
+                    LEFT JOIN gp_time_off gpto
+                    ON datetime(S.startTime) >= datetime(GPTO.startTime) AND
+                    datetime(s.startTime) < datetime(GPTO.endTime)
+                    AND GPTO.gp_id = U.userId
+                    WHERE U.accountType='gp'
+                    and
+                    u.is_active = 1
+                    AND DATE(S.startTime) = DATE(?)
+                    AND A.GP_ID IS NULL
+                    AND GPTO.GP_ID IS NULL""", (select_date,))
+            result = db.c.fetchall()
+            rows = []
+            for i in result:
+                rows.append(list(i))
 
-def reschedule_appointment(self, appointmentNo):
-    while True:
-        print("1. Book an appointment this month \n"
-              "2. Book an appointment next month \n"
-              "3. Exit")
-        m = input("Please enter an option: ")
-        if m == "1":
-            a = datetime.datetime.today()
-        elif m == "2":
-            a = datetime.datetime.today() + datetime.timedelta(1 * 365 / 12)
-        elif m == "3":
-            break
+            available_session = {}
+            for i in rows:
+                if i[0] in available_session:
+                    available_session[i[0]].append(i[4])
+                else:
+                    available_session[i[0]] = [i[4]]
+            # print()
+            print("Please select an appointment time:")
+            sessions = ["09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00",
+                        "13:00-14:00", "14:00-15:00", "15:00-16:00", "16:00-17:00"]
+            num = 1
+            for i in sessions:
+                if i[:2] in list(available_session.keys()):
+                    print(str(num) + ". "+i)
+                    num += 1
+            print(str(num) + ". Back")
+            booked_slot = int(input("Enter your option : "))
 
-        year_now = datetime.datetime.date(a).strftime("%Y")
-        month_now = datetime.datetime.date(a).strftime("%m")
-        day_now = datetime.datetime.date(a).strftime("%d")
-        c = calendar.TextCalendar(calendar.MONDAY)
-        year_input, month_input, day_input = int(
-            year_now), int(month_now), int(day_now)
-        calendar_month = c.formatmonth(
-            year_input, month_input, day_input, 0)
-        print(calendar_month)
-        self.select_slots(appointmentNo)
+            if booked_slot == num:
+                break
+            elif booked_slot in range(9):
+                # Assign GP6 to this appointment temporarily.
+                # selected_session = available_session[booked_slot - 1][:2]
+                slot, gp = rows[booked_slot-1][1], rows[booked_slot-1][-2]
+                a = [(self.patient_id, slot, gp), ]
 
+                db.exec_many(
+                    "INSERT INTO Appointment(patient_id,slot_id,gp_id) Values (?,?,?)", a)
+                db.exec(
+                    "DELETE FROM Appointment WHERE appointment_id = " + str(appointmentNo))
+                print("SUCCESS - "
+                      "You have successfully requested an appointments with one of our GP's, \n"
+                      " You will be alerted once your appointment is confirmed")
+                break
 
-def select_slots(self, appointmentNo):
-    while True:
-        select_date = input(
-            "Please enter a valid date in YYYY-MM-DD format between now and the close of the month: ")
-        db = Database()
-        a = (select_date,)
-        db.exec_one(
-            "SELECT p.slot_id, userId, p.startTime From GPtimeoff g, (SELECT s.startTime,s.endTime, s.slot_id, u.userId, u.firstName, u.lastName FROM Slots s, Users u WHERE  SUBSTR(s.startTime, 1, 10) = ? AND u.accountType == 'gp') p WHERE gp_id = userId  AND( p.endTime < g.startTime OR p.startTime > g.endTime) ORDER BY p.startTime",
-            a)
-        result = db.c.fetchall()
-        for i in result:
-            print(i)
-
-        print(
-            "Please select an appointment time: \n1. 09:00-10:00\n2. 10:00-11:00\n3. 11:00-12:00\n4. 12:00-13:00\n5. 13:00-14:00\n6. 14:00-15:00\n7. 15:00-16:00\n8. 16:00-17:00")
-        booked_slot = int(input("Enter your option : "))
-        if booked_slot in range(9):
-            # Assign GP6 to this appointment temporarily.
-            a = [(self.patient_id, booked_slot, 6), ]
-
-            db.exec_many(
-                "INSERT INTO Appointment(patient_id,slot_id,gp_id) Values (?,?,?)", a)
-            db.exec(
-                "DELETE FROM Appointment WHERE appointment_id = " + str(appointmentNo))
-            print("SUCCESS - "
-                  "You have successfully requested an appointments with one of our GP's, \n"
-                  " You will be alerted once your appointment is confirmed")
-            break
-
-
-def cancel_appointment(self, appointmentNo):
-    print("Do you confirm that you want to cancel this appointment?")
-    while True:
-        a = input('1. Yes \n2. No\nYou choose number: ')
-        if a == "1":
-            appointmentNo = int(appointmentNo)
-            Database().delete_appointment(appointmentNo)
-            print("You have successfully cancelled this appointment")
-            break
-        elif a == "2":
-            break
-        else:
-            print("\nPlease input 1 or 2.\n")
-
-
-def view_prescription(self):
-    print("Patient id: " + str(self.patient_id) +
-          "want to view prescription\n")
-    return
+        def view_prescription(self):
+            print("Patient id: " + str(self.patient_id) +
+                  "want to view prescription\n")
+            return
 
 
 if __name__ == "__main__":
-    Patient(4).select_slots(4)
+    Patient(4).select_options()
