@@ -63,9 +63,9 @@ class Emails:
         Your account has been successfully set up with <b>""" + str(accountType) + """</b> privileges. You can: <br><br>
         1. Login <br>
         2. Book appointments <br>
-        3. Reschedule appointments <br>
-        4. Cancel appointments <br>
-        5. Book a session with one of our external specialists <br><br> Log back into the application to begin </p>
+        3. Reschedule/cancel appointments <br>
+        4. Book a session with one of our external specialists <br>
+        5. View your prescriptions and medical history <br><br> Log back into the application to begin </p>
         </td>
         </tr>
         </table>
