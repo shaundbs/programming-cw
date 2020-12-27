@@ -1,6 +1,7 @@
 import sqlite3
 # hide password when inputting
 from database import Database
+from email_generator import Emails
 import re
 import datetime as datetime
 import getpass
@@ -53,6 +54,7 @@ class Patient:
         a = [(fName, lName, email, hashed, aType, date_time,), ]
         db.exec_many(
             "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
+        Emails.registration_email(email, fName, lName, "patient")
 
     def select_options(self):
         while True:
