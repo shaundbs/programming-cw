@@ -5,17 +5,18 @@ import gp_database as db
 from time import sleep
 import re
 from datetime import datetime
+import calendar
 
 
 # utility functions for the GP flow
 
 
-def user_select(title: str, choices: list):
+def user_select(prompt: str, choices: list):
     # try:  # if terminal can support, then cursor selection.
     #     choice, index = pick(choices, title)
     #     return choice
     # except Exception:
-    selected = ui.ask_choice(title, choices=choices, sort=False)
+    selected = ui.ask_choice(prompt, choices=choices, sort=False)
     return selected
 
 
@@ -25,12 +26,13 @@ def output_sql_rows(query_result, column_names: list, table_headers=[], table_ti
         table_headers.insert(0, "row")
         output_headers = table_headers
     else:
-        column_names.insert(0, "row")
-        output_headers = column_names
+        cols_copy = column_names.copy()
+        cols_copy.insert(0, "row")
+        output_headers = cols_copy
     output_list.append(output_headers)
     for row, values in enumerate(query_result, start=1):
         record = [row]
-        for header in column_names[1:]:  # skip initial header i.e. row header
+        for header in column_names:  # skip initial header i.e. row header
             record.append((values[header]))
         output_list.append(record)
     return Table(output_list, table_title).table
