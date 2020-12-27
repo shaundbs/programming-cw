@@ -3,6 +3,7 @@ import gp_database as db
 import cli_ui as ui
 import gp_utilities as util
 from datetime import datetime
+import calendar
 
 # state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.
@@ -69,7 +70,36 @@ class Gp:
         self.handle_state_selection(
             selected)  # if back is selected, the back state function above will handle going back to parent state.
 
-    def view_calendar(self):
+    def view_calendar(self, appt_month: str = "current_month"):
+        selected_month = datetime.now()
+        ui.info(f"showing appointments for {str(appt_month)}")
+        if appt_month == "current_month":
+            month = '2021/01'
+        else:
+            month = f"'{appt_month}'"
+        # get appointments for the GP user
+        print(month)
+        print(self.user_id)
+        query = f"SELECT strftime('%Y/%m', s.starttime) as month, strftime('%d', s.starttime) as day FROM Appointment a " \
+                f"LEFT JOIN slots s on a.slot_id=s.slot_id " \
+                f"WHERE is_confirmed=1 AND GP_ID = {self.user_id} and month='{month}'"
+
+        res = self.db.fetch_data(query)
+        c = calendar.TextCalendar()
+
+
+        display_month = c.formatmonth(2021, 1)
+
+        for appt in res:
+            if appt["day"][0] == "0":
+                display_month = display_month.replace(" %s " % appt["day"][1], "[%s]" % appt["day"][1])
+            else:
+                display_month = display_month.replace(appt["day"], "[%s]" % appt["day"])
+
+        print(display_month)
+
+
+
         pass
 
     def schedule_time_off(self):
