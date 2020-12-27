@@ -60,7 +60,7 @@ class Emails:
         font-size: 14px; padding: 1em">
         <p>Hi <b>""" + str(firstName) + """  """ + str(lastName) + """</b>, thank you for registering with Gower St. Surgery,
         the e-health management service. <br><br>
-        Your account has been successfully set up with """ + str(accountType) + """ privileges. You can: <br><br>
+        Your account has been successfully set up with <b>""" + str(accountType) + """</b> privileges. You can: <br><br>
         1. Login <br>
         2. Book appointments <br>
         3. Reschedule appointments <br>
