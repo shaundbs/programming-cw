@@ -9,7 +9,7 @@ import calendar
 # back button should be child node if available option from a state.
 
 states = {
-    "main options": ["manage calendar", "confirm appointments", "view my appointments"],
+    "main options": ["manage calendar", "confirm appointments", "view my appointments", "logout"],
     # Calendar / holiday
     "manage calendar": ["view calendar", "schedule time off", "back"],
     "view calendar": ["back"],
@@ -44,6 +44,10 @@ class Gp:
     def print_welcome(self):
         ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
         print("Hi Dr", self.firstname, self.lastname)
+
+    def logout(self):
+        # TODO return to main code. delete class instance.
+        pass
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
     def handle_state_selection(self, selected):
