@@ -12,7 +12,7 @@ states = {
     "main options": ["manage calendar", "confirm appointments", "view my appointments", "logout"],
     # Calendar / holiday
     "manage calendar": ["view calendar", "schedule time off", "back"],
-    "view calendar": ["view day","view another month","back"],
+    "view calendar": ["view day", "view another month", "back"],
     "schedule time off": ["back"],
     # confirm appts
     "confirm appointments": ["back"],
@@ -41,7 +41,7 @@ class Gp:
 
         # initialise state machine
         self.state_gen = StateGenerator(state_dict=states, state_object=self)
-        self.state_gen.change_state("write clinical notes")  # initialise main options state
+        self.state_gen.change_state("main options")  # initialise main options state
 
         # Initialise state variables (variables that need to be passed between states and hold a value until they are
         # reset in the application flow).
@@ -95,7 +95,7 @@ class Gp:
                 f"LEFT JOIN slots s on a.slot_id=s.slot_id " \
                 f"WHERE is_confirmed=1 AND GP_ID = {self.user_id} and month='{month}'"
         res = self.db.fetch_data(query)
-        #create calendar
+        # create calendar
         c = calendar.TextCalendar()
         display_month = c.formatmonth(int(month[:4]), int(month[5:]))
         for appt in res:
@@ -108,7 +108,8 @@ class Gp:
         ui.info("[Days] that you have appointments")
 
         user_choices = ["view day", "view another month", "back"]
-        selected = ui.ask_choice("View a day to schedule time off and view appointments or view another month", choices=user_choices)
+        selected = ui.ask_choice("View a day to schedule time off and view appointments or view another month",
+                                 choices=user_choices)
         if selected == "view day":
             day = util.get_user_date()
             self.to_view_my_appointments(day)
@@ -116,7 +117,6 @@ class Gp:
             month = util.get_user_month()
             print(month, type(month))
             self.to_view_calendar(month)
-
 
     def schedule_time_off(self):
         pass
@@ -279,7 +279,8 @@ class Gp:
         # Appt details + referral
         get_apt_details_query = f"SELECT appointment_id,  u.firstName || ' ' || u.lastName as 'patient name',  " \
                                 f"strftime('%d/%m/%Y', s.starttime) as date, strftime('%H:%M', s.starttime)  as " \
-                                f"'appointment time', reason, referred_specialist_id FROM APPOINTMENT  a left join Users u on u.userId = " \
+                                f"'appointment time', reason, referred_specialist_id, clinical_notes FROM APPOINTMENT " \
+                                f" a left join Users u on u.userId = " \
                                 f"a.patient_id left join slots s on s.slot_id = a.slot_id WHERE appointment_id= " \
                                 f"{appt_id} "
         appt_details = self.db.fetch_data(get_apt_details_query)
@@ -302,6 +303,11 @@ class Gp:
         ui.info(ui.bold, "Reason for appointment:", ui.reset, f"{reason} \n")
 
         # Clinical notes
+        if appt_details[0]["clinical_notes"] is None:
+            clinical_notes = "No notes added yet."
+        else:
+            clinical_notes = appt_details[0]["clinical_notes"]
+        ui.info(ui.bold, "Clinical Notes:\n", ui.indent(clinical_notes, 4), "\n")
 
         # Prescriptions
         if len(prescription_data) == 0:
@@ -334,13 +340,62 @@ class Gp:
             self.handle_state_selection(selected)
 
     def write_clinical_notes(self):
-        # appt_id = self.curr_appt_id
+        appt_id = self.curr_appt_id
+
+        # get clinical notes for this appt
+        clinical_notes_query = f"SELECT clinical_notes, appointment_id from Appointment where appointment_id = {appt_id}"
+        clinical_notes = self.db.fetch_data(clinical_notes_query)
+
+        rewrite_or_append = ""  # declaring choice variable for if a patinet alrady has notes.
 
         # todo if clinical notes not null, does user want to rewrite or append to clinical notes.
+        if clinical_notes[0]["clinical_notes"] is not None:
+            ui.info("There are already notes for this appointment:")
+            ui.info_2(f"Clinical notes: \n", ui.indent(clinical_notes[0]['clinical_notes'], 6))
+            user_options = ["append to current notes", "rewrite clinical notes (overwrite)", "back"]
+            rewrite_or_append = util.user_select("What would you like to do?", choices=user_options)
+            if rewrite_or_append == "back":
+                self.handle_state_selection(rewrite_or_append)
+            else:
+                ui.info_1(ui.standout, f"Mode: {rewrite_or_append}")
+        else:
+            ui.info(ui.standout, "Begin writing clinical notes.")
 
         # multi line input
         notes = util.get_multi_line_input("Please write your clinical notes here:")
-        print(notes)
+
+        if rewrite_or_append == "append to current notes":  # if append need to append.
+            # TODO HANDLING IN CASE ERRORS ON JOIN?
+            notes = "\n".join([clinical_notes[0]["clinical_notes"], notes])
+            ui.info_1("We've appended your new notes to the previous notes:")
+        else:
+            ui.info_1("Your clinical notes:")
+
+        ui.info(ui.indent(notes, 6))
+        # todo - should writing or ediitng be own states? with notes as state varibale? then could edit at any point
+        #  or even append to notes not yet commited?
+        if ui.ask_yes_no(
+                "Are you happy to add the clinical notes to the appointment? Select 'No' to discard changes or 'Yes' to save."):
+            # update db
+            success = util.db_update(clinical_notes, "Appointment", "appointment_id",
+                                     **{"clinical_notes": f'"{notes}"'})
+            # todo - this may break if a user users double quotatioin marks...
+            if success:
+                ui.info(ui.green, "Clinical notes successfully saved.")
+            else:
+                ui.info("There was an error, processing your request, please try later")
+            ui.info("Returning to appointment details")
+            util.loading()
+            # Return to Appointment details
+            self.to_show_appointment_details()
+        else:
+            # go back or rewrite?
+            options = ["Try writing clinical notes again", "back"]
+            selected = util.user_select("What would you like to do now?", choices=options)
+            if selected == "back":
+                self.handle_state_selection("back")
+            else:
+                self.to_write_clinical_notes()  # restart state from scratch if gp wants to try writing again.
 
     def write_prescriptions(self, appt_id):
         ui.info("Please follow the prompts to enter a prescription for the patient.")

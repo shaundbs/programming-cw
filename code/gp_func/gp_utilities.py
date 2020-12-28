@@ -135,7 +135,7 @@ def get_multi_line_input(user_prompt):
     # loop input fields until user enters q to quit/exit
     ui.info(user_prompt)
     ui.info_2("This is a multi-lined input. Use [Enter] to start a new line.")
-    ui.info_2(ui.bold, "Enter 'q', 'quit' or 'exit' to finish the entry.")
+    ui.info_2(ui.bold, "Enter 'q', 'quit' or 'exit' on a new line to finish the entry.")
     exit_inputs = ['q', 'quit', 'exit']
 
     inputs = []
@@ -155,7 +155,7 @@ def get_multi_line_input(user_prompt):
         count_char = 0
         last_cut = 0
         for char in input_text:
-            print(char, current_index, count_char, last_cut)
+            # print(char, current_index, count_char, last_cut)
             if len(input_text) == current_index + 1:  # if last element
                 formatted = input_text[last_cut:]
                 formatted_inputs.append(formatted)

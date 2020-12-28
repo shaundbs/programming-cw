@@ -19,10 +19,12 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="db updated with dummy specialists and departments for referral system.">
+    <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="multi line input function written. begun clinical notes functionality.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ehealth.db.sql" beforeDir="false" afterPath="$PROJECT_DIR$/ehealth.db.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -307,7 +309,14 @@
       <option name="project" value="LOCAL" />
       <updated>1609177768530</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="multi line input function written. begun clinical notes functionality.">
+      <created>1609186148275</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1609186148275</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -348,6 +357,7 @@
     <MESSAGE value="building confirm appts functionality" />
     <MESSAGE value="confirm appointments completed." />
     <MESSAGE value="db updated with dummy specialists and departments for referral system." />
-    <option name="LAST_COMMIT_MESSAGE" value="db updated with dummy specialists and departments for referral system." />
+    <MESSAGE value="multi line input function written. begun clinical notes functionality." />
+    <option name="LAST_COMMIT_MESSAGE" value="multi line input function written. begun clinical notes functionality." />
   </component>
 </project>

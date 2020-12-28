@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS "Appointment" (
 	"gp_id" INTEGER,
 	"reason" TEXT,
 	"referred_specialist_id" INTEGER,
+	"clinical_notes" TEXT,
 	PRIMARY KEY("appointment_id" AUTOINCREMENT),
 	FOREIGN KEY("patient_id") REFERENCES Users(UserId),
 	FOREIGN KEY("gp_id") REFERENCES Users(UserId),
