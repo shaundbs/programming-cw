@@ -20,7 +20,8 @@ states = {
     "view my appointments": ["select an appointment", "view appointments from another day", "back"],
     "select an appointment": ["show appointment details", "back"],
     "view appointments from another day": ["back"],
-    "show appointment details": ["write prescriptions", "add referral", "back"],
+    "show appointment details": ["write clinical notes", "write prescriptions", "add referral", "back"],
+    "write clinical notes": ["back"],
     "write prescriptions": ["back"],
     "add referral": ["back"]
 }
@@ -40,7 +41,7 @@ class Gp:
 
         # initialise state machine
         self.state_gen = StateGenerator(state_dict=states, state_object=self)
-        self.state_gen.change_state("main options")  # initialise main options state
+        self.state_gen.change_state("write clinical notes")  # initialise main options state
 
         # Initialise state variables (variables that need to be passed between states and hold a value until they are
         # reset in the application flow).
@@ -178,6 +179,7 @@ class Gp:
                     if success:
                         ui.info(ui.green,
                                 f"Appointment on {selected_row['date']} with {selected_row['patient name']} successfully rejected.")
+                        # TODO SEND EMAIL TO PATIENT NOTIFYING OF REJECTED APPT
                     else:
                         ui.info("There was an error, processing your request, please try later")
 
@@ -330,6 +332,15 @@ class Gp:
             self.to_view_my_appointments()
         else:
             self.handle_state_selection(selected)
+
+    def write_clinical_notes(self):
+        # appt_id = self.curr_appt_id
+
+        # todo if clinical notes not null, does user want to rewrite or append to clinical notes.
+
+        # multi line input
+        notes = util.get_multi_line_input("Please write your clinical notes here:")
+        print(notes)
 
     def write_prescriptions(self, appt_id):
         ui.info("Please follow the prompts to enter a prescription for the patient.")
