@@ -76,26 +76,23 @@ class Emails:
         </html>
         """
 
-        # Record the MIME types of both parts - text/plain and text/html.
+        #text/plain and text/html.
         part1 = MIMEText(text, 'plain')
         part2 = MIMEText(html, 'html')
 
-        # Attach parts into message container.
-        # According to RFC 2046, the last part of a multipart message, in this case
-        # the HTML message, is best and preferred.
+        # Attach parts into message container
         msg.attach(part1)
         msg.attach(part2)
 
-        # This example assumes the image is in the current directory
         fp = open('logo.png', 'rb')
         msgimage = MIMEImage(fp.read())
         fp.close()
 
-        # Define the image's ID as referenced above
+        # Define the image's ID
         msgimage.add_header('Content-ID', '<image1>')
         msg.attach(msgimage)
 
-        # Send the message via local SMTP server.
+        # Send the message
         mail = smtplib.SMTP('smtp.gmail.com', 587)
         mail.ehlo()
         mail.starttls()
@@ -118,7 +115,7 @@ class Emails:
 
         # Create the body of the message.
         text = "Hi " + firstName + " " + lastName + " thank you for registering with Gower St. Surgery" \
-                "the e-health management service.\n \n Your account has been successfully set up with " + accountType \
+                                                    "the e-health management service.\n \n Your account has been successfully set up with " + accountType \
                + " " \
                  "priviledges. You can 1. Login \n 2. Book appointments \n 3. Reschedule appointments \n" \
                  "4. Cancel appointments \n 5. Book a session with one of our external specialists \n" \
@@ -159,9 +156,9 @@ class Emails:
         Your account has been successfully set up with <b>""" + str(accountType) + """</b> privileges. You can: <br><br>
         1. Login <br>
         2. Book appointments <br>
-        3. Reschedule appointments <br>
-        4. Cancel appointments <br>
-        5. Book a session with one of our external specialists <br><br> Log back into the application begin </p>
+        3. Reschedule/cancel appointments <br>
+        4. Book a session with one of our external specialists <br>
+        5. View your prescriptions and medical history <br><br> Log back into the application to begin </p>
         </td>
         </tr>
         </table>
@@ -172,30 +169,26 @@ class Emails:
         </html>
         """
 
-        # Record the MIME types of both parts - text/plain and text/html.
+        # text/plain and text/html.
         part1 = MIMEText(text, 'plain')
         part2 = MIMEText(html, 'html')
 
-        # Attach parts into message container.
-        # According to RFC 2046, the last part of a multipart message, in this case
-        # the HTML message, is best and preferred.
+        # Attach parts into message container
         msg.attach(part1)
         msg.attach(part2)
 
-        # This example assumes the image is in the current directory
         fp = open('logo.png', 'rb')
         msgimage = MIMEImage(fp.read())
         fp.close()
 
-        # Define the image's ID as referenced above
+        # Define the image's ID
         msgimage.add_header('Content-ID', '<image1>')
         msg.attach(msgimage)
 
-        # Send the message via local SMTP server.
+        # Send the message
         mail = smtplib.SMTP('smtp.gmail.com', 587)
         mail.ehlo()
         mail.starttls()
         mail.login(sender_email, password)
         mail.sendmail(admin, rec, msg.as_string())
         mail.quit()
-

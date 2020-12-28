@@ -107,7 +107,7 @@ class Patient:
                             #   following month
 
                             if datetime.datetime.now().date() < datetime.datetime.strptime(select_date,
-                               '%Y-%m-%d').date() < datetime.datetime.now().date() + one_month:
+                               '%Y-%m-%d').date() <= datetime.datetime.now().date() + one_month:
                                 datetime.datetime.strptime(select_date, '%Y-%m-%d')
 
                             # check if the date entered by the user fits the condition and is valid
@@ -369,7 +369,7 @@ class Patient:
                             #   following month
 
                             if datetime.datetime.now().date() < datetime.datetime.strptime(select_date,
-                               '%Y-%m-%d').date() < datetime.datetime.now().date() + one_month:
+                               '%Y-%m-%d').date() <= datetime.datetime.now().date() + one_month:
                                 datetime.datetime.strptime(select_date, '%Y-%m-%d')
 
                                 # check if the date entered by the user fits the condition and is valid
@@ -788,7 +788,6 @@ class Patient:
             print("Patient id: " + str(self.patient_id) +
                   "want to view prescription\n")
             return
-
 
 if __name__ == "__main__":
     Patient(4).select_options()
