@@ -19,7 +19,7 @@ while True:
             print(' ')
             a = Patient(result[1])
             # Our patient is presented with available options.
-            a.select_options()
+            a.patient_home()
 
     elif option == "2":
         # Patient Register.
