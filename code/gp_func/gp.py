@@ -74,12 +74,12 @@ class Gp:
         self.handle_state_selection(
             selected)  # if back is selected, the back state function above will handle going back to parent state.
 
-    def view_calendar(self, appt_month: str = "current_month"):
+    def view_calendar(self, month: str = "current_month"):
         selected_month = datetime.now()
-        if appt_month == "current_month":
+        if month == "current_month":
             month = '2021/01'
-        else:
-            month = f"'{appt_month}'"
+
+        print(month, type(month))
 
         # get appointments for the GP user
         query = f"SELECT strftime('%Y/%m', s.starttime) as month, strftime('%d', s.starttime) as day FROM Appointment a " \
@@ -95,16 +95,19 @@ class Gp:
             else:
                 display_month = display_month.replace(" %s " % appt["day"], "[%s]" % appt["day"])
 
-        print(display_month)
-        print("[Days] that you have appointments")
+        ui.info(display_month)
+        ui.info("[Days] that you have appointments")
 
-        selected = util.user_select("Where to go next?", self.state_gen.get_state_options())
-        self.handle_state_selection(selected)
+        user_choices = ["view day", "view another month", "back"]
+        selected = ui.ask_choice("View a day to schedule time off and view appointments or view another month", choices=user_choices)
+        if selected == "view day":
+            day = util.get_user_date()
+            self.to_view_my_appointments(day)
+        elif selected == "view another month":
+            month = util.get_user_month()
+            print(month, type(month))
+            self.to_view_calendar(month)
 
-
-
-
-        pass
 
     def schedule_time_off(self):
         pass
