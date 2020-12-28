@@ -1,5 +1,9 @@
 import sqlite3
 from database import Database
+from patients import Patient
+import bcrypt
+import getpass
+
 
 # TODO: WHEN TO CLOSE DB?
 
@@ -14,16 +18,41 @@ class Panel:
     def welcome(self):
         print('Welcome')
 
-    def homepage_options(self):
-        print("-----------------------------------------")
-        print("|Enter 1 for Admin mode			|\n|Enter 2 for Patient mode	        |\n|Enter 3 for GP mode			|\n|Enter 4 Exit			        |")
-        print("-----------------------------------------")
-        Admin_user_mode = input("Enter your mode : ")
-        return Admin_user_mode
+    def login(self):
+        email = input('Email:')
+        pWord = input('Password:')
+        a = (email,)
+        self.db.exec_one(
+            "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
+        record = self.db.c.fetchone()
+        # pWord = pWord
+        # print(pWord)
+        # print(record[0])
 
-    def patient_options(self):
+        if not record:
+            print('Sorry, your account does not exist in the system')
+            self.login()
+
+        elif bcrypt.checkpw(pWord.encode('utf-8'), record[0].encode('utf-8')):
+            if record[2] == 'patient':
+                if record[3] == 1:
+                    return ['patient', record[1]]
+                else:
+                    print('Sorry, your registration is not approved yet.')
+                    return False
+            elif record[2] == 'gp':
+                return ['gp', record[1]]
+            elif record[2] == 'admin':
+                return ['admin', record[1]]
+
+        else:
+            print('Your password is wrong, Please retry.')
+            self.login()
+
+    def user_options(self):
         print("1. Log in")
         print("2. Register")
+        print("3. Exit")
         option = input("Enter your option : ")
         return option
 

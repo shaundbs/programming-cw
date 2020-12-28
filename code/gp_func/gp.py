@@ -3,6 +3,7 @@ import gp_database as db
 import cli_ui as ui
 import gp_utilities as util
 from datetime import datetime
+import calendar
 
 # state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.
@@ -11,7 +12,7 @@ states = {
     "main options": ["manage calendar", "confirm appointments", "view my appointments", "logout"],
     # Calendar / holiday
     "manage calendar": ["view calendar", "schedule time off", "back"],
-    "view calendar": ["back"],
+    "view calendar": ["view day","view another month","back"],
     "schedule time off": ["back"],
     # confirm appts
     "confirm appointments": ["back"],
@@ -81,8 +82,40 @@ class Gp:
         self.handle_state_selection(
             selected)  # if back is selected, the back state function above will handle going back to parent state.
 
-    def view_calendar(self):
-        pass
+    def view_calendar(self, month: str = "current_month"):
+        selected_month = datetime.now()
+        if month == "current_month":
+            month = '2021/01'
+
+        print(month, type(month))
+
+        # get appointments for the GP user
+        query = f"SELECT strftime('%Y/%m', s.starttime) as month, strftime('%d', s.starttime) as day FROM Appointment a " \
+                f"LEFT JOIN slots s on a.slot_id=s.slot_id " \
+                f"WHERE is_confirmed=1 AND GP_ID = {self.user_id} and month='{month}'"
+        res = self.db.fetch_data(query)
+        #create calendar
+        c = calendar.TextCalendar()
+        display_month = c.formatmonth(int(month[:4]), int(month[5:]))
+        for appt in res:
+            if appt["day"][0] == "0":
+                display_month = display_month.replace(" %s " % appt["day"][1], "[%s]" % appt["day"][1])
+            else:
+                display_month = display_month.replace(" %s " % appt["day"], "[%s]" % appt["day"])
+
+        ui.info(display_month)
+        ui.info("[Days] that you have appointments")
+
+        user_choices = ["view day", "view another month", "back"]
+        selected = ui.ask_choice("View a day to schedule time off and view appointments or view another month", choices=user_choices)
+        if selected == "view day":
+            day = util.get_user_date()
+            self.to_view_my_appointments(day)
+        elif selected == "view another month":
+            month = util.get_user_month()
+            print(month, type(month))
+            self.to_view_calendar(month)
+
 
     def schedule_time_off(self):
         pass
@@ -175,7 +208,6 @@ class Gp:
         if appt_date == "today":
             date = "date('now')"
         else:
-
             date = f"'{appt_date}'"
         # get appointments for the GP user
         get_appts_sql_query = "SELECT appointment_id,  u.firstName || ' ' || u.lastName as 'patient name',  strftime(" \
