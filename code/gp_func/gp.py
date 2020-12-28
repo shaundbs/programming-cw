@@ -45,7 +45,7 @@ class Gp:
         # Initialise state variables (variables that need to be passed between states and hold a value until they are
         # reset in the application flow).
         self.curr_appt_date = "today"  # default is today
-        self.curr_appt_id = None  # no appoinment id set yet.
+        self.curr_appt_id = None  # no appointment id set yet.
 
     def print_welcome(self):
         ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
@@ -414,7 +414,7 @@ class Gp:
                                f"WHERE appointment_id= " \
                                f"{appt_id} "  # TODO add another left join to get dept
         referral_check = self.db.fetch_data(referral_check_query)
-        if referral_check is not None:
+        if referral_check[0]["referred_specialist_id"] is not None:
             # Show current referral details
             ui.info(f"A patient can only be referred once per appointment.\nA referral has already been added for "
                     f"this appointment: {referral_check[0]['dept_name']} department - {referral_check[0]['doc_name']} at {referral_check[0]['hospital']} ")

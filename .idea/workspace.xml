@@ -20,116 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="gp package setup. Testing file set up. TODO - Add states">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/gp_func/gp_database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/loginsystem/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/loginsystem/requirement.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/programming_cw.egg-info/PKG-INFO" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/programming_cw.egg-info/SOURCES.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/programming_cw.egg-info/dependency_links.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/programming_cw.egg-info/top_level.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/state_manager/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/state_manager/state_gen.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/ehealth.db-journal" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark-0.9.1.dist-info/INSTALLER" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark-0.9.1.dist-info/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark-0.9.1.dist-info/METADATA" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark-0.9.1.dist-info/RECORD" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark-0.9.1.dist-info/WHEEL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark-0.9.1.dist-info/entry_points.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark-0.9.1.dist-info/top_level.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/blocks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/cmark.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/common.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/dump.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/entitytrans.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/inlines.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/node.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/normalize_reference.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/render/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/render/html.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/render/renderer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/render/rst.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/tests/rst_tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/tests/run_spec_tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/commonmark/tests/unit_tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/_common.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/_version.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/easter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/parser/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/parser/_parser.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/parser/isoparser.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/relativedelta.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/rrule.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/_common.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/_factories.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/tz.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tz/win.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/tzwin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/zoneinfo/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/zoneinfo/dateutil-zoneinfo.tar.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/dateutil/zoneinfo/rebuild.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/easy-install.pth" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/INSTALLER" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/METADATA" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/RECORD" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/REQUESTED" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/WHEEL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick-1.0.0.dist-info/top_level.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/pick/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/programming-cw.egg-link" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/INSTALLER" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/METADATA" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/RECORD" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/REQUESTED" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/WHEEL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/top_level.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/python_dateutil-2.8.1.dist-info/zip-safe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables-3.1.0-py3.8.egg-info/PKG-INFO" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables-3.1.0-py3.8.egg-info/SOURCES.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables-3.1.0-py3.8.egg-info/dependency_links.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables-3.1.0-py3.8.egg-info/installed-files.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables-3.1.0-py3.8.egg-info/top_level.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables-3.1.0-py3.8.egg-info/zip-safe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables/ascii_table.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables/base_table.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables/build.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables/github_table.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables/other_tables.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables/terminal_io.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/terminaltables/width_and_alignment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/typing_extensions-3.7.4.3.dist-info/INSTALLER" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/typing_extensions-3.7.4.3.dist-info/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/typing_extensions-3.7.4.3.dist-info/METADATA" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/typing_extensions-3.7.4.3.dist-info/RECORD" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/typing_extensions-3.7.4.3.dist-info/WHEEL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/typing_extensions-3.7.4.3.dist-info/top_level.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/typing_extensions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/programming-cw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/programming-cw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/gp_func/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/gp_func/gp_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_testing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/panel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/patients.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/patients.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/utilities.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/ehealth.db-journal" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/ehealth.db.sql" beforeDir="false" afterPath="$PROJECT_DIR$/ehealth.db.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/cli_ui/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/venv/lib/python3.8/site-packages/cli_ui/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -310,9 +205,9 @@
     <list>
       <item itemvalue="Python.GP Test" />
       <item itemvalue="Python.db_test" />
-      <item itemvalue="Python.gp" />
       <item itemvalue="Python.main" />
       <item itemvalue="Python.setup" />
+      <item itemvalue="Python.gp" />
     </list>
     <recent_temporary>
       <list>
@@ -412,6 +307,16 @@
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.sql" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
