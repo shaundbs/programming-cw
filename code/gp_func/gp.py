@@ -4,6 +4,7 @@ import cli_ui as ui
 import gp_utilities as util
 from datetime import datetime, timedelta
 import calendar
+import logging
 
 # state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.
@@ -361,8 +362,9 @@ class Gp:
                 util.loading()
             self.to_show_appointment_details()
         except KeyError:
-            # TODO LOG ERROR IF INVALID DICTIONARY PASSED TO FUNCTION.
-            ui.info(ui.red, "An error has occured. We could not get the appointment data for the record.")
+            #  LOG ERROR IF INVALID DICTIONARY PASSED TO FUNCTION.
+            logging.exception("Exception occurred.")
+            ui.info(ui.red, "An error has occurred. We could not get the appointment data for the record.")
             ui.info("Going back to 'view appointment' page")
             util.loading()
             self.handle_state_selection("back")
@@ -390,9 +392,9 @@ class Gp:
         clinical_notes_query = f"SELECT clinical_notes, appointment_id from Appointment where appointment_id = {appt_id}"
         clinical_notes = self.db.fetch_data(clinical_notes_query)
 
-        rewrite_or_append = ""  # declaring choice variable for if a patinet alrady has notes.
+        rewrite_or_append = ""  # declaring choice variable for if a patient already has notes.
 
-        # todo if clinical notes not null, does user want to rewrite or append to clinical notes.
+        # if clinical notes not null, does user want to rewrite or append to clinical notes.
         if clinical_notes[0]["clinical_notes"] is not None:
             ui.info("There are already notes for this appointment:")
             ui.info_2(f"Clinical notes: \n", ui.indent(clinical_notes[0]['clinical_notes'], 6))
@@ -419,11 +421,12 @@ class Gp:
         # todo - should writing or ediitng be own states? with notes as state varibale? then could edit at any point
         #  or even append to notes not yet commited?
         if ui.ask_yes_no(
-                "Are you happy to add the clinical notes to the appointment? Select 'No' to discard changes or 'Yes' to save."):
+                "Are you happy to add the clinical notes to the appointment? Select 'No' to discard changes or 'Yes' "
+                "to save."):
             # update db
             success = util.db_update(clinical_notes, "Appointment", "appointment_id",
                                      **{"clinical_notes": f'"{notes}"'})
-            # todo - this may break if a user users double quotatioin marks...
+            # todo - this may break if a user users double quotation marks... - could use """ triple quotations in the get multi input fn?
             if success:
                 ui.info(ui.green, "Clinical notes successfully saved.")
             else:
@@ -501,7 +504,8 @@ class Gp:
             if err is None:
                 ui.info_1("Prescription successfully saved in records.")
             else:
-                # TODO  log error
+                #  log error
+                logging.exception(f"Exception occurred when saving prescription to database. insert stmt = {prescription_insert_stmt}")
                 ui.error("Sorry, an error occurred when saving. Please try again later.")
 
         user_options = ["write another prescription", "back"]
@@ -522,7 +526,7 @@ class Gp:
                                f"s on s.specialist_id = " \
                                f"a.referred_specialist_id left join Department d on d.department_id = s.department_id " \
                                f"WHERE appointment_id= " \
-                               f"{appt_id} "  # TODO add another left join to get dept
+                               f"{appt_id} "
         referral_check = self.db.fetch_data(referral_check_query)
         if referral_check[0]["referred_specialist_id"] is not None:
             # Show current referral details
@@ -652,7 +656,8 @@ class Gp:
                     util.loading(load_time=3, new_line=False)
                     ui.info_3(" Email not sent to patient")
             except UnboundLocalError:
-                # todo logging
+                # logging
+                logging.exception("Exception occurred while finalising appt email.")
                 print("an error occurred. The patient may not have been emailed successfully if this option was chosen.")
 
             util.loading(load_time=3, new_line=False)
