@@ -12,7 +12,8 @@ states = {
     "main options": ["manage calendar", "confirm appointments", "view my appointments", "logout"],
     # Calendar / holiday
     "manage calendar": ["view calendar", "schedule time off", "back"],
-    "view calendar": ["view day", "view another month", "back"],
+    "view calendar": ["view another month","view day schedule", "back"],
+    "view day schedule": ["back"],
     "schedule time off": ["back"],
     # confirm appts
     "confirm appointments": ["back"],
@@ -47,6 +48,7 @@ class Gp:
         # reset in the application flow).
         self.curr_appt_date = "today"  # default is today
         self.curr_appt_id = None  # no appointment id set yet.
+        self.curr_appt_month = "current_month"
 
     def print_welcome(self):
         ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
@@ -69,6 +71,7 @@ class Gp:
         self.print_welcome()  # say hi to the Dr.
         # reset state variable if back to main options.
         self.curr_appt_date = "today"
+        self.curr_appt_month = "current_month"
 
         selected = util.user_select("Choose an option", self.state_gen.get_state_options())
 
@@ -83,12 +86,14 @@ class Gp:
         self.handle_state_selection(
             selected)  # if back is selected, the back state function above will handle going back to parent state.
 
-    def view_calendar(self, month: str = "current_month"):
+    def view_calendar(self):
         selected_month = datetime.now()
-        if month == "current_month":
-            month = '2021/01'
+        if self.curr_appt_month == "current_month":
+            month = datetime.today().strftime('%Y/%m')
+        else:
+            month = self.curr_appt_month
 
-        print(month, type(month))
+        #print(month, type(month))
 
         # get appointments for the GP user
         query = f"SELECT strftime('%Y/%m', s.starttime) as month, strftime('%d', s.starttime) as day FROM Appointment a " \
@@ -107,16 +112,37 @@ class Gp:
         ui.info(display_month)
         ui.info("[Days] that you have appointments")
 
-        user_choices = ["view day", "view another month", "back"]
+        #user_choices = ["view day", "view another month", "back"]
         selected = ui.ask_choice("View a day to schedule time off and view appointments or view another month",
-                                 choices=user_choices)
-        if selected == "view day":
-            day = util.get_user_date()
-            self.to_view_my_appointments(day)
+                                 choices=self.state_gen.get_state_options())
+        if selected == "view day schedule":
+            self.curr_appt_date = util.get_user_date()
         elif selected == "view another month":
-            month = util.get_user_month()
-            print(month, type(month))
-            self.to_view_calendar(month)
+            self.curr_appt_month = util.get_user_month()
+            self.to_view_calendar()
+
+        self.handle_state_selection(selected)
+
+    def view_day_schedule(self):
+        date = self.curr_appt_date
+        print(date, self.user_id)
+        get_appts_sql_query = f"SELECT is_confirmed, strftime('%d/%m/%Y',s.starttime) as date, " \
+                              f"strftime('%H:%M', s.starttime)  as 'appointment time' FROM slots s left outer " \
+                              f"join Appointment a on s.slot_id = a.slot_id " \
+                              f"WHERE gp_id = {self.user_id} and date(s.starttime) = '{date}' order by s.starttime"
+
+        get_slots_sql_query = f"SELECT strftime('%H:%M', startTime)  as 'appointment time' FROM slots " \
+                              f"WHERE date(starttime) = '{date}' order by starttime"
+
+        get_time_off_sql_query
+        appointments = self.db.fetch_data(get_appts_sql_query)
+
+
+
+
+        print(res)
+        table_data = util.output_sql_rows(res, ["date", "appointment time"])
+        print(table_data)
 
     def schedule_time_off(self):
         pass
