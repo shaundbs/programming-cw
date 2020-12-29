@@ -125,24 +125,51 @@ class Gp:
 
     def view_day_schedule(self):
         date = self.curr_appt_date
-        print(date, self.user_id)
         get_appts_sql_query = f"SELECT is_confirmed, strftime('%d/%m/%Y',s.starttime) as date, " \
-                              f"strftime('%H:%M', s.starttime)  as 'appointment time' FROM slots s left outer " \
+                              f"strftime('%Y-%m-%d %H:%M:%S', s.starttime)  as 'appointment time' FROM slots s left outer " \
                               f"join Appointment a on s.slot_id = a.slot_id " \
                               f"WHERE gp_id = {self.user_id} and date(s.starttime) = '{date}' order by s.starttime"
 
-        get_slots_sql_query = f"SELECT strftime('%H:%M', startTime)  as 'appointment time' FROM slots " \
+        get_slots_sql_query = f"SELECT startTime, endTime FROM slots " \
                               f"WHERE date(starttime) = '{date}' order by starttime"
 
-        get_time_off_sql_query
+        get_time_off_sql_query = f"SELECT startTime, endTime FROM gp_time_off " \
+                                 f"WHERE date(starttime) <= '{date}'  AND date(endTime) >= '{date}'  " \
+                                 f"order by startTime"
+
+
+
+        slots = self.db.fetch_data(get_slots_sql_query)
+        time_off = self.db.fetch_data(get_time_off_sql_query)
         appointments = self.db.fetch_data(get_appts_sql_query)
+        table_view = []
 
+        for slot in slots:
+            slot_start = datetime.strptime(slot["startTime"], '%Y-%m-%d %H:%M:%S')
+            slot_end = datetime.strptime(slot["endTime"], '%Y-%m-%d %H:%M:%S')
+            for time in time_off:
+                time_off_start = datetime.strptime(time["startTime"], '%Y-%m-%d %H:%M:%S')
+                time_off_end = datetime.strptime(time["endTime"], '%Y-%m-%d %H:%M:%S')
+                if (time_off_start < slot_end) and (time_off_end > slot_start):
+                    slot["status"] = "Time off"
+                else:
+                    slot["status"] = "Free slot"
 
+        for slot in slots:
+            for appointment in appointments:
+                if slot["startTime"] == appointment["appointment time"]:
+                    if appointment["is_confirmed"] == 1:
+                        slot["status"] = "Confirmed appointment"
+                    else:
+                        slot["status"] = "Unconfirmed appointment"
 
-
-        print(res)
-        table_data = util.output_sql_rows(res, ["date", "appointment time"])
+        table_data = util.output_sql_rows(slots, ["startTime", "status"])
         print(table_data)
+        #options = ["Take specific slot off", "back"]
+        #selected = ui.ask_choice("Would you like to?", choices=options)
+
+
+
 
     def schedule_time_off(self):
         pass
