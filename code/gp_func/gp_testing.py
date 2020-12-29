@@ -14,6 +14,7 @@ if __name__ == '__main__':
     # print(user_id)
 
     user = Gp(user_id[0]['userId'])
+    print("LOGGED OUT!!!! out of code now.")
 
 
     # user.state_gen.call_prev_state()

@@ -22,8 +22,7 @@
     <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="clinical notes functionality completed &amp; working.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/gp_func/gp_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_testing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -329,7 +328,14 @@
       <option name="project" value="LOCAL" />
       <updated>1609244647475</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="finalise appts functionality completed. fixed some input bugs. todo - email sending, all logging.">
+      <created>1609256722204</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1609256722204</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -373,6 +379,7 @@
     <MESSAGE value="multi line input function written. begun clinical notes functionality." />
     <MESSAGE value="clinical notes functionality completed &amp; working." />
     <MESSAGE value="updates to db, ready for finalise appt functionality. Print appt summary moved into its own function." />
-    <option name="LAST_COMMIT_MESSAGE" value="updates to db, ready for finalise appt functionality. Print appt summary moved into its own function." />
+    <MESSAGE value="finalise appts functionality completed. fixed some input bugs. todo - email sending, all logging." />
+    <option name="LAST_COMMIT_MESSAGE" value="finalise appts functionality completed. fixed some input bugs. todo - email sending, all logging." />
   </component>
 </project>

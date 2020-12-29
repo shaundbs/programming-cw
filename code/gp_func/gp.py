@@ -10,6 +10,7 @@ import calendar
 
 states = {
     "main options": ["manage calendar", "confirm appointments", "view my appointments", "logout"],
+    "logout": [],
     # Calendar / holiday
     "manage calendar": ["view calendar", "schedule time off", "back"],
     "view calendar": ["view day", "view another month", "back"],
@@ -55,8 +56,8 @@ class Gp:
         print("Hi Dr", self.firstname, self.lastname)
 
     def logout(self):
-        # TODO return to main code.
-        pass
+        # remove state tracking from the object. exiting out of class.
+        del self.state_gen
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
     def handle_state_selection(self, selected):
