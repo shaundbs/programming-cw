@@ -2,7 +2,7 @@ from state_manager import StateGenerator
 import gp_database as db
 import cli_ui as ui
 import gp_utilities as util
-from datetime import datetime
+from datetime import datetime, timedelta
 import calendar
 
 # state dictionary/graph to map out possible routes/options from each state/node.
@@ -175,21 +175,47 @@ class Gp:
 
 
     def schedule_time_off(self):
-        now = datetime.today()
+        now = datetime.strptime("2020-01-01", '%Y-%m-%d')
 
-        ui.info("When you would you like your time off to start? (holidays must be booked 30 days in advance)")
+        ui.info("When you would you like your time-off to start?")
         date_not_valid = True
-        while date_not_valid =True
+        while date_not_valid == True:
             start_time = util.get_user_date()
-            if datetime.strptime(start_time, '%Y-%m-%d') > now:
+            if datetime.strptime(start_time, '%Y-%m-%d') > now + timedelta(days=30):
                 date_not_valid = False
+            else:
+                ui.info("Time-off must be booked 30 days in advance")
 
-        ui.info("When you would you like your time of to end?")
-        start_time = util.get_user_date()
+        ui.info("When you would you like your time off to end?")
+        date_not_valid = True
+        while date_not_valid == True:
+            end_time = util.get_user_date()
+            if datetime.strptime(end_time, '%Y-%m-%d') >= datetime.strptime(start_time, '%Y-%m-%d'):
+                date_not_valid = False
+            else:
+                ui.info("Cannot end before it begins")
 
+        #check for appointments in that time period
 
+        clash_query = f"SELECT s.starttime, a.is_confirmed, a.appointment_id " \
+                      f"FROM slots s left join Appointment a on s.slot_id = a.slot_id " \
+                      f"WHERE gp_id = 1 and s.startTime BETWEEN '{start_time}' AND  '{end_time}' " \
+                      f"order by s.starttime"
 
+        appointments = self.db.fetch_data(clash_query)
 
+        if not appointments:
+            print("yay no clashes")
+            pass
+        elif appointments:
+            print("you got these clashes bro")
+            table_data = util.output_sql_rows(appointments, ["startTime", "is_confirmed"])
+            print(table_data)
+
+            if not any(i['is_confirmed'] == 1 for i in appointments):
+                print("cancel these?")
+            else:
+                print("cannot have holiday dates unavailable")
 
     # CONFIRM APPOINTMENTS
 
