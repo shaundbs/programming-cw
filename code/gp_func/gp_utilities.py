@@ -6,6 +6,7 @@ from time import sleep
 import re
 from datetime import datetime
 import calendar
+import logging
 
 
 # utility functions for the GP flow
@@ -18,7 +19,8 @@ def user_select(prompt: str, choices: list):
             choice, index = pick(choices, prompt)
             selected = choice
         except Exception as err:
-            # TODO log error
+            # log error
+            logging.exception("Exception occurred while trying to use pick for user input.")
             try:
                 selected = ui.ask_choice(prompt, choices=choices, sort=False)
             except AttributeError:
@@ -142,7 +144,6 @@ def get_user_date():
                 date_not_valid = False
                 return date_to_search
         except AttributeError:
-            # TODO logging
             print("No date entered")
 
 
