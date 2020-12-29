@@ -146,7 +146,6 @@ class Gp:
         slots = self.db.fetch_data(get_slots_sql_query)
         time_off = self.db.fetch_data(get_time_off_sql_query)
         appointments = self.db.fetch_data(get_appts_sql_query)
-        table_view = []
 
         for slot in slots:
             slot_start = datetime.strptime(slot["startTime"], '%Y-%m-%d %H:%M:%S')
@@ -156,8 +155,8 @@ class Gp:
                 time_off_end = datetime.strptime(time["endTime"], '%Y-%m-%d %H:%M:%S')
                 if (time_off_start < slot_end) and (time_off_end > slot_start):
                     slot["status"] = "Time off"
-                else:
-                    slot["status"] = "Free slot"
+            if "status" not in slot:
+                slot["status"] = "Free slot"
 
         for slot in slots:
             for appointment in appointments:
@@ -166,11 +165,12 @@ class Gp:
                         slot["status"] = "Confirmed appointment"
                     else:
                         slot["status"] = "Unconfirmed appointment"
-
+        print(slots)
         table_data = util.output_sql_rows(slots, ["startTime", "status"])
         print(table_data)
         #options = ["Take specific slot off", "back"]
         #selected = ui.ask_choice("Would you like to?", choices=options)
+
 
 
 
@@ -200,23 +200,44 @@ class Gp:
 
         clash_query = f"SELECT s.starttime, a.is_confirmed, a.appointment_id " \
                       f"FROM slots s left join Appointment a on s.slot_id = a.slot_id " \
-                      f"WHERE gp_id = 1 and s.startTime BETWEEN '{start_time}' AND  '{end_time}' " \
+                      f"WHERE gp_id = {self.user_id} and IS_REJECTED= 0 and s.startTime BETWEEN '{start_time}' AND  '{end_time}' " \
                       f"order by s.starttime"
 
         appointments = self.db.fetch_data(clash_query)
+        start_stamp = datetime.strptime(start_time, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S')
+        end_stamp = (datetime.strptime(end_time, '%Y-%m-%d')+timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+
+        time_off_query = f"INSERT INTO gp_time_off (gp_id, startTime, endTime)" \
+                         f"VALUES ({self.user_id}, '{start_stamp}', '{end_stamp}')"
 
         if not appointments:
-            print("yay no clashes")
-            pass
+            print("No clashes, time-off successfully booked")
+            self.db.exec(time_off_query)
+            # TODO ERROR HANDLING
+
         elif appointments:
             print("you got these clashes bro")
             table_data = util.output_sql_rows(appointments, ["startTime", "is_confirmed"])
             print(table_data)
 
             if not any(i['is_confirmed'] == 1 for i in appointments):
-                print("cancel these?")
+                yes = ui.ask_yes_no("Go back to the homepage?")
+                if yes:
+                    success = util.db_update(appointments, "appointment", "appointment_id", **{"is_rejected": 1})
+                    if success:
+                        ui.info(ui.green, "All appointments successfully rejected and time off booked")
+                        self.db.exec(time_off_query)
+                    else:
+                        ui.info("There was an error, processing your request, please try later")
+
+
             else:
-                print("cannot have holiday dates unavailable")
+                print("Sorry, you have holiday dates unavailable")
+
+        selected = ui.ask_choice("Where to?",choices=self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
+
 
     # CONFIRM APPOINTMENTS
 
