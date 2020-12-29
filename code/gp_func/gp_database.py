@@ -1,7 +1,7 @@
 import sqlite3
 
 """
-Same as loginsystem db except with dictionary support to return resuls in an easier format to work with."""
+Same as loginsystem db except with dictionary support to return results in an easier format to work with."""
 
 
 def dict_factory(cursor,

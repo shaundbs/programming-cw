@@ -19,7 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="multi line input function written. begun clinical notes functionality.">
+    <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="clinical notes functionality completed &amp; working.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/gp_func/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
@@ -204,13 +204,13 @@
       <item itemvalue="Python.GP Test" />
       <item itemvalue="Python.db_test" />
       <item itemvalue="Python.main" />
-      <item itemvalue="Python.setup" />
       <item itemvalue="Python.gp" />
+      <item itemvalue="Python.setup" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.gp" />
         <item itemvalue="Python.setup" />
+        <item itemvalue="Python.gp" />
       </list>
     </recent_temporary>
   </component>
@@ -314,7 +314,21 @@
       <option name="project" value="LOCAL" />
       <updated>1609186148275</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="clinical notes functionality completed &amp; working.">
+      <created>1609190426640</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1609190426640</updated>
+    </task>
+    <task id="LOCAL-00015" summary="updates to db, ready for finalise appt functionality. Print appt summary moved into its own function.">
+      <created>1609244647474</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1609244647475</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -356,6 +370,8 @@
     <MESSAGE value="confirm appointments completed." />
     <MESSAGE value="db updated with dummy specialists and departments for referral system." />
     <MESSAGE value="multi line input function written. begun clinical notes functionality." />
-    <option name="LAST_COMMIT_MESSAGE" value="multi line input function written. begun clinical notes functionality." />
+    <MESSAGE value="clinical notes functionality completed &amp; working." />
+    <MESSAGE value="updates to db, ready for finalise appt functionality. Print appt summary moved into its own function." />
+    <option name="LAST_COMMIT_MESSAGE" value="updates to db, ready for finalise appt functionality. Print appt summary moved into its own function." />
   </component>
 </project>

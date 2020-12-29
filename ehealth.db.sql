@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS "Appointment" (
 	"reason" TEXT,
 	"referred_specialist_id" INTEGER,
 	"clinical_notes" TEXT,
+	"is_completed" INTEGER,
 	PRIMARY KEY("appointment_id" AUTOINCREMENT),
 	FOREIGN KEY("patient_id") REFERENCES Users(UserId),
 	FOREIGN KEY("gp_id") REFERENCES Users(UserId),

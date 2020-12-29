@@ -21,10 +21,12 @@ states = {
     "view my appointments": ["select an appointment", "view appointments from another day", "back"],
     "select an appointment": ["show appointment details", "back"],
     "view appointments from another day": ["back"],
-    "show appointment details": ["write clinical notes", "write prescriptions", "add referral", "back"],
+    "show appointment details": ["write clinical notes", "write prescriptions", "add referral", "finalise appointment",
+                                 "back"],
     "write clinical notes": ["back"],
     "write prescriptions": ["back"],
-    "add referral": ["back"]
+    "add referral": ["back"],
+    "finalise appointment": ["back"]
 }
 
 
@@ -55,7 +57,7 @@ class Gp:
         print("Hi Dr", self.firstname, self.lastname)
 
     def logout(self):
-        # TODO return to main code. delete class instance.
+        # TODO return to main code.
         pass
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
@@ -328,60 +330,8 @@ class Gp:
 
         appt_id = self.curr_appt_id  # grab state variable of current appointment
 
-        # show more details - name, appt reason etc.
-        # Appt details + referral
-        get_apt_details_query = f"SELECT appointment_id,  u.firstName || ' ' || u.lastName as 'patient name',  " \
-                                f"strftime('%d/%m/%Y', s.starttime) as date, strftime('%H:%M', s.starttime)  as " \
-                                f"'appointment time', reason, referred_specialist_id, clinical_notes FROM APPOINTMENT " \
-                                f" a left join Users u on u.userId = " \
-                                f"a.patient_id left join slots s on s.slot_id = a.slot_id WHERE appointment_id= " \
-                                f"{appt_id} "
-        appt_details = self.db.fetch_data(get_apt_details_query)
-        # todo: add check that there is only one record returned. if not == problem
-
-        # Prescription
-        prescription_query = f"select * from Prescription where appointment_id = {appt_id}"
-        prescription_data = self.db.fetch_data(prescription_query)
-
-        # Base details
-        if appt_details[0]['reason'] is None:
-            reason = "Not specified"
-        else:
-            reason = appt_details[0]['reason']
-
-        ui.info_section(ui.bold, "Appointment Information")
-        ui.info(ui.bold, "Appointment date:", ui.reset, f"{appt_details[0]['date']}")
-        ui.info(ui.bold, "Appointment time:", ui.reset, f"{appt_details[0]['appointment time']}")
-        ui.info(ui.bold, "Patient Name:", ui.reset, f"{appt_details[0]['patient name']}")
-        ui.info(ui.bold, "Reason for appointment:", ui.reset, f"{reason} \n")
-
-        # Clinical notes
-        if appt_details[0]["clinical_notes"] is None:
-            clinical_notes = "No notes added yet."
-        else:
-            clinical_notes = appt_details[0]["clinical_notes"]
-        ui.info(ui.bold, "Clinical Notes:\n", ui.indent(clinical_notes, 4), "\n")
-
-        # Prescriptions
-        if len(prescription_data) == 0:
-            ui.info(ui.bold, "Prescriptions:", ui.reset, "None prescribed yet.\n")
-        else:
-            columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
-            headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
-            pres_table = util.output_sql_rows(prescription_data, columns, headers, table_title="Prescriptions")
-            print(pres_table)
-
-        # Referrals
-        if appt_details[0]["referred_specialist_id"] is None:
-            ui.info(ui.bold, "Referral:", ui.reset, "No referral added.\n")
-        else:
-            # Need to grab info from db for referral.
-            referral_query = f"SELECT 'Dr '||firstName||' '||lastName as doc_name, hospital, specialist_id, d.name as " \
-                             f"dept_name from Specialists left join Department d using(department_id) where " \
-                             f"specialist_id = {appt_details[0]['referred_specialist_id']} "
-            referral = self.db.fetch_data(referral_query)
-            ui.info(ui.bold, "Referral:", ui.reset,
-                    f"{referral[0]['dept_name']} department - {referral[0]['doc_name']} at {referral[0]['hospital']}.\n")
+        # print appt summary - details, patient, reason, clinical notes, prescriptions, referrals etc.
+        util.print_appointment_summary(appt_id)
 
         # offer options for this state (write/edit notes, prescriptions, referals, finalise appt, view patient records.)
         selected = util.user_select("How would you like to proceed?", self.state_gen.get_state_options())
@@ -583,6 +533,101 @@ class Gp:
         util.loading()
         # Return to Appointment details
         self.to_show_appointment_details()
+
+    def finalise_appointment(self):
+        appt_id = self.curr_appt_id
+
+        # appointment status summary - clinical notes written? prescription? referral?
+        util.print_appointment_summary(appt_id)
+
+        check_populated_query = f"SELECT clinical_notes, referred_specialist_id, appointment_id from appointment " \
+                                f"where appointment_id = {appt_id} "
+        check_prescription_query = f"SELECT * FROM prescription where appointment_id = {appt_id}"
+
+        check_populated = self.db.fetch_data(check_populated_query)
+        check_prescription = self.db.fetch_data(check_prescription_query)
+
+        if check_populated[0]["clinical_notes"] is None:
+            notes_status = "No notes added."
+            notes_colour_status = ui.red
+            confirmation_message = "No notes have been added. It would be against standard procedure to finalise an " \
+                                   "appointment without any clinical notes. \nAre you sure you would like to continue?"
+        else:
+            notes_status = "Notes added."
+            notes_colour_status = ui.green
+            confirmation_message = "Recommended fields populated. Status is OK. Are you happy to continue?"
+
+        if len(check_prescription) == 0:  # empty - no prescriptions
+            prescription_status = f"No prescription needed."
+        else:
+            prescription_status = f"{len(check_prescription)} prescription(s) added."
+
+        if check_populated[0]["referred_specialist_id"] is None:
+            referred_status = "No referral necessary."
+        else:
+            referred_status = "Referral necessary - patient referred to specialist."
+
+        # summarise completion of appt details
+        ui.info_1(ui.underline, "Finalise this appointment")
+        ui.info_2("Status summary:")
+        ui.info(ui.indent("Clinical notes:", 6), notes_colour_status, f"{notes_status}")
+        ui.info(ui.indent(f"Prescription: {prescription_status}", 6))
+        ui.info(ui.indent(f"Referral: {referred_status}", 6))
+
+        # Finalisation confirmation flow.
+        print("\n")
+        ui.info_count(0, 3, "Finalisation process")
+        if ui.ask_yes_no(notes_colour_status, confirmation_message):
+            ui.info_count(1, 3, "Finalisation process")
+            new_options = ["yes", "no", "abort finalisation process"]
+            selected = util.user_select("Should this patient be emailed the appointment details?", choices=new_options)
+            if selected == "abort finalisation process":
+                self.handle_state_selection("back")
+            elif selected == "yes":
+                email = True
+            elif selected == "no":
+                email = False
+
+            # perform update is_completed = 1 in appointment table.
+            success = util.db_update(check_populated, "Appointment", "appointment_id", **{"is_completed": 1})
+            if success:
+                util.loading(load_time=3, new_line=False)
+                ui.info_3(" Appointment marked as finalised.")
+            else:
+                ui.error("There was an error, processing your request, please try later")
+                ui.info("Returning to appointment page.")
+                util.loading()
+                self.to_show_appointment_details()
+
+            # send email or not of appt details
+            # TODO SEND EMAIL FUNCTION, SEND EMAIL.
+            try:
+                if email:
+                    # send email
+                    util.loading(load_time=3, new_line=False)
+                    ui.info_3(" Email sent to patient")
+                else:
+                    # don't send email
+                    util.loading(load_time=3, new_line=False)
+                    ui.info_3(" Email not sent to patient")
+            except UnboundLocalError:
+                # todo logging
+                print("an error occurred. The patient may not have been emailed successfully if this option was chosen.")
+
+            util.loading(load_time=3, new_line=False)
+            ui.info_count(2, 3, "Finalisation process complete")
+        else:
+            selected = util.user_select("Go back to the appointment page to make amends to this consultation and "
+                                        "abort the "
+                                        "finalisation process.", choices=self.state_gen.get_state_options())
+            self.handle_state_selection(selected)
+        # Return to main options.
+        if ui.ask_yes_no("Return to 'view my appointments' page?"):
+            util.loading(load_time=3)
+            self.to_view_my_appointments()
+        else:
+            selected = util.user_select("No where else to go from here...", choices=self.state_gen.get_state_options())
+            self.handle_state_selection(selected)
 
     def view_appointments_from_another_day(self):
         ui.info(ui.blue, "View appointments from another day.")
