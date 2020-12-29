@@ -174,7 +174,21 @@ class Gp:
 
 
     def schedule_time_off(self):
-        pass
+        now = datetime.today()
+
+        ui.info("When you would you like your time off to start? (holidays must be booked 30 days in advance)")
+        date_not_valid = True
+        while date_not_valid =True
+            start_time = util.get_user_date()
+            if datetime.strptime(start_time, '%Y-%m-%d') > now:
+                date_not_valid = False
+
+        ui.info("When you would you like your time of to end?")
+        start_time = util.get_user_date()
+
+
+
+
 
     # CONFIRM APPOINTMENTS
 
