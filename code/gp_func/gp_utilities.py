@@ -12,11 +12,17 @@ import calendar
 
 
 def user_select(prompt: str, choices: list):
-    # try:  # if terminal can support, then cursor selection.
-    #     choice, index = pick(choices, title)
-    #     return choice
-    # except Exception:
-    selected = ui.ask_choice(prompt, choices=choices, sort=False)
+    selected = None
+    while selected is None:
+        try:  # if terminal can support, then cursor selection.
+            choice, index = pick(choices, prompt)
+            selected = choice
+        except Exception as err:
+            # TODO log error
+            try:
+                selected = ui.ask_choice(prompt, choices=choices, sort=False)
+            except AttributeError:
+                print("Please choose a valid option.")
     return selected
 
 
@@ -95,19 +101,25 @@ def select_table_row(result_list, table, user_prompt: str):
             print("Please enter a number.")
         except IndexError:
             print("PLease enter a valid number found in the row column of the table.")
+        except TypeError:
+            print("Please enter a number.")
     return selected_row
 
 
-def loading(load_time=3):
+def loading(load_time=3, new_line = True):
     """
     Display dot, then sleep
+    :param new_line: whether to add a new line after loading finishes.
     :param load_time: load_time * 0.8 seconds = how long to display loading screen.
     :return:
     """
     for i in range(load_time - 1):
         ui.dot()
         sleep(0.8)
-    ui.dot(last=True)
+    if new_line:
+        ui.dot(last=True)
+    else:
+        ui.dot()
 
 
 def get_user_date():
@@ -118,19 +130,21 @@ def get_user_date():
     while date_not_valid:
 
         selected_date = ui.ask_string("Please enter a date in the format YYYY-MM-DD:")
-        # date validation. Can be any date if in valid format.
-        if selected_date.strip().lower() == "today":
-            selected_date = datetime.today().strftime('%Y-%m-%d')
-        date_to_search = re.search("^\d\d\d\d[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])$", selected_date.strip())
-        if date_to_search is None:  # no match found
-            ui.info(ui.red, "No valid date found in input. Please enter a valid date YYYY-MM-DD with no spaces.")
-        else:
-            date_to_search = date_to_search.group()
-            date_not_valid = False
-            return date_to_search
+        try:
+            # date validation. Can be any date if in valid format.
+            if selected_date.strip().lower() == "today":
+                selected_date = datetime.today().strftime('%Y-%m-%d')
+            date_to_search = re.search("^\d\d\d\d[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])$", selected_date.strip())
+            if date_to_search is None:  # no match found
+                ui.info(ui.red, "No valid date found in input. Please enter a valid date YYYY-MM-DD with no spaces.")
+            else:
+                date_to_search = date_to_search.group()
+                date_not_valid = False
+                return date_to_search
+        except AttributeError:
+            # TODO logging
+            print("No date entered")
 
-            # if ui.ask_yes_no(f"Search for appointments on {date_to_search}?"):
-            #     date_not_valid = False
 
 
 def get_user_month():
