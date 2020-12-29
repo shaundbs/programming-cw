@@ -20,10 +20,12 @@ states = {
     "view my appointments": ["select an appointment", "view appointments from another day", "back"],
     "select an appointment": ["show appointment details", "back"],
     "view appointments from another day": ["back"],
-    "show appointment details": ["write clinical notes", "write prescriptions", "add referral", "back"],
+    "show appointment details": ["write clinical notes", "write prescriptions", "add referral", "finalise appointment",
+                                 "back"],
     "write clinical notes": ["back"],
     "write prescriptions": ["back"],
-    "add referral": ["back"]
+    "add referral": ["back"],
+    "finalise appointment": ["back"]
 }
 
 
@@ -275,60 +277,8 @@ class Gp:
 
         appt_id = self.curr_appt_id  # grab state variable of current appointment
 
-        # show more details - name, appt reason etc.
-        # Appt details + referral
-        get_apt_details_query = f"SELECT appointment_id,  u.firstName || ' ' || u.lastName as 'patient name',  " \
-                                f"strftime('%d/%m/%Y', s.starttime) as date, strftime('%H:%M', s.starttime)  as " \
-                                f"'appointment time', reason, referred_specialist_id, clinical_notes FROM APPOINTMENT " \
-                                f" a left join Users u on u.userId = " \
-                                f"a.patient_id left join slots s on s.slot_id = a.slot_id WHERE appointment_id= " \
-                                f"{appt_id} "
-        appt_details = self.db.fetch_data(get_apt_details_query)
-        # todo: add check that there is only one record returned. if not == problem
-
-        # Prescription
-        prescription_query = f"select * from Prescription where appointment_id = {appt_id}"
-        prescription_data = self.db.fetch_data(prescription_query)
-
-        # Base details
-        if appt_details[0]['reason'] is None:
-            reason = "Not specified"
-        else:
-            reason = appt_details[0]['reason']
-
-        ui.info_section(ui.bold, "Appointment Information")
-        ui.info(ui.bold, "Appointment date:", ui.reset, f"{appt_details[0]['date']}")
-        ui.info(ui.bold, "Appointment time:", ui.reset, f"{appt_details[0]['appointment time']}")
-        ui.info(ui.bold, "Patient Name:", ui.reset, f"{appt_details[0]['patient name']}")
-        ui.info(ui.bold, "Reason for appointment:", ui.reset, f"{reason} \n")
-
-        # Clinical notes
-        if appt_details[0]["clinical_notes"] is None:
-            clinical_notes = "No notes added yet."
-        else:
-            clinical_notes = appt_details[0]["clinical_notes"]
-        ui.info(ui.bold, "Clinical Notes:\n", ui.indent(clinical_notes, 4), "\n")
-
-        # Prescriptions
-        if len(prescription_data) == 0:
-            ui.info(ui.bold, "Prescriptions:", ui.reset, "None prescribed yet.\n")
-        else:
-            columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
-            headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
-            pres_table = util.output_sql_rows(prescription_data, columns, headers, table_title="Prescriptions")
-            print(pres_table)
-
-        # Referrals
-        if appt_details[0]["referred_specialist_id"] is None:
-            ui.info(ui.bold, "Referral:", ui.reset, "No referral added.\n")
-        else:
-            # Need to grab info from db for referral.
-            referral_query = f"SELECT 'Dr '||firstName||' '||lastName as doc_name, hospital, specialist_id, d.name as " \
-                             f"dept_name from Specialists left join Department d using(department_id) where " \
-                             f"specialist_id = {appt_details[0]['referred_specialist_id']} "
-            referral = self.db.fetch_data(referral_query)
-            ui.info(ui.bold, "Referral:", ui.reset,
-                    f"{referral[0]['dept_name']} department - {referral[0]['doc_name']} at {referral[0]['hospital']}.\n")
+        # print appt summary - details, patient, reason, clinical notes, prescriptions, referrals etc.
+        util.print_appointment_summary(appt_id)
 
         # offer options for this state (write/edit notes, prescriptions, referals, finalise appt, view patient records.)
         selected = util.user_select("How would you like to proceed?", self.state_gen.get_state_options())
@@ -530,6 +480,15 @@ class Gp:
         util.loading()
         # Return to Appointment details
         self.to_show_appointment_details()
+
+    def finalise_appointment(self):
+        appt_id = self.curr_appt_id
+
+        # appointment status summary - clinical notes written? prescription? referral?
+        util.print_appointment_summary()
+
+        check_populated_query = f"SELECT clinical_notes, referred_specialist_id from appointment where appointment_id = {appt_id}"
+        check_prescription = f"SELECT * FROM prescription where appointment_id = {appt_id}"
 
     def view_appointments_from_another_day(self):
         ui.info(ui.blue, "View appointments from another day.")
