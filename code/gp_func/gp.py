@@ -216,12 +216,12 @@ class Gp:
             # TODO ERROR HANDLING
 
         elif appointments:
-            print("you got these clashes bro")
+            print("You have the following clashing appointments:")
             table_data = util.output_sql_rows(appointments, ["startTime", "is_confirmed"])
             print(table_data)
 
             if not any(i['is_confirmed'] == 1 for i in appointments):
-                yes = ui.ask_yes_no("Go back to the homepage?")
+                yes = ui.ask_yes_no("Reject the following appointments?")
                 if yes:
                     success = util.db_update(appointments, "appointment", "appointment_id", **{"is_rejected": 1})
                     if success:
