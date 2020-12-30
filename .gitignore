@@ -2,3 +2,5 @@
 *.db
 .vscode
 *.pyc
+*.log
+workspace.xml
