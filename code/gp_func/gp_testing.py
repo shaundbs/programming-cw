@@ -6,8 +6,11 @@ import sys
 
 import gp_database as db
 from gp import Gp
+import  logging
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='gp.log', filemode='a', format='%(asctime)s - %(levelname)s - %(message)s')
+
     # get test user ID bypass login for testing purposes.
     user_id = db.Database().fetch_data("SELECT USERID FROM USERS WHERE EMAIL = 'qr@test.com'")
 

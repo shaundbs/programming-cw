@@ -5,6 +5,7 @@ import gp_utilities as util
 from datetime import datetime, timedelta
 import calendar
 import logging
+from email_generator import Emails  # for sending emails
 
 # state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.
@@ -14,7 +15,7 @@ states = {
     "logout": [],
     # Calendar / holiday
     "manage calendar": ["view calendar", "schedule time off", "back"],
-    "view calendar": ["view another month","view day schedule", "back"],
+    "view calendar": ["view another month", "view day schedule", "back"],
     "view day schedule": ["back"],
     "schedule time off": ["back"],
     # confirm appts
@@ -97,7 +98,7 @@ class Gp:
         else:
             month = self.curr_appt_month
 
-        #print(month, type(month))
+        # print(month, type(month))
 
         # get appointments for the GP user
         query = f"SELECT strftime('%Y/%m', s.starttime) as month, strftime('%d', s.starttime) as day FROM Appointment a " \
@@ -116,7 +117,7 @@ class Gp:
         ui.info(display_month)
         ui.info("[Days] that you have appointments")
 
-        #user_choices = ["view day", "view another month", "back"]
+        # user_choices = ["view day", "view another month", "back"]
         selected = ui.ask_choice("View a day to schedule time off and view appointments or view another month",
                                  choices=self.state_gen.get_state_options())
         if selected == "view day schedule":
@@ -140,8 +141,6 @@ class Gp:
         get_time_off_sql_query = f"SELECT startTime, endTime FROM gp_time_off " \
                                  f"WHERE date(starttime) <= '{date}'  AND date(endTime) >= '{date}'  " \
                                  f"order by startTime"
-
-
 
         slots = self.db.fetch_data(get_slots_sql_query)
         time_off = self.db.fetch_data(get_time_off_sql_query)
@@ -168,11 +167,8 @@ class Gp:
         print(slots)
         table_data = util.output_sql_rows(slots, ["startTime", "status"])
         print(table_data)
-        #options = ["Take specific slot off", "back"]
-        #selected = ui.ask_choice("Would you like to?", choices=options)
-
-
-
+        # options = ["Take specific slot off", "back"]
+        # selected = ui.ask_choice("Would you like to?", choices=options)
 
 
     def schedule_time_off(self):
@@ -242,6 +238,7 @@ class Gp:
     # CONFIRM APPOINTMENTS
 
     def confirm_appointments(self):
+        # todo - confirm appts bug - after going to confirm appts, then going back back, logout returns to confirm appts.
         ui.info_section(ui.blue, "Confirm Appointments")
         # show requested appt booking for GP
         query = f"SELECT APPOINTMENT_ID,  u.firstName || ' ' || u.lastName as 'patient name',  strftime('%d/%m/%Y', " \
@@ -284,6 +281,7 @@ class Gp:
                 further_options = ["confirm", "reject", "back"]
                 selected = ui.ask_choice("What would you like to do with this appointment?", choices=further_options)
                 if selected == further_options[2]:  # back
+                    res = None  # remove result to exit from while loop if back chosen
                     self.to_confirm_appointments()
                 elif selected == further_options[0]:  # accept
                     success = util.db_update([selected_row], "appointment", "appointment_id", **{"is_confirmed": 1})
@@ -302,6 +300,7 @@ class Gp:
                         ui.info("There was an error, processing your request, please try later")
 
             else:
+                res = None  # remove result to exit from while loop if back chosen
                 self.handle_state_selection(selected)  # back
             res = self.db.fetch_data(query)  # refresh result.
 
@@ -526,7 +525,8 @@ class Gp:
                 ui.info_1("Prescription successfully saved in records.")
             else:
                 #  log error
-                logging.exception(f"Exception occurred when saving prescription to database. insert stmt = {prescription_insert_stmt}")
+                logging.exception(
+                    f"Exception occurred when saving prescription to database. insert stmt = {prescription_insert_stmt}")
                 ui.error("Sorry, an error occurred when saving. Please try again later.")
 
         user_options = ["write another prescription", "back"]
@@ -669,7 +669,8 @@ class Gp:
             # TODO SEND EMAIL FUNCTION, SEND EMAIL.
             try:
                 if email:
-                    # send email
+                    # TODO send email
+                    Emails.appointment_summary_email()
                     util.loading(load_time=3, new_line=False)
                     ui.info_3(" Email sent to patient")
                 else:
@@ -679,7 +680,8 @@ class Gp:
             except UnboundLocalError:
                 # logging
                 logging.exception("Exception occurred while finalising appt email.")
-                print("an error occurred. The patient may not have been emailed successfully if this option was chosen.")
+                print(
+                    "an error occurred. The patient may not have been emailed successfully if this option was chosen.")
 
             util.loading(load_time=3, new_line=False)
             ui.info_count(2, 3, "Finalisation process complete")
