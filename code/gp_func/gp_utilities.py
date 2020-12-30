@@ -31,15 +31,16 @@ def user_select(prompt: str, choices: list):
     return selected
 
 
-def output_sql_rows(query_result, column_names: list, table_headers=[], table_title=None):
+def output_sql_rows(query_result, column_names: list, table_headers=None, table_format = "fancy_grid"):
     """
     Takes a list of nested dictionaries as input and returns a table with row numbers
     :param query_result: sql result
     :param column_names: column names in query result to output in the table
     :param table_headers: names of header columns - should map to column names given
-    :param table_title: title of the table
     :return: table that can be printed
     """
+    if table_headers is None:
+        table_headers = []
     output_list = []
     if table_headers:
         table_headers.insert(0, "row")
@@ -55,7 +56,8 @@ def output_sql_rows(query_result, column_names: list, table_headers=[], table_ti
             record.append((values[header]))
         output_list.append(record)
     # return Table(output_list, table_title).table
-    return tabulate(output_list, headers="firstrow", tablefmt="fancy_grid")
+    return tabulate(output_list, headers="firstrow", tablefmt=table_format)
+
 
 def db_update(record_list, table_name, pk_column_name, **new_column_values):
     # unpack columns to set
@@ -252,7 +254,7 @@ def print_appointment_summary(appt_id):
     else:
         columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
         headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
-        pres_table = output_sql_rows(prescription_data, columns, headers, table_title="Prescriptions")
+        pres_table = output_sql_rows(prescription_data, columns, headers)
         ui.info("Prescriptions:")
         print(pres_table, "\n")
 
@@ -301,8 +303,6 @@ def email_appt_summary(appt_id):
     else:
         clinical_notes = appt_details[0]["clinical_notes"]
 
-        # Prescriptions
-
         email_text = ["Appointment Information:", f"Appointment date: {appt_details[0]['date']}",
                       f"Appointment time: {appt_details[0]['appointment time']}",
                       f"Patient Name: {appt_details[0]['patient name']}", f"Reason for appointment: {reason} \n",
@@ -313,8 +313,8 @@ def email_appt_summary(appt_id):
         else:
             columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
             headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
-            # todo table not showing correctly in email. need to put on different lines.
-            email_text.append(output_sql_rows(prescription_data, columns, headers, table_title="Prescriptions"))
+            email_text.append("Prescriptions:")
+            email_text.append(output_sql_rows(prescription_data, columns, headers,table_format="html"))
 
         # Referrals
         if appt_details[0]["referred_specialist_id"] is None:
@@ -329,7 +329,7 @@ def email_appt_summary(appt_id):
                 f"Referral: {referral[0]['dept_name']} department - {referral[0]['doc_name']} at {referral[0]['hospital']}.")
 
         summary_text_plain = "\n".join(email_text)
-        summary_text_html  = "<br>".join(email_text)
+        summary_text_html = "<br>".join(email_text)
 
         # get patient email + patient name
         email = appt_details[0]['patient email']
