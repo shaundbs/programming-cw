@@ -12,6 +12,7 @@ import bcrypt
 states = {
     # admin menu    
     "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patient", "Log out"],
+    "Manage patient": ["searchDOB", "searchname", "Back"],
     # Erfan's Options
     # Manage GP menu
     "Manage GP": ["Edit GP account Information", "Remove GP account", "Deactivate GP account", "Reactivate GP account", "Back"],
@@ -24,7 +25,6 @@ states = {
     "Remove GP account": ["Back"],
     "Deactivate GP account": ["Back"],
     "Reactivate GP account": ["Back"],
-    
 }
 
 class Admin():
@@ -44,7 +44,7 @@ class Admin():
         self.state_gen.change_state("admin options") 
 
     def print_welcome(self):
-        ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
+        ui.info_section(ui.blue, 'Welcome to the Admin Dashboard')
         print(f"Hi {self.firstname}")
 
     def handle_state_selection(self, selected):
@@ -79,25 +79,43 @@ class Admin():
 
         # show GPs in system
         self.db = db.Database()
-        gp_acct_query = f"SELECT userID, firstName, lastName, email, is_active, is_registered FROM users WHERE accountType = 'gp'"
+        gp_acct_query = f"SELECT userID, firstName, lastName, email, is_active FROM users WHERE accountType = 'gp'"
         gp_acct_result = self.db.fetch_data(gp_acct_query)
         self.db.close_db()
-        gp_dataframe_header = ['ID', 'First Name', 'Last Name', 'email', 'Active?', 'Registered?']
+        gp_dataframe_header = ['ID', 'First Name', 'Last Name', 'email', 'Active?']
         gp_dataframe = DataFrame(gp_acct_result)
         gp_dataframe.columns = gp_dataframe_header
-        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='fancy_grid', showindex=False)
-        print(gp_table)
+        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='pretty', showindex=False)
+        print(gp_table + "\n")
 
         # allow admin user to choose desired gp account
+        # extract GP IDs
         gp_id_list = gp_dataframe['ID'].tolist()
         gp_id_list.append("Back")
-        gp_id = util.user_select("Please choose the ID of the GP you would like to manage: ", choices=gp_id_list)
-        # if selected is gp_id
+        # Extract GP names
+        gp_fname_list = gp_dataframe['First Name'].tolist()
+        gp_lname_list = gp_dataframe['Last Name'].tolist()
+        gp_name_list = [' '.join(z) for z in zip(gp_fname_list, gp_lname_list)]
+        gp_list = ["Dr. "+ gp_name for gp_name in gp_name_list]
+        gp_list.append("Back")
+        # Create dictionary with GP IDs as keys and names as values 
+        gp_dict = {k:v for k,v in zip(gp_list,gp_id_list)}
+        # show admin user GP accounts they can manipulate 
+        gp_person = util.user_select("Please choose the GP you would like to manage: ", choices=gp_list)
+        # get id for chosen GP 
+        gp_id = gp_dict[gp_person]
+
+        # check if gp_id is received or whether admin user should be redirected to admin main menu
         if isinstance(gp_id, int):
             Admin.clear()
             ui.info_section(ui.blue, 'Manage GP Options')
-            selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
-            if selected == "Edit GP account Information":
+            # show selected gp
+            chosen_gp_df = gp_dataframe.loc[gp_dataframe['ID'] == gp_id]
+            chosen_gp_table = tabulate(chosen_gp_df, headers='keys', tablefmt='grid', showindex=False)
+            print(chosen_gp_table + "\n")
+            # admin user selects what they want to do with desired gp account
+            selected = util.user_select("Please choose what you would like to do with the GP account show above: ", self.state_gen.get_state_options())
+            if selected == "Edit GP account1 Information":
                 self.to_edit_gp_account_information(gp_id)
             elif selected == "Remove GP account":
                 self.to_remove_gp_account(gp_id)
@@ -200,7 +218,6 @@ class Admin():
             self.db.close_db()
             ui.info_2(ui.standout, f"This account has been deactivated.")
             self.state_gen.change_state("Manage GP") 
-            
         else: 
             self.handle_state_selection("Back")
 

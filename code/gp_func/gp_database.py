@@ -31,7 +31,6 @@ class Database:
     def exec_many(self, query, obj):
         self.c.executemany(query, obj)
         self.connection.commit()
-        self.c.close()
 
     def exec_one(self, query, obj):
         self.c.execute(query, obj)
