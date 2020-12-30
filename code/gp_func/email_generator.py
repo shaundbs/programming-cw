@@ -111,7 +111,7 @@ class Emails:
 
         # Create message container
         msg = MIMEMultipart('alternative')
-        msg['Subject'] = "Registration Confirmation"
+        msg['Subject'] = "Appointment Summary"
         msg['From'] = admin
         msg['To'] = rec
 
@@ -144,6 +144,72 @@ class Emails:
         below a summary of your appointment: <br /><br />{appointment_summary_html} <br /><br />We're here to help. Log back into the 
         application at any time to book another appointment.</p> </td> </tr> </tbody> </table> </td> </tr> </tbody> 
         </table> </html> """
+
+        # text/plain and text/html.
+        part1 = MIMEText(text, 'plain')
+        part2 = MIMEText(html, 'html')
+
+        # Attach parts into message container
+        msg.attach(part1)
+        msg.attach(part2)
+
+        fp = open('logo.png', 'rb')
+        msgimage = MIMEImage(fp.read())
+        fp.close()
+
+        # Define the image's ID
+        msgimage.add_header('Content-ID', '<image1>')
+        msg.attach(msgimage)
+
+        # Send the message
+        mail = smtplib.SMTP('smtp.gmail.com', 587)
+        mail.ehlo()
+        mail.starttls()
+        mail.login(sender_email, password)
+        mail.sendmail(admin, rec, msg.as_string())
+        mail.quit()
+
+    @staticmethod
+    def appointment_confirmation_email(recipient, patient_name, appointment_summary_plain, appointment_summary_html):
+        sender_email = "gowerstsurgery.adm@gmail.com"
+        admin = sender_email
+        password = "19_Healthcare_97"
+
+        rec = recipient
+
+        # Create message container
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = "Your appointment request"
+        msg['From'] = admin
+        msg['To'] = rec
+
+        # Create the body of the message.
+        text = appointment_summary_plain
+
+        html = f"""\
+            <html lang="en">
+            <table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#EBEBEB">
+            <tbody>
+            <tr>
+            <td>
+            <table border="0" width="600" cellspacing="0" cellpadding="0" align="center" bgcolor="#FFFFFF">
+            <tbody>
+            <tr>
+            <td style="padding-top: 0.5em;">
+            <h1 style="font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif; color: #0e618c; text-align: center;">Gower St. Surgery<br />--e-health management service--</h1>
+            </td>
+            </tr>
+            <tr>
+            <td align="center"><img style="width: 225px; height: 200px;" src="cid:image1" alt="Logo" /></td>
+            </tr>
+            <tr>
+            <td style="font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif; color: #1b1b1b; font-size: 14px; padding: 1em;">&nbsp;</td>
+            </tr>
+            <tr>
+            <td style="font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif; color: #1b1b1b; font-size: 14px; padding: 1em;">
+            <p>Hi <strong>{patient_name}</strong>, we have some news about your recent appointment request. <br /><br />{appointment_summary_html} <br /><br />We're here to help. Log back into the 
+            application at any time to book another appointment.</p> </td> </tr> </tbody> </table> </td> </tr> </tbody> 
+            </table> </html> """
 
         # text/plain and text/html.
         part1 = MIMEText(text, 'plain')

@@ -5,7 +5,8 @@ import gp_utilities as util
 from datetime import datetime, timedelta
 import calendar
 import logging
-from email_generator import Emails  # for sending emails
+# from email_generator import Emails  # for sending emails
+import asyncio  # asynchronous sending of bulk emails
 
 # state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.
@@ -261,23 +262,33 @@ class Gp:
             if selected == user_choices[0]:  # confirm all
                 success = util.db_update(res, "appointment", "appointment_id", **{"is_confirmed": 1})
                 if success:
-                    ui.info(ui.green, "All appointments successfully confirmed.")
-                    # todo send emails
+                    ui.info(ui.green, "All appointments successfully confirmed. Sending status update emails to "
+                                      "patients in background.")
+                    # threading - send emails for every record in result
+                    for record in res:
+                        util.create_thread_task(util.send_appt_confirmation_email,
+                                                function_arguments_tuple=(record['appointment_id'], True))
+
                 else:
                     ui.info("There was an error, processing your request, please try later")
 
             elif selected == user_choices[1]:  # reject all
                 success = util.db_update(res, "appointment", "appointment_id", **{"is_rejected": 1})
                 if success:
-                    ui.info(ui.green, "All appointments successfully rejected.")
-                    # todo send emails
+                    ui.info(ui.green, "All appointments successfully rejected. Sending status update emails to "
+                                      "patients in background.")
+                    # threading - send emails for every record in result.
+                    for record in res:
+                        util.create_thread_task(util.send_appt_confirmation_email,
+                                                function_arguments_tuple=(record['appointment_id'], False))
                 else:
                     ui.info("There was an error, processing your request, please try later")
 
             elif selected == user_choices[2]:  # action individually
                 ui.info_1(selected)
                 selected_row = util.select_table_row(res, table_data,
-                                                     "Select an appointment to confirm or reject. Please enter an appointment's row number:")
+                                                     "Select an appointment to confirm or reject. Please enter an "
+                                                     "appointment's row number:")
 
                 # choose accept or reject or back
                 further_options = ["confirm", "reject", "back"]
@@ -289,15 +300,19 @@ class Gp:
                     success = util.db_update([selected_row], "appointment", "appointment_id", **{"is_confirmed": 1})
                     if success:
                         ui.info(ui.green,
-                                f"Appointment on {selected_row['date']} with {selected_row['patient name']} successfully confirmed.")
+                                f"Appointment on {selected_row['date']} with {selected_row['patient name']} successfully confirmed. Sending status update email to patient in background.")
+                        #  send email of confirmation.
+                        util.create_thread_task(util.send_appt_confirmation_email, function_arguments_tuple=(selected_row['appointment_id'], True))
+
                     else:
                         ui.info("There was an error, processing your request, please try later")
                 elif selected == further_options[1]:  # reject
                     success = util.db_update([selected_row], "appointment", "appointment_id", **{"is_rejected": 1})
                     if success:
                         ui.info(ui.green,
-                                f"Appointment on {selected_row['date']} with {selected_row['patient name']} successfully rejected.")
-                        # TODO SEND EMAIL TO PATIENT NOTIFYING OF REJECTED APPT
+                                f"Appointment on {selected_row['date']} with {selected_row['patient name']} successfully rejected. Sending status update email to patient in background.")
+                        # SEND EMAIL TO PATIENT NOTIFYING OF REJECTED APPT
+                        util.create_thread_task(util.send_appt_confirmation_email, function_arguments_tuple=(selected_row['appointment_id'], False))
                     else:
                         ui.info("There was an error, processing your request, please try later")
 

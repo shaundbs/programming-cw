@@ -10,6 +10,7 @@ from tabulate import tabulate
 
 import gp_database as db
 from email_generator import Emails
+import threading  # send emails in background
 
 
 # utility functions for the GP flow
@@ -31,7 +32,7 @@ def user_select(prompt: str, choices: list):
     return selected
 
 
-def output_sql_rows(query_result, column_names: list, table_headers=None, table_format = "fancy_grid"):
+def output_sql_rows(query_result, column_names: list, table_headers=None, table_format="grid"):
     """
     Takes a list of nested dictionaries as input and returns a table with row numbers
     :param query_result: sql result
@@ -271,6 +272,12 @@ def print_appointment_summary(appt_id):
                 f"{referral[0]['dept_name']} department - {referral[0]['doc_name']} at {referral[0]['hospital']}.\n")
 
 
+# create tasks to run in parallel / background
+def create_thread_task(function_to_call, function_arguments_tuple):
+    task = threading.Thread(target=function_to_call, args=function_arguments_tuple, daemon=True)
+    task.start()
+
+
 def email_appt_summary(appt_id):
     # get appt info for patient text
 
@@ -303,36 +310,90 @@ def email_appt_summary(appt_id):
     else:
         clinical_notes = appt_details[0]["clinical_notes"]
 
-        email_text = ["Appointment Information:", f"Appointment date: {appt_details[0]['date']}",
-                      f"Appointment time: {appt_details[0]['appointment time']}",
-                      f"Patient Name: {appt_details[0]['patient name']}", f"Reason for appointment: {reason} \n",
-                      f"Doctor seen: {appt_details[0]['doctor name']}", f"Clinical Notes:\n{clinical_notes}"]
+    email_text = ["Appointment Information:", f"Appointment date: {appt_details[0]['date']}",
+                  f"Appointment time: {appt_details[0]['appointment time']}",
+                  f"Patient Name: {appt_details[0]['patient name']}", f"Reason for appointment: {reason} \n",
+                  f"Doctor seen: {appt_details[0]['doctor name']}", f"Clinical Notes:\n{clinical_notes}"]
 
-        if len(prescription_data) == 0:
-            email_text.append("Prescriptions: None prescribed yet.\n")
-        else:
-            columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
-            headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
-            email_text.append("Prescriptions:")
-            email_text.append(output_sql_rows(prescription_data, columns, headers,table_format="html"))
+    if len(prescription_data) == 0:
+        email_text.append("Prescriptions: None prescribed yet.\n")
+    else:
+        columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
+        headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
+        email_text.append("Prescriptions:")
+        email_text.append(output_sql_rows(prescription_data, columns, headers, table_format="html"))
 
-        # Referrals
-        if appt_details[0]["referred_specialist_id"] is None:
-            email_text.append(f"Referral: No referral added.")
-        else:
-            # Need to grab info from db for referral.
-            referral_query = f"SELECT 'Dr '||firstName||' '||lastName as doc_name, hospital, specialist_id, d.name as " \
-                             f"dept_name from Specialists left join Department d using(department_id) where " \
-                             f"specialist_id = {appt_details[0]['referred_specialist_id']} "
-            referral = conn.fetch_data(referral_query)
-            email_text.append(
-                f"Referral: {referral[0]['dept_name']} department - {referral[0]['doc_name']} at {referral[0]['hospital']}.")
+    # Referrals
+    if appt_details[0]["referred_specialist_id"] is None:
+        email_text.append(f"Referral: No referral added.")
+    else:
+        # Need to grab info from db for referral.
+        referral_query = f"SELECT 'Dr '||firstName||' '||lastName as doc_name, hospital, specialist_id, d.name as " \
+                         f"dept_name from Specialists left join Department d using(department_id) where " \
+                         f"specialist_id = {appt_details[0]['referred_specialist_id']} "
+        referral = conn.fetch_data(referral_query)
+        email_text.append(
+            f"Referral: {referral[0]['dept_name']} department - {referral[0]['doc_name']} at {referral[0]['hospital']}.")
 
-        summary_text_plain = "\n".join(email_text)
-        summary_text_html = "<br>".join(email_text)
+    summary_text_plain = "\n".join(email_text)
+    summary_text_html = "<br>".join(email_text)
 
-        # get patient email + patient name
-        email = appt_details[0]['patient email']
-        patient = appt_details[0]['patient name']
+    # get patient email + patient name
+    email = appt_details[0]['patient email']
+    patient = appt_details[0]['patient name']
 
     Emails.appointment_summary_email(email, patient, summary_text_plain, summary_text_html)
+
+
+def send_appt_confirmation_email(appt_id, confirmed=True):
+    """
+
+    :param appt_id:
+    :param confirmed: True is appt confirmed, False if rejected.
+    :return:
+    """
+    conn = db.Database()
+    get_apt_details_query = f"SELECT appointment_id, u.email as 'patient email', u.firstName || ' ' || u.lastName as " \
+                            f"'patient name',  " \
+                            f"strftime('%d/%m/%Y', s.starttime) as date, strftime('%H:%M', s.starttime)  as " \
+                            f"'appointment time', reason, referred_specialist_id, clinical_notes, 'Dr' || ' ' || " \
+                            f"u1.firstName || ' ' || u1.lastName as 'doctor name' FROM APPOINTMENT " \
+                            f" a left join Users u on u.userId = " \
+                            f"a.patient_id left join Users u1 on u1.userID = a.gp_id left join slots s on s.slot_id = " \
+                            f"a.slot_id WHERE appointment_id= " \
+                            f"{appt_id} "
+    appt_details = conn.fetch_data(get_apt_details_query)
+
+    if appt_details[0]['reason'] is None:
+        reason = "Not specified"
+    else:
+        reason = appt_details[0]['reason']
+
+    email_text = []
+
+    if confirmed:
+        email_text.append(f"Great news. You're appointment on {appt_details[0]['date']} has been confirmed.")
+        status = "confirmed"
+    else:
+        email_text.append(f"We regret to inform you that you're appointment on {appt_details[0]['date']} has been "
+                          f"cancelled by the GP. Please log back in to book again or reschedule. Sorry for any "
+                          f"inconvenience caused.")
+        status = "cancelled"
+
+    email_text.append("\n")
+
+    email_text.append("This appointment's details:")
+
+    email_text += [f"Status: {status}", "Appointment Information:", f"Appointment date: {appt_details[0]['date']}",
+                  f"Appointment time: {appt_details[0]['appointment time']}",
+                  f"Patient Name: {appt_details[0]['patient name']}", f"Reason for appointment: {reason} \n",
+                  f"Doctor: {appt_details[0]['doctor name']}"]
+
+    summary_text_plain = "\n".join(email_text)
+    summary_text_html = "<br>".join(email_text)
+
+    # get patient email + patient name
+    email = appt_details[0]['patient email']
+    patient = appt_details[0]['patient name']
+
+    Emails.appointment_confirmation_email(email, patient, summary_text_plain, summary_text_html)
