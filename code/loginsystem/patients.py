@@ -45,7 +45,7 @@ class Patient:
                 print('This email has been registered. Please try again')
 
         pWord = getpass.getpass('Password:')
-
+        DoB = input("Date of birth(in YYYY-MM-DD format): ")
         # Encode pw and insert user credentials into db.
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
@@ -53,9 +53,9 @@ class Patient:
         aType = "patient"
         time_now = datetime.datetime.now()
         date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
-        a = [(fName, lName, email, hashed, aType, date_time,), ]
+        a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
         db.exec_many(
-            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
+            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)", a)
         Emails.registration_email(email, fName, lName, "patient")
 
     def patient_home(self):
