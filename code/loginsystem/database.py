@@ -3,10 +3,10 @@ import sqlite3
 
 class Database:
     def __init__(self):
-        self.connection = sqlite3.connect('../../database/ehealth.db')
+        self.connection = sqlite3.connect('../database/ehealth.db')
         self.c = self.connection.cursor()
         #     run db build on initialisation
-        self.build_script = open('../../ehealth.db.sql', "r").read()
+        self.build_script = open('../ehealth.db.sql', "r").read()
         self.c.executescript(self.build_script)
 
         

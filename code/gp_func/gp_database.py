@@ -14,11 +14,11 @@ def dict_factory(cursor,
 
 class Database:
     def __init__(self):
-        self.connection = sqlite3.connect('../../database/ehealth.db')
+        self.connection = sqlite3.connect('database/ehealth.db')
         self.connection.row_factory = dict_factory  # return results as dictionaries https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory
         self.c = self.connection.cursor()
         #     run db build on initialisation
-        self.build_script = open('../../ehealth.db.sql', "r").read()
+        self.build_script = open('ehealth.db.sql', "r").read()
         self.c.executescript(self.build_script)
 
     def patient_email_list(self):
@@ -31,6 +31,7 @@ class Database:
     def exec_many(self, query, obj):
         self.c.executemany(query, obj)
         self.connection.commit()
+        self.c.close()
 
     def exec_one(self, query, obj):
         self.c.execute(query, obj)
@@ -44,3 +45,8 @@ class Database:
         self.c.execute(query_string)
         data = self.c.fetchall()
         return data
+    
+    def close_db(self):
+        self.c.close()
+        self.connection.close()
+        
