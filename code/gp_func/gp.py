@@ -61,6 +61,8 @@ class Gp:
 
     def logout(self):
         # remove state tracking from the object. exiting out of class.
+        # todo - issues after multiple back buttons, goes back to older page, then realises no state gen object. Why?
+        # maybe better way to do this than garbage collection?
         del self.state_gen
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
@@ -170,7 +172,6 @@ class Gp:
         # options = ["Take specific slot off", "back"]
         # selected = ui.ask_choice("Would you like to?", choices=options)
 
-
     def schedule_time_off(self):
         now = datetime.strptime("2020-01-01", '%Y-%m-%d')
 
@@ -192,7 +193,7 @@ class Gp:
             else:
                 ui.info("Cannot end before it begins")
 
-        #check for appointments in that time period
+        # check for appointments in that time period
 
         clash_query = f"SELECT s.starttime, a.is_confirmed, a.appointment_id " \
                       f"FROM slots s left join Appointment a on s.slot_id = a.slot_id " \
@@ -201,7 +202,7 @@ class Gp:
 
         appointments = self.db.fetch_data(clash_query)
         start_stamp = datetime.strptime(start_time, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S')
-        end_stamp = (datetime.strptime(end_time, '%Y-%m-%d')+timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+        end_stamp = (datetime.strptime(end_time, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
 
         time_off_query = f"INSERT INTO gp_time_off (gp_id, startTime, endTime)" \
                          f"VALUES ({self.user_id}, '{start_stamp}', '{end_stamp}')"
@@ -230,10 +231,8 @@ class Gp:
             else:
                 print("Sorry, you have holiday dates unavailable")
 
-        selected = ui.ask_choice("Where to?",choices=self.state_gen.get_state_options())
+        selected = ui.ask_choice("Where to?", choices=self.state_gen.get_state_options())
         self.handle_state_selection(selected)
-
-
 
     # CONFIRM APPOINTMENTS
 
@@ -657,7 +656,7 @@ class Gp:
             # perform update is_completed = 1 in appointment table.
             success = util.db_update(check_populated, "Appointment", "appointment_id", **{"is_completed": 1})
             if success:
-                util.loading(load_time=3, new_line=False)
+                util.loading(load_time=2, new_line=False)
                 ui.info_3(" Appointment marked as finalised.")
             else:
                 ui.error("There was an error, processing your request, please try later")
@@ -670,12 +669,13 @@ class Gp:
             try:
                 if email:
                     # TODO send email
-                    Emails.appointment_summary_email()
-                    util.loading(load_time=3, new_line=False)
+                    ui.info_3("Sending email... please wait...")
+                    util.email_appt_summary(appt_id)
+                    util.loading(load_time=2, new_line=False)
                     ui.info_3(" Email sent to patient")
                 else:
                     # don't send email
-                    util.loading(load_time=3, new_line=False)
+                    util.loading(load_time=2, new_line=False)
                     ui.info_3(" Email not sent to patient")
             except UnboundLocalError:
                 # logging
@@ -683,7 +683,7 @@ class Gp:
                 print(
                     "an error occurred. The patient may not have been emailed successfully if this option was chosen.")
 
-            util.loading(load_time=3, new_line=False)
+            util.loading(load_time=2, new_line=False)
             ui.info_count(2, 3, "Finalisation process complete")
         else:
             selected = util.user_select("Go back to the appointment page to make amends to this consultation and "
@@ -692,7 +692,7 @@ class Gp:
             self.handle_state_selection(selected)
         # Return to main options.
         if ui.ask_yes_no("Return to 'view my appointments' page?"):
-            util.loading(load_time=3)
+            util.loading(load_time=2)
             self.to_view_my_appointments()
         else:
             selected = util.user_select("No where else to go from here...", choices=self.state_gen.get_state_options())

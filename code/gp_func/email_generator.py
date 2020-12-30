@@ -102,7 +102,7 @@ class Emails:
         mail.quit()
 
     @staticmethod
-    def appointment_summary_email(recipient, firstName, lastName, appointment_summary):
+    def appointment_summary_email(recipient, patient_name, appointment_summary_plain, appointment_summary_html):
         sender_email = "gowerstsurgery.adm@gmail.com"
         admin = sender_email
         password = "19_Healthcare_97"
@@ -116,7 +116,7 @@ class Emails:
         msg['To'] = rec
 
         # Create the body of the message.
-        text = appointment_summary
+        text = appointment_summary_plain
 
         html = f"""\
         <html lang="en">
@@ -139,9 +139,9 @@ class Emails:
         </tr>
         <tr>
         <td style="font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif; color: #1b1b1b; font-size: 14px; padding: 1em;">
-        <p>Hi <strong>{firstName} {lastName}</strong>, thank you for attending your 
+        <p>Hi <strong>{patient_name}</strong>, thank you for attending your 
         recent appointment with Gower St. Surgery, the e-health management service. <br /><br />We have included 
-        below a summary of your appointment: <br /><br />{appointment_summary} <br /><br />We're here to help. Log back into the 
+        below a summary of your appointment: <br /><br />{appointment_summary_html} <br /><br />We're here to help. Log back into the 
         application at any time to book another appointment.</p> </td> </tr> </tbody> </table> </td> </tr> </tbody> 
         </table> </html> """
 

@@ -1,12 +1,14 @@
-from pick import pick
-import cli_ui as ui
-from terminaltables import AsciiTable as Table
-import gp_database as db
-from time import sleep
+import logging
 import re
 from datetime import datetime
-import calendar
-import logging
+from time import sleep
+
+import cli_ui as ui
+from pick import pick
+from terminaltables import AsciiTable as Table
+
+import gp_database as db
+from email_generator import Emails
 
 
 # utility functions for the GP flow
@@ -108,7 +110,7 @@ def select_table_row(result_list, table, user_prompt: str):
     return selected_row
 
 
-def loading(load_time=3, new_line = True):
+def loading(load_time=3, new_line=True):
     """
     Display dot, then sleep
     :param new_line: whether to add a new line after loading finishes.
@@ -145,7 +147,6 @@ def get_user_date():
                 return date_to_search
         except AttributeError:
             print("No date entered")
-
 
 
 def get_user_month():
@@ -264,3 +265,72 @@ def print_appointment_summary(appt_id):
         referral = conn.fetch_data(referral_query)
         ui.info(ui.bold, "Referral:", ui.reset,
                 f"{referral[0]['dept_name']} department - {referral[0]['doc_name']} at {referral[0]['hospital']}.\n")
+
+
+def email_appt_summary(appt_id):
+    # get appt info for patient text
+
+    conn = db.Database()
+    get_apt_details_query = f"SELECT appointment_id, u.email as 'patient email', u.firstName || ' ' || u.lastName as " \
+                            f"'patient name',  " \
+                            f"strftime('%d/%m/%Y', s.starttime) as date, strftime('%H:%M', s.starttime)  as " \
+                            f"'appointment time', reason, referred_specialist_id, clinical_notes, 'Dr' || ' ' || " \
+                            f"u1.firstName || ' ' || u1.lastName as 'doctor name' FROM APPOINTMENT " \
+                            f" a left join Users u on u.userId = " \
+                            f"a.patient_id left join Users u1 on u1.userID = a.gp_id left join slots s on s.slot_id = " \
+                            f"a.slot_id WHERE appointment_id= " \
+                            f"{appt_id} "
+    appt_details = conn.fetch_data(get_apt_details_query)
+    # todo: add check that there is only one record returned. if not == problem
+
+    # Prescription
+    prescription_query = f"select * from Prescription where appointment_id = {appt_id}"
+    prescription_data = conn.fetch_data(prescription_query)
+
+    # Base details
+    if appt_details[0]['reason'] is None:
+        reason = "Not specified"
+    else:
+        reason = appt_details[0]['reason']
+
+    # Clinical notes
+    if appt_details[0]["clinical_notes"] is None:
+        clinical_notes = "No notes added yet."
+    else:
+        clinical_notes = appt_details[0]["clinical_notes"]
+
+        # Prescriptions
+
+        email_text = ["Appointment Information:", f"Appointment date: {appt_details[0]['date']}",
+                      f"Appointment time: {appt_details[0]['appointment time']}",
+                      f"Patient Name: {appt_details[0]['patient name']}", f"Reason for appointment: {reason} \n",
+                      f"Doctor seen: {appt_details[0]['doctor name']}", f"Clinical Notes:\n{clinical_notes}"]
+
+        if len(prescription_data) == 0:
+            email_text.append("Prescriptions: None prescribed yet.\n")
+        else:
+            columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
+            headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
+            # todo table not showing correctly in email. need to put on different lines.
+            email_text.append(output_sql_rows(prescription_data, columns, headers, table_title="Prescriptions"))
+
+        # Referrals
+        if appt_details[0]["referred_specialist_id"] is None:
+            email_text.append(f"Referral: No referral added.")
+        else:
+            # Need to grab info from db for referral.
+            referral_query = f"SELECT 'Dr '||firstName||' '||lastName as doc_name, hospital, specialist_id, d.name as " \
+                             f"dept_name from Specialists left join Department d using(department_id) where " \
+                             f"specialist_id = {appt_details[0]['referred_specialist_id']} "
+            referral = conn.fetch_data(referral_query)
+            email_text.append(
+                f"Referral: {referral[0]['dept_name']} department - {referral[0]['doc_name']} at {referral[0]['hospital']}.")
+
+        summary_text_plain = "\n".join(email_text)
+        summary_text_html  = "<br>".join(email_text)
+
+        # get patient email + patient name
+        email = appt_details[0]['patient email']
+        patient = appt_details[0]['patient name']
+
+    Emails.appointment_summary_email(email, patient, summary_text_plain, summary_text_html)
