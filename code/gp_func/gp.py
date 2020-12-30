@@ -62,7 +62,8 @@ class Gp:
     def logout(self):
         # remove state tracking from the object. exiting out of class.
         # todo - issues after multiple back buttons, goes back to older page, then realises no state gen object. Why?
-        # maybe better way to do this than garbage collection?
+        # maybe better way to do this than garbage collection? go back to initial state?
+        # maybe add another func to state gen to delete all states?
         del self.state_gen
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
@@ -257,10 +258,11 @@ class Gp:
             selected = ui.ask_choice("What would you like to do?", choices=user_choices)
 
             # CHOICES HANDLING
-            if selected == user_choices[0]:  # accept all
+            if selected == user_choices[0]:  # confirm all
                 success = util.db_update(res, "appointment", "appointment_id", **{"is_confirmed": 1})
                 if success:
                     ui.info(ui.green, "All appointments successfully confirmed.")
+                    # todo send emails
                 else:
                     ui.info("There was an error, processing your request, please try later")
 
@@ -268,6 +270,7 @@ class Gp:
                 success = util.db_update(res, "appointment", "appointment_id", **{"is_rejected": 1})
                 if success:
                     ui.info(ui.green, "All appointments successfully rejected.")
+                    # todo send emails
                 else:
                     ui.info("There was an error, processing your request, please try later")
 
@@ -564,7 +567,8 @@ class Gp:
         # get referral categories
         referral_cats_query = "SELECT * FROM DEPARTMENT"
         referral_cats = self.db.fetch_data(referral_cats_query)
-        referral_cat_table = util.output_sql_rows(referral_cats, ["name"], ["department name"], "Referral departments")
+        referral_cat_table = util.output_sql_rows(referral_cats, ["name"], ["department name"])
+        ui.info("Referral departments:")
         selected_category = util.select_table_row(referral_cats, referral_cat_table, "Please select a referral "
                                                                                      "department category, "
                                                                                      "by entering its row number:")

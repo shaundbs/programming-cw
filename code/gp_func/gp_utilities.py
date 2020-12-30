@@ -5,7 +5,8 @@ from time import sleep
 
 import cli_ui as ui
 from pick import pick
-from terminaltables import AsciiTable as Table
+# from terminaltables import AsciiTable as Table
+from tabulate import tabulate
 
 import gp_database as db
 from email_generator import Emails
@@ -32,12 +33,12 @@ def user_select(prompt: str, choices: list):
 
 def output_sql_rows(query_result, column_names: list, table_headers=[], table_title=None):
     """
-    Takes a list of nested dictionaries as input and returns a terminaltable Asciitable
+    Takes a list of nested dictionaries as input and returns a table with row numbers
     :param query_result: sql result
     :param column_names: column names in query result to output in the table
     :param table_headers: names of header columns - should map to column names given
     :param table_title: title of the table
-    :return: terminaltable Asciitable that can be printed
+    :return: table that can be printed
     """
     output_list = []
     if table_headers:
@@ -53,8 +54,8 @@ def output_sql_rows(query_result, column_names: list, table_headers=[], table_ti
         for header in column_names:  # skip initial header i.e. row header
             record.append((values[header]))
         output_list.append(record)
-    return Table(output_list, table_title).table
-
+    # return Table(output_list, table_title).table
+    return tabulate(output_list, headers="firstrow", tablefmt="fancy_grid")
 
 def db_update(record_list, table_name, pk_column_name, **new_column_values):
     # unpack columns to set
@@ -252,7 +253,8 @@ def print_appointment_summary(appt_id):
         columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
         headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
         pres_table = output_sql_rows(prescription_data, columns, headers, table_title="Prescriptions")
-        print(pres_table)
+        ui.info("Prescriptions:")
+        print(pres_table, "\n")
 
     # Referrals
     if appt_details[0]["referred_specialist_id"] is None:
