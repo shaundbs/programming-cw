@@ -1,10 +1,8 @@
-import sqlite3
-# hide password when inputting
-from patient_database import Database
-from email_generator import Emails
+from .patient_database import Database
+from .email_generator import Emails
 import re
 import datetime as datetime
-import getpass
+import getpass # hide password when inputting
 import bcrypt
 import calendar
 from tabulate import tabulate
@@ -63,7 +61,7 @@ class Patient:
         Emails.registration_email(email, fName, lName, "patient")
 
     def patient_home(self):
-        prv = ["Request Appointments", "View Appointments",
+        prv = ["Request Appointments", "View Appointments","View Referrals",
                "View Prescription", "Log out"]
         while True:
             option = self.select_options(prv)
@@ -72,8 +70,32 @@ class Patient:
             elif option == 2:
                 self.view_appointment()
             elif option == 3:
-                self.view_prescription()
+                self.view_referrals()
             elif option == 4:
+                self.view_prescription()
+            elif option == 5:
+                break
+
+    def view_referrals(self):
+        """
+        docstring
+        """
+        while True:
+            # Fetch referrals from db.
+            self.db.exec_one("SELECT a.referred_specialist_id, s.firstName, s.lastName, s.hospital, d.name FROM Appointment a, Specialists s, Department d WHERE  s.department_id = d.department_id AND a.referred_specialist_id = s.specialist_id AND patient_id = ? AND a.referred_specialist_id IS NOT NULL", (self.patient_id,))
+            result = self.db.c.fetchall()
+            self.referralsList = []
+            for i in result:
+                self.referralsList.append(list(i))
+            output = []
+            for i in self.referralsList:
+                output.append("Your are referred to our specialist Dr " + str(i[1]) + " " + str(
+                    i[2]) + " at Department " + str(i[4]) + " of Hopsital " + str(i[3]) + ".")
+            output.append("Back.")
+            option = self.select_options(output)
+            if 0 < option < len(output):
+                print("No additional information yet.")
+            else:
                 break
 
     def date_sort(self, booking_date):

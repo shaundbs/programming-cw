@@ -1,6 +1,8 @@
-import sqlite3
-import patient_database
-from patients import Patient
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from patient_func.patients import Patient
 from panel import Panel
 
 # Welcome Page.
