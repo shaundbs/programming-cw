@@ -1,6 +1,6 @@
 import sqlite3
 # hide password when inputting
-from database import Database
+from patient_database import Database
 from email_generator import Emails
 import re
 import datetime as datetime
@@ -12,6 +12,9 @@ from termcolor import colored
 from pandas import DataFrame
 import random
 import timedelta
+import operator
+
+global ld_nm
 
 
 class Patient:
@@ -21,6 +24,7 @@ class Patient:
         self.patient_id = id
         self.db = Database()
         self.tobecanceled = -1
+
 
     @classmethod
     def register(cls):
@@ -45,7 +49,7 @@ class Patient:
                 print('This email has been registered. Please try again')
 
         pWord = getpass.getpass('Password:')
-        DoB = input("Date of birth(in YYYY-MM-DD format): ")
+
         # Encode pw and insert user credentials into db.
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
@@ -53,13 +57,13 @@ class Patient:
         aType = "patient"
         time_now = datetime.datetime.now()
         date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
-        a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
+        a = [(fName, lName, email, hashed, aType, date_time,), ]
         db.exec_many(
-            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)", a)
+            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
         Emails.registration_email(email, fName, lName, "patient")
 
     def patient_home(self):
-        prv = ["Request Appointments", "View Appointments", "View Referrals",
+        prv = ["Request Appointments", "View Appointments",
                "View Prescription", "Log out"]
         while True:
             option = self.select_options(prv)
@@ -68,34 +72,47 @@ class Patient:
             elif option == 2:
                 self.view_appointment()
             elif option == 3:
-                self.view_referrals()
-            elif option == 4:
                 self.view_prescription()
-            elif option == 5:
+            elif option == 4:
                 break
 
-    def view_referrals(self):
-        """
-        docstring
-        """
-        while True:
-            # Fetch referrals from db.
-            self.db.exec_one("SELECT a.referred_specialist_id, s.firstName, s.lastName, s.hospital, d.name FROM Appointment a, Specialists s, Department d WHERE  s.department_id = d.department_id AND a.referred_specialist_id = s.specialist_id AND patient_id = ? AND a.referred_specialist_id IS NOT NULL", (self.patient_id,))
-            result = self.db.c.fetchall()
-            self.referralsList = []
-            for i in result:
-                self.referralsList.append(list(i))
-            output = []
-            for i in self.referralsList:
-                output.append("Your are referred to our specialist Dr " + str(i[1]) + " " + str(
-                    i[2]) + " at Department " + str(i[4]) + " of Hopsital " + str(i[3]) + ".")
-            output.append("Back.")
-            option = self.select_options(output)
-            if 0 < option < len(output):
-                print("No additional information yet.")
-            else:
-                break
-            # Print referrals and options
+    def date_sort(self, booking_date):
+        global ld_nm
+        years = [2021, 2022, 2023, 2024, 2025]
+        months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        months_list = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+
+        dates_list = [datetime.datetime.strptime(i, "%m").date().month for i in months_list]
+
+        days_dt = []
+        close_dt = []
+        years_dt = []
+        months_dt = []
+
+        for year in years:
+            for i in dates_list:
+                days_dt.append(i)
+
+        for year in years:
+            for i in months:
+                close_dt.append(calendar.monthrange(year, i))
+
+        for date in close_dt:
+            years_dt.append(str(date[1]))
+
+        for year in years:
+            for i in months:
+                months_dt.append(year)
+
+        last_days = [str(n) + "-" + str(o) + "-" + m for m, n, o in zip(years_dt, months_dt, days_dt)]
+        last_days_dt = [datetime.datetime.strptime(i, '%Y-%m-%d').date() for i in last_days]
+
+        index_length = range(0, len(last_days_dt))
+        for i in index_length:
+            while last_days_dt[i - 1] < datetime.datetime.strptime(booking_date, '%Y-%m-%d').date() and i > 0:
+                ld_nm = operator.itemgetter(i + 1)(last_days_dt)
+                i = i + 1
+        return ld_nm
 
     def view_appointment(self):
         while True:
@@ -126,11 +143,14 @@ class Patient:
             if option < len(apt):
                 # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
                 appointmentData = self.appointmentList[option - 1]
-                apt = []
                 if (appointmentData[-2] + appointmentData[-1]) == 0:
                     print("\nThis appointment is not approved yet.")
-                    apt = ["Back"]
-                    self.select_options(apt)
+                    apt = ["Cancel this appointment.", "Back."]
+                    option = self.select_options(apt)
+                    if option == 1:
+                        self.cancel_appointment(appointmentData[0])
+                    elif option == 2:
+                        break
 
                 elif appointmentData[-2] == 0:
                     print("\nThis appointment is rejected.\n")
@@ -175,12 +195,14 @@ class Patient:
                 print(calendar_month)
                 select_date = input(
                     "Please enter a valid date in YYYY-MM-DD format between now and the close of the month(enter 'b' to exit): ")
+                # print(self.date_sort("2021-10-24"))
                 if select_date == 'b':
                     break
                 try:
                     fm_selected = datetime.datetime.strptime(
                         select_date, '%Y-%m-%d').date()
-                    if datetime.datetime.now().date() < fm_selected < datetime.datetime.now().date() + datetime.timedelta(1 * 365 / 12):
+                    if datetime.datetime.now().date() < fm_selected <= datetime.datetime.now().date() + \
+                            datetime.timedelta(1 * 365 / 12):
                         print('The date {} is valid. Listing appointments... \n'.format(
                             select_date))
                         self.select_slots(select_date)

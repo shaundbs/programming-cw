@@ -1,5 +1,5 @@
 import sqlite3
-from database import Database
+import patient_database
 from patients import Patient
 import bcrypt
 import getpass
@@ -12,7 +12,7 @@ class Panel:
     user_id = 0
 
     def __init__(self):
-        self.db = Database()
+        self.db = patient_database.Database()
 
     def welcome(self):
         print('Welcome')

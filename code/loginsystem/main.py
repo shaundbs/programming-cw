@@ -1,8 +1,7 @@
 import sqlite3
-from panel import Panel, Database
+import patient_database
 from patients import Patient
-from gp import GP
-from admin import Admin
+from panel import Panel
 
 # Welcome Page.
 Panel().welcome()
