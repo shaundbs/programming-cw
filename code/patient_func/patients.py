@@ -22,9 +22,6 @@ class Patient:
 
     def __init__(self, id):
         self.patient_id = id
-        self.db = Database()
-        self.tobecanceled = -1
-
 
     @classmethod
     def register(cls):
@@ -49,17 +46,17 @@ class Patient:
                 print('This email has been registered. Please try again')
 
         pWord = getpass.getpass('Password:')
-
-        # Encode pw and insert user credentials into db.
-        pWord = pWord.encode('utf-8')
+        DoB = input("Date of birth(in YYYY-MM-DD format): ")
+        # pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(pWord, salt)
         aType = "patient"
         time_now = datetime.datetime.now()
-        date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
-        a = [(fName, lName, email, hashed, aType, date_time,), ]
+        date_time = time_now.strftime("%m/%d/%Y %H:%M:%S")
+        a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
         db.exec_many(
-            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
+            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
+            a)
         Emails.registration_email(email, fName, lName, "patient")
 
     def patient_home(self):

@@ -3,14 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/database.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/date_generator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/email_generator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/gp.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/loginsystem/panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/panel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/loginsystem/patients.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/patient_func/patients.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/patient_func/patients.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +25,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.patients">
+  <component name="RunManager" selected="Python.main">
     <configuration name="date_generator" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="programming-cw" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -97,9 +91,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.patients" />
         <item itemvalue="Python.date_generator" />
-        <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
   </component>

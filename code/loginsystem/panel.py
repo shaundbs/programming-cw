@@ -1,8 +1,9 @@
 import sqlite3
-import patient_database
+from patient_database import Database
 from patients import Patient
 import bcrypt
 import getpass
+
 
 # TODO: WHEN TO CLOSE DB?
 
@@ -12,25 +13,24 @@ class Panel:
     user_id = 0
 
     def __init__(self):
-        self.db = patient_database.Database()
+        self.db = Database()
 
     def welcome(self):
         print('Welcome')
 
     def login(self):
         email = input('Email:')
-        pWord = getpass.getpass('Password:')
+        pWord = input('Password:')
         a = (email,)
         self.db.exec_one(
             "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
         record = self.db.c.fetchone()
-        pWord = pWord.encode('utf-8')
 
         if not record:
             print('Sorry, your account does not exist in the system')
             self.login()
 
-        elif bcrypt.checkpw(pWord, record[0]):
+        elif bcrypt.checkpw(pWord.encode('utf-8'), record[0]):
             if record[2] == 'patient':
                 if record[3] == 1:
                     return ['patient', record[1]]
