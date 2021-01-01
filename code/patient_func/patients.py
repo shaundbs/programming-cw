@@ -11,6 +11,7 @@ from pandas import DataFrame
 import random
 import timedelta
 import operator
+import cli_ui as ui
 import date_generator
 from dateutil.relativedelta import relativedelta
 
@@ -61,19 +62,19 @@ class Patient:
         Emails.registration_email(email, fName, lName, "patient")
 
     def patient_home(self):
-        prv = ["Request Appointments", "View Appointments","View Referrals",
-               "View Prescription", "Log out"]
+        prv = ["Request Appointment", "View Appointments", "View Referrals","View Prescriptions", "Log out"]
+
         while True:
-            option = self.select_options(prv)
-            if option == 1:
+            option = ui.ask_choice("Choose an option:", choices=prv,sort=False)
+            if option == prv[0]:
                 self.request_appointment()
-            elif option == 2:
+            elif option == prv[1]:
                 self.view_appointment()
-            elif option == 3:
+            elif option == prv[2]:
                 self.view_referrals()
-            elif option == 4:
+            elif option == prv[3]:
                 self.view_prescription()
-            elif option == 5:
+            elif option == prv[4]:
                 break
 
     def view_referrals(self):
@@ -92,8 +93,8 @@ class Patient:
                 output.append("Your are referred to our specialist Dr " + str(i[1]) + " " + str(
                     i[2]) + " at Department " + str(i[4]) + " of Hopsital " + str(i[3]) + ".")
             output.append("Back.")
-            option = self.select_options(output)
-            if 0 < option < len(output):
+            option = ui.ask_choice("Choose a referral:", choices=output, sort=False)
+            if option != "Back.":
                 print("No additional information yet.")
             else:
                 break
@@ -123,49 +124,45 @@ class Patient:
                            str(i[1]) + " " + str(i[2]) + " at " + str(i[3][:10]) + " is " + status)
             apt.append("Back")
             # Redirects to appointment management.
-            option = self.select_options(apt)
-            if option < len(apt):
+            option = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
+            option = list.index(apt, option)
+            if option < len(apt) - 1:
                 # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
-                appointmentData = self.appointmentList[option - 1]
+                appointmentData = self.appointmentList[option]
                 if (appointmentData[-2] + appointmentData[-1]) == 0:
                     print("\nThis appointment is not approved yet.")
                     apt = ["Cancel this appointment.", "Back."]
-                    option = self.select_options(apt)
-                    if option == 1:
+                    option = ui.ask_choice("Choose an option", choices=apt, sort=False)
+                    option = list.index(apt, option)
+                    if option == 0:
                         self.cancel_appointment(appointmentData[0])
-                    elif option == 2:
-                        break
+                        continue
 
                 elif appointmentData[-2] == 0:
                     print("\nThis appointment is rejected.\n")
-                    apt = ["Reschedule this appointment.",
-                           "Cancel this appointment.", "Back."]
-                    option = self.select_options(apt)
-                    if option == 1:
-                        self.reschedule_appointment(appointmentData[0])
-                    elif option == 2:
-                        self.cancel_appointment(appointmentData[0])
 
                 elif appointmentData[-1] == 0:
                     print("\nThis appointment is confirmed.\n")
-                    apt = ["Reschedule this appointment.",
-                           "Cancel this appointment.", "Back."]
-                    option = self.select_options(apt)
-                    if option == 1:
-                        self.reschedule_appointment(appointmentData[0])
-                    elif option == 2:
-                        self.cancel_appointment(appointmentData[0])
+                apt = ["Reschedule this appointment.",
+                       "Cancel this appointment.", "Back."]
+                option = ui.ask_choice("Choose an option", choices=apt, sort=False)
+                option = list.index(apt, option)
+                if option == 0:
+                    self.reschedule_appointment(appointmentData[0])
+                elif option == 1:
+                    self.cancel_appointment(appointmentData[0])
             else:
                 break
 
     def request_appointment(self):
         while True:
-            menu_choice = self.select_options(
-                ["Book an appointment this month.", "Book an appointment next month.", "Back."])
-            if menu_choice in [1, 2]:
-                if menu_choice == 1:
+            apt = ["Book an appointment this month.", "Book an appointment next month.", "Back."]
+            menu_choice = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
+            menu_choice = list.index(apt, menu_choice)
+            if menu_choice in [0, 1]:
+                if menu_choice == 0:
                     date = datetime.datetime.today()
-                elif menu_choice == 2:
+                elif menu_choice == 1:
                     date = datetime.datetime.today() + datetime.timedelta(1 * 365 / 12)
                 year_now = datetime.datetime.date(date).strftime("%Y")
                 month_now = datetime.datetime.date(date).strftime("%m")
@@ -286,8 +283,10 @@ class Patient:
                     a = (self.patient_id, slot, gp, symptoms)
                     # Insert request into database.
                     print("Do you confirm that you want to book this appointment?")
-                    option = self.select_options(["Yes", "No"])
-                    if option == 1:
+
+                    option = ui.ask_choice("Choose an option", choices=["Yes", "No"], sort=False)
+                    option = list.index(["Yes", "No"], option)
+                    if option == 0:
                         if self.tobecanceled > 0:
                             self.db.reschedule(a, self.tobecanceled)
                             self.tobecanceled = -1
@@ -305,8 +304,9 @@ class Patient:
     def cancel_appointment(self, appointmentNo):
         while True:
             print("Do you confirm that you want to cancel this appointment?")
-            a = self.select_options(["Yes", "No"])
-            if a == 1:
+            a = ui.ask_choice("Choose an option", choices=["Yes", "No"], sort=False)
+            a = list.index(["Yes", "No"], a)
+            if a == 0:
                 appointmentNo = int(appointmentNo)
                 Database().delete_appointment(appointmentNo)
                 print("You have successfully cancelled this appointment")
@@ -335,21 +335,21 @@ class Patient:
                        tablefmt='fancy_grid', showindex=False))
         return output[0]
 
-    def select_options(self, options):
-        # TODO: Move to utilities.
-        selected = 0
-        while selected < 1 or selected > len(options):
-            try:
-                # Print privileges.
-                num = 1
-                for i in options:
-                    print(str(num) + ". " + i)
-                    num += 1
-                selected = int(input('Please choose an option: '))
-            except ValueError:
-                # Handle exceptions.
-                print("No valid integer! Please try again ...\n")
-        return selected
+    # def select_options(self, options):
+    #     # TODO: Move to utilities.
+    #     selected = 0
+    #     while selected < 1 or selected > len(options):
+    #         try:
+    #             # Print privileges.
+    #             num = 1
+    #             for i in options:
+    #                 print(str(num) + ". " + i)
+    #                 num += 1
+    #             selected = int(input('Please choose an option: '))
+    #         except ValueError:
+    #             # Handle exceptions.
+    #             print("No valid integer! Please try again ...\n")
+    #     return selected
 
 
 if __name__ == "__main__":
