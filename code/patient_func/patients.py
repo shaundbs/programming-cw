@@ -194,7 +194,7 @@ class Patient:
                             "Please enter a valid date between today and the close of next month:", last_booking_date)
                 except ValueError:
                     print("Returning to the booking options screen...")
-            elif menu_choice == 3:
+            elif menu_choice == 2:
                 break
             else:
                 print("System Failure: please restart")
