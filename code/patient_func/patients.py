@@ -1,5 +1,5 @@
-from .patient_database import Database
-from .email_generator import Emails
+from patient_database import Database
+from email_generator import Emails
 import re
 import datetime as datetime
 import getpass # hide password when inputting
@@ -11,8 +11,8 @@ from pandas import DataFrame
 import random
 import timedelta
 import operator
-
-global ld_nm
+import date_generator
+from dateutil.relativedelta import relativedelta
 
 
 class Patient:
@@ -20,6 +20,9 @@ class Patient:
 
     def __init__(self, id):
         self.patient_id = id
+        self.db = Database()
+        self.tobecanceled = -1
+        self.testing = ""
 
     @classmethod
     def register(cls):
@@ -44,17 +47,17 @@ class Patient:
                 print('This email has been registered. Please try again')
 
         pWord = getpass.getpass('Password:')
-        DoB = input("Date of birth(in YYYY-MM-DD format): ")
-        # pWord = pWord.encode('utf-8')
+
+        # Encode pw and insert user credentials into db.
+        pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(pWord, salt)
         aType = "patient"
         time_now = datetime.datetime.now()
-        date_time = time_now.strftime("%m/%d/%Y %H:%M:%S")
-        a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
+        date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
+        a = [(fName, lName, email, hashed, aType, date_time,), ]
         db.exec_many(
-            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
-            a)
+            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
         Emails.registration_email(email, fName, lName, "patient")
 
     def patient_home(self):
@@ -94,44 +97,6 @@ class Patient:
                 print("No additional information yet.")
             else:
                 break
-
-    def date_sort(self, booking_date):
-        global ld_nm
-        years = [2021, 2022, 2023, 2024, 2025]
-        months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-        months_list = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
-
-        dates_list = [datetime.datetime.strptime(i, "%m").date().month for i in months_list]
-
-        days_dt = []
-        close_dt = []
-        years_dt = []
-        months_dt = []
-
-        for year in years:
-            for i in dates_list:
-                days_dt.append(i)
-
-        for year in years:
-            for i in months:
-                close_dt.append(calendar.monthrange(year, i))
-
-        for date in close_dt:
-            years_dt.append(str(date[1]))
-
-        for year in years:
-            for i in months:
-                months_dt.append(year)
-
-        last_days = [str(n) + "-" + str(o) + "-" + m for m, n, o in zip(years_dt, months_dt, days_dt)]
-        last_days_dt = [datetime.datetime.strptime(i, '%Y-%m-%d').date() for i in last_days]
-
-        index_length = range(0, len(last_days_dt))
-        for i in index_length:
-            while last_days_dt[i - 1] < datetime.datetime.strptime(booking_date, '%Y-%m-%d').date() and i > 0:
-                ld_nm = operator.itemgetter(i + 1)(last_days_dt)
-                i = i + 1
-        return ld_nm
 
     def view_appointment(self):
         while True:
@@ -197,7 +162,6 @@ class Patient:
         while True:
             menu_choice = self.select_options(
                 ["Book an appointment this month.", "Book an appointment next month.", "Back."])
-
             if menu_choice in [1, 2]:
                 if menu_choice == 1:
                     date = datetime.datetime.today()
@@ -213,25 +177,32 @@ class Patient:
                     year_input, month_input, day_input, 0)
                 print(calendar_month)
                 select_date = input(
-                    "Please enter a valid date in YYYY-MM-DD format between now and the close of the month(enter 'b' to exit): ")
-                # print(self.date_sort("2021-10-24"))
-                if select_date == 'b':
-                    break
+                    "Please enter a valid date in YYYY-MM-DD format between now and the close of the month(enter 'b' to return to the previous menu): ")
+                dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
+                last_booking_date = date_generator.date_sort(dn)
+                # if select_date == 'b':
+                #     break
                 try:
                     fm_selected = datetime.datetime.strptime(
                         select_date, '%Y-%m-%d').date()
-                    if datetime.datetime.now().date() < fm_selected <= datetime.datetime.now().date() + \
-                            datetime.timedelta(1 * 365 / 12):
+                    if datetime.datetime.now().date() < fm_selected <= last_booking_date:
                         print('The date {} is valid. Listing appointments... \n'.format(
                             select_date))
                         self.select_slots(select_date)
+                    elif fm_selected < datetime.datetime.now().date():
+                        print("Sorry, we are unable to book appointments for dates in the past")
+                    elif fm_selected == datetime.datetime.now().date():
+                        print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
                     else:
                         print(
-                            "We are unable to book appointments in the past or too far in the future.\nPlease enter a valid date between today and the close of next month")
+                            "Sorry, we are unable to book appointments too far into the future.\n"
+                            "Please enter a valid date between today and the close of next month:", last_booking_date)
                 except ValueError:
                     print("Your input is not valid.")
-            else:
+            elif menu_choice == 3:
                 break
+            else:
+                print("System Failure: please restart")
 
     def reschedule_appointment(self, appointmentNo):
         self.tobecanceled = appointmentNo
@@ -306,7 +277,7 @@ class Patient:
                     # selected_session = available_session[booked_slot - 1][:2]
                     # ask the patient to input any symptoms they may have or default value is 'none'
                     symptoms = input("Please list any symptoms or concerns you may have so that we may"
-                                     " inform your assigned GP... \n"
+                                     " inform your assigned GP...\n"
                                      "or hit enter if you do not want to disclose now: \n ")
                     key = session[booked_slot][:2]
                     slot = result[key][0][1]

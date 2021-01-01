@@ -1,11 +1,13 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import datetime
 import calendar
 import operator
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-years = [2021, 2022, 2023, 2024, 2025]
+
+global ld_nm
+years = [2020, 2021, 2022, 2023, 2024, 2025]
 months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 months_list = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
@@ -45,8 +47,3 @@ def date_sort(dater):
             ld_nm = operator.itemgetter(i+1)(last_days_dt)
             i = i+1
     return ld_nm
-
-
-print(date_sort("2023-01-22"))
-
-global ld_nm
