@@ -174,11 +174,9 @@ class Patient:
                     year_input, month_input, day_input, 0)
                 print(calendar_month)
                 select_date = input(
-                    "Please enter a valid date in YYYY-MM-DD format between now and the close of the month(enter 'b' to return to the previous menu): ")
+                    "Please enter a valid date in YYYY-MM-DD format between now and the close of the month (or enter any other value to return to the booking options menu): ")
                 dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
                 last_booking_date = date_generator.date_sort(dn)
-                # if select_date == 'b':
-                #     break
                 try:
                     fm_selected = datetime.datetime.strptime(
                         select_date, '%Y-%m-%d').date()
@@ -195,7 +193,7 @@ class Patient:
                             "Sorry, we are unable to book appointments too far into the future.\n"
                             "Please enter a valid date between today and the close of next month:", last_booking_date)
                 except ValueError:
-                    print("Your input is not valid.")
+                    print("Returning to the booking options screen...")
             elif menu_choice == 3:
                 break
             else:
