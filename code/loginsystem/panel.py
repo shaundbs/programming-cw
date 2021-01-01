@@ -1,6 +1,4 @@
-import sqlite3
-from patient_database import Database
-from patients import Patient
+from patient_func.patient_database import Database
 import bcrypt
 import getpass
 
