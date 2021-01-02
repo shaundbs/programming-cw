@@ -36,7 +36,7 @@ class Patient:
         email_list = Database().patient_email_list()
 
         while email_repetition:
-            regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+            regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
             email = input('Email:')
             if not re.search(regex, email):
                 print("Invalid Email. Please try again.")
@@ -46,14 +46,14 @@ class Patient:
             else:
                 print('This email has been registered. Please try again')
 
-        pWord = getpass.getpass('Password:')
+        pWord = input('Password: ')
         DoB = input("Date of birth(in YYYY-MM-DD format): ")
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(pWord, salt)
         aType = "patient"
         time_now = datetime.datetime.now()
-        date_time = time_now.strftime("%m/%d/%Y %H:%M:%S")
+        date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
         a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
         db.exec_many(
             "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
