@@ -87,7 +87,7 @@ class Emails:
         msg.attach(part1)
         msg.attach(part2)
 
-        fp = open('logo.png', 'rb')
+        fp = open('../../logo.png', 'rb')
         msgimage = MIMEImage(fp.read())
         fp.close()
 
@@ -102,3 +102,6 @@ class Emails:
         mail.login(sender_email, password)
         mail.sendmail(admin, rec, msg.as_string())
         mail.quit()
+
+# if __name__ == "__main__":
+#     Emails.registration_email('dcwx1016@gmail.com', 'yang', 'zou', 'patient')
