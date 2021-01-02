@@ -47,7 +47,7 @@ class Patient:
             else:
                 print('This email has been registered. Please try again')
 
-        pWord = getpass.getpass('Password:')
+        pWord = input('Password: ')
         DoB = input("Date of birth(in YYYY-MM-DD format): ")
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
