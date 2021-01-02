@@ -9,7 +9,6 @@ from tabulate import tabulate
 from termcolor import colored
 from pandas import DataFrame
 import random
-import timedelta
 import operator
 import cli_ui as ui
 import date_generator

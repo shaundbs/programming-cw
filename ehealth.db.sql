@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS "Users" (
 	"is_active"	INTEGER,
 	"signUpDate" TEXT DEFAULT CURRENT_TIMESTAMP,
 	"userId"	INTEGER,
+	"date_of_birth" TEXT,
 	PRIMARY KEY("userId" AUTOINCREMENT)
 	-- UNIQUE("email") ?? 
 );
@@ -107,7 +108,7 @@ CREATE TABLE IF NOT EXISTS "Specialists" (
 -- INSERT INTO "Users" VALUES ('uu','aa','$2b$12$xmlFCtlvzVZhyh.le63zX.Gr6uhMAxrXyfA3qupH5tRdid.PgTaCC',16,'2285@qq.com',0);
 -- INSERT INTO "Users" VALUES ('nh','ya','$2b$12$lztUEfcj1NWlydnJEL9RYe14kaPleanTkpiQ2I0tjNYE40.c6Xvqi',17,'2886@qq.com',1);
 
---INSERT INTO USERS(FIRSTNAME, LASTNAME, EMAIL, PASSWORD, ACCOUNTTYPE) VALUES ('Qasim', 'Razvi', 'qr@test.com','$2b$12$oAJxmL.Pa9Y7.U20pvqZ2ef65.8ls3.9U/S2EhZO7ewFo7mHUSihu',
+--INSERT INTO USERS(FIRSTNAME, LASTNAME, EMAIL, PASSWORD, ACCOUNTTYPE) VALUES ('Qasim', 'Razvi', 'qr@test.com','$2b$12$oAJxmL.Pa9Y7.U20pvqZ2ef65.8ls3.9U/S2EhZO7ewFo7mHUSihu', 'gp');
 --
 --INSERT INTO DEPARTMENT (NAME)
 --VALUES
@@ -177,6 +178,6 @@ CREATE TABLE IF NOT EXISTS "Specialists" (
 --('Chelsea','Penny','Abertawe Hospital',4),
 --('Carla','Stamp','Milton Keynes Hospital',5),
 --('Ethelyn','Waters','Aberdeen Hospital',6),
---('Jena','Day','Norwich Hospital',7); 
+--('Jena','Day','Norwich Hospital',7);
 
 COMMIT;
