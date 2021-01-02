@@ -1,16 +1,15 @@
 import logging
 import re
+import threading  # send emails in background
 from datetime import datetime
 from time import sleep
 
 import cli_ui as ui
 from pick import pick
-# from terminaltables import AsciiTable as Table
 from tabulate import tabulate
 
 import gp_database as db
 from email_generator import Emails
-import threading  # send emails in background
 
 
 # utility functions for the GP flow
@@ -24,7 +23,7 @@ def user_select(prompt: str, choices: list):
             selected = choice
         except Exception as err:
             # log error
-            logging.exception("Exception occurred while trying to use pick for user input.")
+            logging.info("Exception occurred while trying to use cursors for user input.")
             try:
                 selected = ui.ask_choice(prompt, choices=choices, sort=False)
             except AttributeError:
@@ -35,6 +34,7 @@ def user_select(prompt: str, choices: list):
 def output_sql_rows(query_result, column_names: list, table_headers=None, table_format="grid"):
     """
     Takes a list of nested dictionaries as input and returns a table with row numbers
+    :param table_format: table formatting
     :param query_result: sql result
     :param column_names: column names in query result to output in the table
     :param table_headers: names of header columns - should map to column names given
@@ -385,9 +385,9 @@ def send_appt_confirmation_email(appt_id, confirmed=True):
     email_text.append("This appointment's details:")
 
     email_text += [f"Status: {status}", "Appointment Information:", f"Appointment date: {appt_details[0]['date']}",
-                  f"Appointment time: {appt_details[0]['appointment time']}",
-                  f"Patient Name: {appt_details[0]['patient name']}", f"Reason for appointment: {reason} \n",
-                  f"Doctor: {appt_details[0]['doctor name']}"]
+                   f"Appointment time: {appt_details[0]['appointment time']}",
+                   f"Patient Name: {appt_details[0]['patient name']}", f"Reason for appointment: {reason} \n",
+                   f"Doctor: {appt_details[0]['doctor name']}"]
 
     summary_text_plain = "\n".join(email_text)
     summary_text_html = "<br>".join(email_text)

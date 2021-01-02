@@ -6,7 +6,7 @@ import sys
 
 import gp_database as db
 from gp import Gp
-import  logging
+import logging
 
 if __name__ == '__main__':
     logging.basicConfig(filename='gp.log', filemode='a', format='%(asctime)s - %(levelname)s - %(message)s')

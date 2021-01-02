@@ -1,12 +1,12 @@
-from state_manager import StateGenerator
-import gp_database as db
-import cli_ui as ui
-import gp_utilities as util
-from datetime import datetime, timedelta
 import calendar
 import logging
-# from email_generator import Emails  # for sending emails
-import asyncio  # asynchronous sending of bulk emails
+from datetime import datetime, timedelta
+
+import cli_ui as ui
+
+import gp_database as db
+import gp_utilities as util
+from state_manager import StateGenerator
 
 # state dictionary/graph to map out possible routes/options from each state/node.
 # back button should be child node if available option from a state.
@@ -89,7 +89,7 @@ class Gp:
     # CALENDAR HANDLING
 
     def manage_calendar(self):
-        print("hi this is the calendar")
+        print("Welcome to your calendar")
 
         selected = util.user_select("Where to go next?", self.state_gen.get_state_options())
         self.handle_state_selection(
@@ -179,7 +179,7 @@ class Gp:
 
         ui.info("When you would you like your time-off to start?")
         date_not_valid = True
-        while date_not_valid == True:
+        while date_not_valid:
             start_time = util.get_user_date()
             if datetime.strptime(start_time, '%Y-%m-%d') > now + timedelta(days=30):
                 date_not_valid = False
@@ -188,7 +188,7 @@ class Gp:
 
         ui.info("When you would you like your time off to end?")
         date_not_valid = True
-        while date_not_valid == True:
+        while date_not_valid:
             end_time = util.get_user_date()
             if datetime.strptime(end_time, '%Y-%m-%d') >= datetime.strptime(start_time, '%Y-%m-%d'):
                 date_not_valid = False
@@ -239,7 +239,8 @@ class Gp:
     # CONFIRM APPOINTMENTS
 
     def confirm_appointments(self):
-        # todo - confirm appts bug - after going to confirm appts, then going back back, logout returns to confirm appts.
+        # todo - confirm appts bug - after going to confirm appts, then going back back, logout returns to confirm
+        #  appts.
         ui.info_section(ui.blue, "Confirm Appointments")
         # show requested appt booking for GP
         query = f"SELECT APPOINTMENT_ID,  u.firstName || ' ' || u.lastName as 'patient name',  strftime('%d/%m/%Y', " \
