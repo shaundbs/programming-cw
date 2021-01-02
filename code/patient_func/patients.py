@@ -48,34 +48,35 @@ class Patient:
                 print('This email has been registered. Please try again')
 
         pWord = getpass.getpass('Password:')
-
-        # Encode pw and insert user credentials into db.
-        pWord = pWord.encode('utf-8')
+        DoB = input("Date of birth(in YYYY-MM-DD format): ")
+        # pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(pWord, salt)
         aType = "patient"
         time_now = datetime.datetime.now()
-        date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
-        a = [(fName, lName, email, hashed, aType, date_time,), ]
+        date_time = time_now.strftime("%m/%d/%Y %H:%M:%S")
+        a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
         db.exec_many(
-            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate) Values (?,?,?,?,?,?)", a)
+            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
+            a)
         Emails.registration_email(email, fName, lName, "patient")
 
-    def patient_home(self):
-        prv = ["Request Appointment", "View Appointments", "View Referrals","View Prescriptions", "Log out"]
 
-        while True:
-            option = ui.ask_choice("Choose an option:", choices=prv,sort=False)
-            if option == prv[0]:
-                self.request_appointment()
-            elif option == prv[1]:
-                self.view_appointment()
-            elif option == prv[2]:
-                self.view_referrals()
-            elif option == prv[3]:
-                self.view_prescription()
-            elif option == prv[4]:
-                break
+    def patient_home(self):
+            prv = ["Request Appointment", "View Appointments", "View Referrals","View Prescriptions", "Log out"]
+
+            while True:
+                option = ui.ask_choice("Choose an option:", choices=prv,sort=False)
+                if option == prv[0]:
+                    self.request_appointment()
+                elif option == prv[1]:
+                    self.view_appointment()
+                elif option == prv[2]:
+                    self.view_referrals()
+                elif option == prv[3]:
+                    self.view_prescription()
+                elif option == prv[4]:
+                    break
 
     def view_referrals(self):
         """
