@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS "Users" (
 	"is_active"	INTEGER,
 	"signUpDate" TEXT DEFAULT CURRENT_TIMESTAMP,
 	"userId"	INTEGER,
+	"date_of_birth" TEXT,
 	PRIMARY KEY("userId" AUTOINCREMENT)
 	-- UNIQUE("email") ?? 
 );
