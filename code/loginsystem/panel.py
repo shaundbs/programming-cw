@@ -1,6 +1,4 @@
-import sqlite3
-from database import Database
-from patients import Patient
+from patient_func.patient_database import Database
 import bcrypt
 import getpass
 
@@ -25,15 +23,12 @@ class Panel:
         self.db.exec_one(
             "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
         record = self.db.c.fetchone()
-        # pWord = pWord
-        # print(pWord)
-        # print(record[0])
 
         if not record:
             print('Sorry, your account does not exist in the system')
             self.login()
 
-        elif bcrypt.checkpw(pWord.encode('utf-8'), record[0].encode('utf-8')):
+        elif bcrypt.checkpw(pWord.encode('utf-8'), record[0]):
             if record[2] == 'patient':
                 if record[3] == 1:
                     return ['patient', record[1]]

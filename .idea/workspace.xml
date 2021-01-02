@@ -19,13 +19,23 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="beb3aecd-5b8e-4477-ba79-c530a275976d" name="Default Changelist" comment="clinical notes functionality completed &amp; working.">
+    <list default="true" id="dca5df2f-5d13-4a0d-af9d-2d86a5c66d3f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/code/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/patient_func/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/patient_func/date_generator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/patient_func/email_generator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/patient_func/patient_database.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/patient_func/patients.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/database/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/programming-cw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/programming-cw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/gp_func/gp.log" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/gp_func/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/gp_func/gp_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_testing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/gp_func/gp_utilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/loginsystem/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/loginsystem/database.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/loginsystem/gp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/loginsystem/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/loginsystem/panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/loginsystem/panel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/loginsystem/patients.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +86,7 @@
       <recent name="$PROJECT_DIR$/code/gp_func" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.GP Test">
+  <component name="RunManager" selected="Python.main">
     <configuration name="GP Test" type="PythonConfigurationType" factoryName="Python">
       <module name="programming-cw" />
       <option name="INTERPRETER_OPTIONS" value="" />
