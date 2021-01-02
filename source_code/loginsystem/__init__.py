@@ -1,1 +1,1 @@
-from .database import Database
+from patient_database import Database

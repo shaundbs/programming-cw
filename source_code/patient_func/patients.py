@@ -173,27 +173,54 @@ class Patient:
                 calendar_month = c.formatmonth(
                     year_input, month_input, day_input, 0)
                 print(calendar_month)
-                select_date = input(
-                    "Please enter a valid date in YYYY-MM-DD format between now and the close of the month (or enter any other value to return to the booking options menu): ")
-                dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-                last_booking_date = date_generator.date_sort(dn)
-                try:
-                    fm_selected = datetime.datetime.strptime(
-                        select_date, '%Y-%m-%d').date()
-                    if datetime.datetime.now().date() < fm_selected <= last_booking_date:
-                        print('The date {} is valid. Listing appointments... \n'.format(
-                            select_date))
-                        self.select_slots(select_date)
-                    elif fm_selected < datetime.datetime.now().date():
-                        print("Sorry, we are unable to book appointments for dates in the past")
-                    elif fm_selected == datetime.datetime.now().date():
-                        print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
-                    else:
-                        print(
-                            "Sorry, we are unable to book appointments too far into the future.\n"
-                            "Please enter a valid date between today and the close of next month:", last_booking_date)
-                except ValueError:
-                    print("Returning to the booking options screen...")
+                apt = ["Enter booking date",
+                       "Back"]
+                date_booker = ui.ask_choice("Choose an option", choices=apt, sort=False)
+                date_booker = list.index(apt, date_booker)
+                if date_booker in [0, 1]:
+                    while True:
+                        if date_booker == 0:
+                            select_date = input(
+                                "Please enter a valid date in YYYY-MM-DD format between now and the close of the month: "
+                              )
+                            dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
+                            last_booking_date = date_generator.date_sort(dn)
+                            try:
+                                year, month, day = select_date.split('-')
+                                isValidDate = True
+                                datetime.datetime(int(year), int(month), int(day))
+                            except ValueError:
+                                isValidDate = False
+                            if (isValidDate):
+                                    fm_selected = datetime.datetime.strptime(
+                                        select_date, '%Y-%m-%d').date()
+                                    if datetime.datetime.now().date() < fm_selected <= last_booking_date:
+                                        print('The date {} is valid. Listing appointments... \n'.format(
+                                            select_date))
+                                        self.select_slots(select_date)
+                                    elif fm_selected < datetime.datetime.now().date():
+                                        print("Sorry, we are unable to book appointments for dates in the past")
+                                    elif fm_selected == datetime.datetime.now().date():
+                                        print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
+                                    else:
+                                        print(
+                                            "Sorry, we are unable to book appointments too far into the future.\n"
+                                            "Please enter a valid date between today and the close of next month:", last_booking_date)
+                            elif not(isValidDate):
+                                print("Sorry this value is not accepted")
+                                opts = ["Try again",
+                                       "Back to booking options menu"]
+                                navigate = ui.ask_choice("Choose an option", choices=opts, sort=False)
+                                navigate = list.index(opts, navigate)
+                                if navigate in [0, 1]:
+                                    if navigate == 1:
+                                        break
+                                    elif navigate == 2:
+                                        break
+                            else:
+                                print("This input will not be accepted im afraid - Please re-enter in YYYY-MM-DD format")
+                        elif date_booker == 1:
+                            break
             elif menu_choice == 2:
                 break
             else:
