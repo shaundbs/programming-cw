@@ -54,7 +54,7 @@ class Patient:
         hashed = bcrypt.hashpw(pWord, salt)
         aType = "patient"
         time_now = datetime.datetime.now()
-        date_time = time_now.strftime("%m/%d/%Y %H:%M:%S")
+        date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
         a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
         db.exec_many(
             "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
