@@ -2,7 +2,7 @@ from patient_database import Database
 from email_generator import Emails
 import re
 import datetime as datetime
-import getpass # hide password when inputting
+import getpass  # hide password when inputting
 import bcrypt
 import calendar
 from tabulate import tabulate
