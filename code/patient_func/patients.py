@@ -49,7 +49,7 @@ class Patient:
 
         pWord = getpass.getpass('Password:')
         DoB = input("Date of birth(in YYYY-MM-DD format): ")
-        # pWord = pWord.encode('utf-8')
+        pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(pWord, salt)
         aType = "patient"
