@@ -6,3 +6,4 @@ setuptools~=51.0.0
 tabulate~=0.8.7
 termcolor~=1.1.0
 pandas~=1.2.0
+cli_ui==0.11.0
