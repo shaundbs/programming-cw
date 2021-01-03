@@ -519,7 +519,7 @@ class Admin():
                 (self.ID,))
             result = db1.c.fetchall()
             row=len(result)
-            Ref = result[0]['Medical_historyNo']
+            Ref = result[0]['illness']
             illness = input("Illness: ")
             time_afflicted = input("Time Afflicted: ")
             description = input("Description: ")
