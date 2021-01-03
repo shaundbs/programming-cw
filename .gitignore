@@ -5,3 +5,4 @@
 *.pyc
 *.log
 *workspace.xml
+**.idea/**
