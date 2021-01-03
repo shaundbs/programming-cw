@@ -7,6 +7,7 @@ from patient_func.patients import Patient
 from gp_func.gp import Gp
 from patient_func.patient_database import Database
 import bcrypt
+import cli_ui as ui
 
 db = Database()
 # Welcome Page.
@@ -15,7 +16,8 @@ def welcome():
 
 def login():
     email = input('Email:')
-    pWord = input('Password:')
+
+    pWord = ui.ask_password('Password:')
     a = (email,)
     db.exec_one(
         "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
