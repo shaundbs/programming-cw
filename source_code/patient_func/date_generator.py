@@ -1,9 +1,6 @@
-import sys
-import os
 import datetime
 import calendar
 import operator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 global ld_nm
