@@ -1,5 +1,5 @@
 from state_manager import StateGenerator
-import gp_database as db
+import admin_database as db
 import admin_utilities as util
 import cli_ui as ui
 from os import system
@@ -28,7 +28,6 @@ states = {
     "Deactivate GP account": ["Back"],
     "Reactivate GP account": ["Back"],
 }
-
 
 class Admin():
     def __init__(self, user_id):

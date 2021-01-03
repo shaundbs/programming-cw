@@ -1,5 +1,5 @@
 import sqlite3
-from database import Database
+from admin_database import Database
 import smtplib, ssl
 from pandas import DataFrame
 import os

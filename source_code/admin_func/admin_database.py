@@ -31,3 +31,12 @@ class Database:
         for i in self.c.fetchall():
             email_list_GP.append(i[0])
         return email_list_GP
+
+    def fetch_data(self, query_string):
+        self.c.execute(query_string)
+        data = self.c.fetchall()
+        return data
+
+    def close_db(self):
+        self.c.close()
+        self.connection.close()
