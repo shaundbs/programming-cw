@@ -25,8 +25,6 @@ class Database:
         self.c.execute(query)
         self.connection.commit()
 
-
-
     def GP_email_list(self):
         self.c.execute("SELECT email FROM Users WHERE accountType = 'gp'")
         email_list_GP = []

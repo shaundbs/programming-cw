@@ -8,12 +8,27 @@ from pandas import DataFrame
 import sqlite3
 from sqlite3 import Error
 import bcrypt
+from registerGP import registerGP, confirmation
+from confirmPatient import confirmPatient, validate, clear
+from time import sleep
 
 states = {
     # admin menu    
     "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patient", "Log out"],
     "Manage patient": ["searchDOB", "searchname", "Back"],
-    # Erfan's Options
+
+    "Return to menu": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Log out"],
+
+    # Register GP
+    "Register new GP": ["Confirm details", "Back"],
+    "Confirm details": ["Register another GP", "Return to menu"],
+    "Register another GP": ["Confirm details", "Return to menu"],
+
+    # Confirm Patient
+    "Approve new patients": ["Continue validation", "Back"],
+    "Continue validation": ["Validate more entries", "Return to menu"],
+    "Validate more entries": ["Continue validation", "Return to menu"],
+
     # Manage GP menu
     "Manage GP": ["Edit GP account Information", "Remove GP account", "Deactivate GP account", "Reactivate GP account", "Back"],
     # Edit GP menu
@@ -235,4 +250,37 @@ class Admin():
         else: 
             self.handle_state_selection("Back")
 
+    def register_new_gp(self):
+        registerGP()
+        selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
 
+    def confirm_details(self):
+        confirmation()
+        selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
+    def register_another_gp(self):
+        self.register_new_gp()
+
+    def approve_new_patients(self):
+        try:
+            confirmPatient()
+            selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
+            self.handle_state_selection(selected)
+        except:
+            print("\nNo patients currently require validation!\nRedirecting...")
+            sleep(3)
+            self.to_admin_options()
+
+    def continue_validation(self):
+        validate()
+        selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
+    def validate_more_entries(self):
+        self.approve_new_patients()
+
+
+    def return_to_menu(self):
+        self.admin_options()
