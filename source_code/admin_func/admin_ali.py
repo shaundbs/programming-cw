@@ -1,5 +1,5 @@
 
-from panel import Database
+from database import Database
 from pandas import DataFrame
 from os import system
 import os
@@ -84,10 +84,10 @@ class Admin:
             else:
                 x+=1
 
-        Index1= ["UserID","First Name", "Last Name", "DateOfBirth", "email", "Role", "Registered", "Active", "Signed UP"]
+        Index1= ["UserID","First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active", "Signed UP"]
         Index2=["MedicalHistoryID","UserID","illness", "time_afflicted", "description", "prescribed_medication"]
         db1 = Database()
-        db1.exec_one( "SELECT userID, FirstName, LastName, DateOfBirth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
+        db1.exec_one( "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
             (ID,))
         result = db1.c.fetchall()
         df1 = DataFrame(result)
@@ -124,10 +124,10 @@ class Admin:
         Admin.clear()
         db1 = Database()
         db1.exec_one(
-            "SELECT userID, FirstName, LastName, DateOfBirth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
+            "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
             (self.ID,))
         result = db1.c.fetchall()
-        Index1 = ["UserID", "First Name", "Last Name", "DateOfBirth", "email", "Role", "Registered", "Active",
+        Index1 = ["UserID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                   "Signed UP"]
         df1 = DataFrame(result)
         df1.columns = Index1
@@ -150,10 +150,10 @@ class Admin:
         Admin.clear()
         db1 = Database()
         db1.exec_one(
-            "SELECT userID, FirstName, LastName, DateOfBirth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
+            "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
             (self.ID,))
         result = db1.c.fetchall()
-        Index1 = ["UserID", "First Name", "Last Name", "DateOfBirth", "email", "Role", "Registered", "Active",
+        Index1 = ["UserID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                   "Signed UP"]
         df1 = DataFrame(result)
         df1.columns = Index1
@@ -178,10 +178,10 @@ class Admin:
         if selected=="Search by Date of Birth":
             DoB = input("Enter the Date of Birth  (Format: DD-MM-YYYY EXAMPLE: 22-05-1995): ")
             db = Database()
-            Index = ["ID", "First Name", "Last Name", "DateOfBirth", "email", "Role", "Registered", "Active",
+            Index = ["ID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                      "Signed UP"]
             db.exec_one(
-                "SELECT userID, FirstName, LastName, DateOfBirth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE DateOfBirth = ?",
+                "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE date_of_birth = ?",
                 (DoB,))
             result = db.c.fetchall()
             row=len(result)
@@ -203,10 +203,10 @@ class Admin:
         elif selected=="Search by Last Name":
             Name = input("Enter the Last Name of the Patient: ")
             db = Database()
-            Index = ["ID", "First Name", "Last Name", "DateOfBirth", "email", "Role", "Registered", "Active",
+            Index = ["ID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                      "Signed UP"]
             db.exec_one(
-                "SELECT userID, FirstName, LastName, DateOfBirth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE LastName = ?",
+                "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE LastName = ?",
                 (Name,))
             result = db.c.fetchall()
             row=len(result)
@@ -261,7 +261,7 @@ class Admin:
         elif selected=="Change Date of Birth":
             DoB = input("Enter the New Date of Birth: ")
             db = Database()
-            db.exec_one("""UPDATE Users SET DateOfBirth=?  WHERE userID=?""", (DoB,self.ID,))
+            db.exec_one("""UPDATE Users SET date_of_birth=?  WHERE userID=?""", (DoB,self.ID,))
             print("Successfully Updated Date of Birth, Wait 2 Seconds")
             sleep(2)
             Admin.clear()
