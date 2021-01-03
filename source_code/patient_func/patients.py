@@ -13,6 +13,7 @@ import operator
 import cli_ui as ui
 import date_generator
 from dateutil.relativedelta import relativedelta
+# import gp_utilities
 
 
 class Patient:
@@ -155,6 +156,7 @@ class Patient:
                 break
 
     def request_appointment(self):
+        self.limit_appointment_bookings()
         while True:
             apt = ["Book an appointment this month.", "Book an appointment next month.", "Back."]
             menu_choice = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
@@ -191,6 +193,11 @@ class Patient:
                                 datetime.datetime(int(year), int(month), int(day))
                             except ValueError:
                                 isValidDate = False
+                            # try:
+                            #     maxAptLimit = False
+                            #
+                            #
+                            # except ValueError:
                             if (isValidDate):
                                     fm_selected = datetime.datetime.strptime(
                                         select_date, '%Y-%m-%d').date()
@@ -225,6 +232,16 @@ class Patient:
                 break
             else:
                 print("System Failure: please restart")
+
+    def limit_appointment_bookings(self):
+        self.db.exec_one("""SELECT  a.patient_id, a.slot_id, s.startTIme, s.endTime, a.appointment_id FROM Appointment AS A
+                            LEFT JOIN Slots AS S
+                            ON s.slot_id = a.slot_id
+                            WHERE a.patient_id = (?) AND
+                            s.startTime BETWEEN '2021-02-28 16:00:00' AND '2021-03-05 15:00:00'
+                            """, ("8",))
+        result = self.db.c.fetchall()
+        print(result)
 
     def reschedule_appointment(self, appointmentNo):
         self.tobecanceled = appointmentNo
@@ -338,8 +355,7 @@ class Patient:
             break
 
     def view_prescription(self):
-        print("Patient id: " + str(self.patient_id) +
-              "want to view prescription\n")
+        gp_utilities.print_appointment_summary(self.patient_id)
         return
 
     def display_opening_hours(self, selected):
@@ -359,6 +375,7 @@ class Patient:
         print(tabulate(df2, headers='keys',
                        tablefmt='fancy_grid', showindex=False))
         return output[0]
+
 
     # def select_options(self, options):
     #     # TODO: Move to utilities.
