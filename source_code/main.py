@@ -2,7 +2,9 @@ import sys
 import os
 sys.path.append(os.getcwd()+'/patient_func')
 sys.path.append(os.getcwd()+'/gp_func')
+sys.path.append(os.getcwd()+'/admin_func')
 
+from admin_func.admin import Admin
 from patient_func.patients import Patient
 from gp_func.gp import Gp
 from patient_func.patient_database import Database
@@ -16,7 +18,6 @@ def welcome():
 
 def login():
     email = input('Email:')
-
     pWord = ui.ask_password('Password:')
     a = (email,)
     db.exec_one(
@@ -74,6 +75,12 @@ while True:
                 a = Patient(result[1])
                 # Our patient is presented with available options.
                 a.patient_home()
+
+            elif result[0] == 'admin':
+                print('Log_in Successfull!')
+                print(' ')
+                gp = Admin(result[1])
+
 
     elif option == "2":
         # Patient Register.

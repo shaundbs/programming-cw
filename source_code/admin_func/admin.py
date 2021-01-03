@@ -614,5 +614,3 @@ class Admin():
         elif selected == "Back":
             self.handle_state_selection("Manage Patient Account")
 
-
-Admin(2)
