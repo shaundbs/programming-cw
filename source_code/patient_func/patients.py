@@ -1,5 +1,6 @@
 from patient_database import Database
 from email_generator import Emails
+import date_generator
 import re
 import datetime as datetime
 import getpass  # hide password when inputting
@@ -11,7 +12,7 @@ from pandas import DataFrame
 import random
 import operator
 import cli_ui as ui
-import date_generator
+
 from dateutil.relativedelta import relativedelta
 import threading
 
@@ -46,7 +47,7 @@ class Patient:
             else:
                 print('This email has been registered. Please try again')
 
-        pWord = input('Password: ')
+        pWord = ui.ask_password('Password: ')
         DoB = input("Date of birth(in YYYY-MM-DD format): ")
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()

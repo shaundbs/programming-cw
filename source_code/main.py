@@ -1,12 +1,13 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.getcwd()+'/patient_func')
+sys.path.append(os.getcwd()+'/gp_func')
 
 from patient_func.patients import Patient
-import gp_func.gp_database as db
 from gp_func.gp import Gp
 from patient_func.patient_database import Database
 import bcrypt
+import cli_ui as ui
 
 db = Database()
 # Welcome Page.
@@ -15,7 +16,8 @@ def welcome():
 
 def login():
     email = input('Email:')
-    pWord = input('Password:')
+
+    pWord = ui.ask_password('Password:')
     a = (email,)
     db.exec_one(
         "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
