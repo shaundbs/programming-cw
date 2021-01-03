@@ -3,7 +3,7 @@ import sqlite3
 
 class Database:
     def __init__(self):
-        self.connection = sqlite3.connect('database/ehealth.db')
+        self.connection = sqlite3.connect('../../database/ehealth.db')
         self.c = self.connection.cursor()
 
     def patient_email_list(self):

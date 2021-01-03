@@ -30,7 +30,7 @@ class Panel:
             print('Sorry, your account does not exist in the system')
             self.login()
 
-        elif bcrypt.checkpw(pWord, record[0]):
+        elif bcrypt.checkpw(pWord.encode('utf-8'), record[0].encode('utf-8')):
             if record[2] == 'patient':
                 if record[3] == 1:
                     return ['patient', record[1]]
