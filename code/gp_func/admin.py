@@ -77,7 +77,7 @@ class Admin():
         Admin.clear()
         ui.info_section(ui.blue, 'Manage GP Menu')
 
-        # show GPs in system
+        # show GPs in system2
         self.db = db.Database()
         gp_acct_query = f"SELECT userID, firstName, lastName, email, is_active FROM users WHERE accountType = 'gp'"
         gp_acct_result = self.db.fetch_data(gp_acct_query)
@@ -115,7 +115,7 @@ class Admin():
             print(chosen_gp_table + "\n")
             # admin user selects what they want to do with desired gp account
             selected = util.user_select("Please choose what you would like to do with the GP account show above: ", self.state_gen.get_state_options())
-            if selected == "Edit GP account1 Information":
+            if selected == "Edit GP account Information":
                 self.to_edit_gp_account_information(gp_id)
             elif selected == "Remove GP account":
                 self.to_remove_gp_account(gp_id)
