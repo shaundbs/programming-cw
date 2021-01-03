@@ -404,7 +404,7 @@ class Admin():
             self.handle_state_selection("Manage Patient")
 
         if selected=="Search by Date of Birth":
-            DoB = input("Enter the Date of Birth  (Format: DD-MM-YYYY EXAMPLE: 22-05-1995): ")
+            DoB = input("Enter the Date of Birth  (Format: YYYY-MM-DD EXAMPLE: 1996-10-16): ")
             db = Database()
             Index = ["ID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                      "Signed UP"]
@@ -519,7 +519,7 @@ class Admin():
                 (self.ID,))
             result = db1.c.fetchall()
             row=len(result)
-            Ref = result[0][2]
+            Ref = result[0]['Medical_historyNo']
             illness = input("Illness: ")
             time_afflicted = input("Time Afflicted: ")
             description = input("Description: ")
@@ -556,7 +556,7 @@ class Admin():
             result = db1.c.fetchall()
             row=len(result)
             df=DataFrame(result)
-            col_one_list = df.loc[:][0].tolist()
+            col_one_list = df['Medical_historyNo'].tolist()
             x=1
 
             if row ==1:
