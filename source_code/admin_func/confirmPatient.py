@@ -1,14 +1,12 @@
 import sqlite3
-from admin_database import Database
-import smtplib, ssl
-from pandas import DataFrame
-import os
 from os import system
+from time import sleep
+
+from pandas import DataFrame
 from tabulate import tabulate
 from termcolor import colored
-from time import sleep
-from email_generator import Emails
 
+from email_generator import Emails
 
 
 def clear():

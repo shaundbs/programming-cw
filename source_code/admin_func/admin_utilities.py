@@ -1,6 +1,5 @@
-import logging
 import cli_ui as ui
-from pick import pick
+
 
 def user_select(prompt: str, choices: list):
     selected = None

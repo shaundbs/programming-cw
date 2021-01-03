@@ -1,13 +1,11 @@
-import sqlite3
-from admin_database import Database
-import re
-import bcrypt
 import datetime
-import os
+import re
 from os import system
-import smtplib
-from email_generator import Emails
 
+import bcrypt
+from admin_database import Database
+
+from email_generator import Emails
 
 
 def clear():

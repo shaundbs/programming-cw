@@ -1,18 +1,19 @@
-from state_manager import StateGenerator
-import admin_database as db
-from admin_database import Database
-import admin_utilities as util
-from registerGP import registerGP, confirmation
-from confirmPatient import confirmPatient, validate, clear
-import cli_ui as ui
 import os
 from os import system
-from tabulate import tabulate
-from pandas import DataFrame
-import bcrypt
-
 from time import sleep
+
+import admin_database as db
+import admin_utilities as util
+import bcrypt
+import cli_ui as ui
+from admin_database import Database
+from confirmPatient import confirmPatient, validate
+from pandas import DataFrame
+from registerGP import registerGP, confirmation
+from tabulate import tabulate
 from termcolor import colored
+
+from state_manager import StateGenerator
 
 states = {
     # admin menu
