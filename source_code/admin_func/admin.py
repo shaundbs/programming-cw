@@ -281,6 +281,6 @@ class Admin():
     def validate_more_entries(self):
         self.approve_new_patients()
 
-
     def return_to_menu(self):
         self.admin_options()
+
