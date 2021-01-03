@@ -1,10 +1,21 @@
 import sqlite3
 
 
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 class Database:
     def __init__(self):
         self.connection = sqlite3.connect('../../database/ehealth.db')
+        self.connection.row_factory = dict_factory
         self.c = self.connection.cursor()
+        #     run db build on initialisation
+        self.build_script = open('../../ehealth.db.sql', "r").read()
+        self.c.executescript(self.build_script)
 
     def patient_email_list(self):
         self.c.execute("SELECT email FROM Users WHERE accountType = patient")
@@ -25,12 +36,12 @@ class Database:
         self.c.execute(query)
         self.connection.commit()
 
-    def GP_email_list(self):
+    def gp_email_list(self):
         self.c.execute("SELECT email FROM Users WHERE accountType = 'gp'")
-        email_list_GP = []
+        email_list_gp = []
         for i in self.c.fetchall():
-            email_list_GP.append(i[0])
-        return email_list_GP
+            email_list_gp.append(i[0])
+        return email_list_gp
 
     def fetch_data(self, query_string):
         self.c.execute(query_string)
