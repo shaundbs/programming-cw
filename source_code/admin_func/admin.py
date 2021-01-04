@@ -17,10 +17,16 @@ from state_manager import StateGenerator
 
 states = {
     # admin menu
-    "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Log out"],
-    "Manage Patient": ["Search by Date of Birth", "Search by Last Name", "Back", ],
+    "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin", "Track Performance", "Log out"],
+    "Manage Patient": ["Search by Date of Birth", "Search by Last Name", "Back"],
     "Search by Date of Birth": ["Manage Patient Account"],
     "Search by Last Name": ["Manage Patient Account"],
+
+    # data dashboard menu
+    "Track Performance": ["GP Metrics", "Patient Metrics", "Prescription Metrics", "Back"],
+    "GP Metrics": ["Back"],
+    "patient Metrics": ["Back"],
+    "Prescription Metrics": ["Back"],
 
     # Manage GP menu
     "Manage GP": ["Edit GP account Information", "Remove GP account", "Deactivate GP account", "Reactivate GP account",
@@ -78,7 +84,7 @@ class Admin():
         print(f"Hi {self.firstname}")
 
     def handle_state_selection(self, selected):
-        if selected == 'Back':
+        if selected == "Back":
             self.state_gen.call_parent_state()
         else:
             self.state_gen.change_state(selected)
@@ -614,5 +620,64 @@ class Admin():
         elif selected == "Back":
             self.handle_state_selection("Manage Patient Account")
 
+    def track_performance(self):
+        Admin.clear()
+        ui.info_section(ui.blue, "Performance metrics")
+        selected = util.user_select("Please choose one of the trackable items below.", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
 
-Admin(2)
+    def gp_metrics(self):
+        Admin.clear()
+        ui.info_section(ui.blue, "GP metrics")
+        # TODO:
+        # view all GPs
+        # number of appointments booked in past week, in past month, in past year
+        # Number of holiday days taken
+        # number of specialists in each departments
+
+
+    def patient_metrics(self):
+        Admin.clear()
+        ui.info_section(ui.blue, "Patient metrics")
+        # TODO:
+        # view number of appointments
+        # view number of pending registrations
+        # view number of cancelled appointments
+        # view number of referrals
+        # view number of prescriptions
+
+    def prescription_metrics(self):
+        Admin.clear()
+        ui.info_section(ui.blue, "Prescription metrics")
+        # TODO:
+
+
+
+    # def assign_new_admin(self):
+    #     Admin.clear()
+    #     ui.info_section(ui.blue, "Assign a new Admin user")
+    #     assign_admin_confirm = ui.ask_yes_no("Are you sure you want to change the name of this GP's account?",
+    #                                         default=False)
+    #     if assign_admin_confirm == True:
+    #         new_fName = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
+    #         new_lName = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
+    #         new_email = ui.ask_string("Please enter the GP's new email: ")
+    #         new_password = ui.ask_password("Please enter a new password: ")
+    #         # encode password
+    #         new_password = new_password.encode('UTF-8')
+    #         # hash password
+    #         salt = bcrypt.gensalt()
+    #         hashed_password = bcrypt.hashpw(new_password, salt)
+    #
+    #
+    #         self.db = db.Database()
+    #         self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password, accountType)
+    #                             VALUES(?,?,?,?,?)""", [new_fName, new_lName, new_email, password, "admin"])
+    #         self.db.close_db()
+    #         self.state_gen.change_state("Admin Options")
+    #     else:
+    #         self.state_gen.change_state("Admin Options")
+
+# for testing admin functionality
+if __name__ == "__main__":
+    Admin(2)
