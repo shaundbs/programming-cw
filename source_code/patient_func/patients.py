@@ -16,7 +16,6 @@ from dateutil.relativedelta import relativedelta
 # import gp_utilities
 import timedelta as td
 import csv
-import os.path
 
 
 class Patient:
@@ -384,10 +383,9 @@ class Patient:
         presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
         presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
         presc_opts = list.index(presc, presc_opts)
-        save_path = 'C:/Users/shaun/OneDrive/Documents/MSc Comp Sci/programming-cw/Prescriptions/'
         if presc_opts in [0, 1, 2]:
             if presc_opts == 0:
-                with open(os.path.join(save_path) + '../../Prescriptions/myprescription.txt', 'w', newline='') as f:
+                with open('../../Prescriptions/myprescription.txt', 'w', newline='') as f:
                     thewriter = csv.writer(f)
                     thewriter.writerow(index_8)
                     for i in output:
