@@ -20,7 +20,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dca5df2f-5d13-4a0d-af9d-2d86a5c66d3f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/Prescriptions/myprescription.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prescriptions/myprescription.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/source_code/patient_func/patients.py" beforeDir="false" afterPath="$PROJECT_DIR$/source_code/patient_func/patients.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
