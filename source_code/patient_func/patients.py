@@ -15,6 +15,7 @@ import date_generator
 from dateutil.relativedelta import relativedelta
 # import gp_utilities
 import timedelta as td
+import threading
 
 
 class Patient:
@@ -61,6 +62,9 @@ class Patient:
             "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
             a)
         Emails.registration_email(email, fName, lName, "patient")
+        task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
+        Emails.registration_email(email, fName, lName, "patient")
+        task.start()
 
 
     def patient_home(self):
