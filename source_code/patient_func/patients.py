@@ -14,6 +14,7 @@ import cli_ui as ui
 import date_generator
 from dateutil.relativedelta import relativedelta
 # import gp_utilities
+import timedelta as td
 
 
 class Patient:
@@ -156,7 +157,6 @@ class Patient:
                 break
 
     def request_appointment(self):
-        self.limit_appointment_bookings()
         while True:
             apt = ["Book an appointment this month.", "Book an appointment next month.", "Back."]
             menu_choice = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
@@ -193,12 +193,9 @@ class Patient:
                                 datetime.datetime(int(year), int(month), int(day))
                             except ValueError:
                                 isValidDate = False
-                            # try:
-                            #     maxAptLimit = False
-                            #
-                            #
-                            # except ValueError:
                             if (isValidDate):
+                                self.limit_appointment_bookings(select_date)
+                                if self.limit_appointment_bookings(select_date) == 0:
                                     fm_selected = datetime.datetime.strptime(
                                         select_date, '%Y-%m-%d').date()
                                     if datetime.datetime.now().date() < fm_selected <= last_booking_date:
@@ -213,6 +210,13 @@ class Patient:
                                         print(
                                             "Sorry, we are unable to book appointments too far into the future.\n"
                                             "Please enter a valid date between today and the close of next month:", last_booking_date)
+                                elif self.limit_appointment_bookings(select_date) > 0:
+                                    print(
+                                        "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
+                                        "as many patients as possible and there is fair assignment in place, "
+                                        "please select an alternative week where you"
+                                        " do not currently have an appointment booked.")
+                                    continue
                             elif not(isValidDate):
                                 print("Sorry this value is not accepted")
                                 opts = ["Try again",
@@ -233,15 +237,22 @@ class Patient:
             else:
                 print("System Failure: please restart")
 
-    def limit_appointment_bookings(self):
-        self.db.exec_one("""SELECT  a.patient_id, a.slot_id, s.startTIme, s.endTime, a.appointment_id FROM Appointment AS A
+    def limit_appointment_bookings(self, select_date):
+        day = select_date
+        dt = datetime.datetime.strptime(day, '%Y-%m-%d')
+        start = dt - td.Timedelta(days=dt.weekday())
+        end = start + td.Timedelta(days=4)
+        self.db.exec("""SELECT count(a.appointment_id) FROM Appointment AS A
                             LEFT JOIN Slots AS S
                             ON s.slot_id = a.slot_id
-                            WHERE a.patient_id = (?) AND
-                            s.startTime BETWEEN '2021-02-28 16:00:00' AND '2021-03-05 15:00:00'
-                            """, ("8",))
+                            WHERE a.patient_id = '""" + str(self.patient_id) + """' AND
+                            s.startTime BETWEEN '""" + str(start) + """' AND '""" + str(end) + """'""")
         result = self.db.c.fetchall()
-        print(result)
+        x = result[0]
+        weekly_appointment_count = x[0]
+        return weekly_appointment_count
+
+
 
     def reschedule_appointment(self, appointmentNo):
         self.tobecanceled = appointmentNo
@@ -355,7 +366,7 @@ class Patient:
             break
 
     def view_prescription(self):
-        gp_utilities.print_appointment_summary(self.patient_id)
+        # gp_utilities.print_appointment_summary(self.patient_id)
         return
 
     def display_opening_hours(self, selected):
