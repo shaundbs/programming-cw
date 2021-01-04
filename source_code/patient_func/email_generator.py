@@ -1,6 +1,3 @@
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import smtplib
 
 from email.mime.multipart import MIMEMultipart
@@ -87,7 +84,7 @@ class Emails:
         msg.attach(part1)
         msg.attach(part2)
 
-        fp = open('../../logo.png', 'rb')
+        fp = open('../logo.png', 'rb')
         msgimage = MIMEImage(fp.read())
         fp.close()
 

@@ -1,12 +1,10 @@
 import datetime
 import re
 from os import system
-
+import threading
 import bcrypt
 from admin_database import Database
-
-from email_generator import Emails
-
+from email_generator_admin import Emails
 
 def clear():
     _ = system('clear')
@@ -53,7 +51,7 @@ def registerGP():
             last_ver = True
 
     #Email validation
-    email_list_GP = Database().GP_email_list()
+    email_list = Database().email_list()
     email_repetition = True
 
     global email
@@ -63,12 +61,12 @@ def registerGP():
         email = input('Email: ')
         if not re.search(regex, email):
             print("Invalid Email. Please try again.")
-        elif email not in email_list_GP:
+        elif email not in email_list:
             email = email.lower()
             email_repetition = False
             break
         else:
-            print("This email address has already been registered. Please try again")
+            print("This email address has already been registered. Please try again.")
 
     #Set password
     pass_val = True
@@ -93,7 +91,7 @@ def confirmation():
 
 
     curr_date = datetime.datetime.now()
-    format_date = curr_date.strftime("%m/%d/%Y %H:%M")
+    format_date = curr_date.strftime("%m-%d-%Y %H:%M")
 
     # Encode password and insert user credentials into db
     passWord = pWord.encode('utf-8')
@@ -129,13 +127,14 @@ def confirmation():
 
         # Display summary of account details
         print("Registration successful!")
-        print("\nEmail has been sent with record of the account details\n")
+
 
         # Email new user with the relevant details
-        Emails.gp_registration_email(email, firstName, lastName, pWord, 'GP')
-
-
-
+        try:
+            Emails.gp_registration_email(email, firstName, lastName, pWord, 'GP')
+            print("\nEmail has been sent with record of the account details\n")
+        except Error as err:
+            print(err)
 
 
 

@@ -1,9 +1,8 @@
-
-*.idea
 *.db
 .vscode
 *.pyc
 *.log
 *workspace.xml
-**.idea/**
-*.idea
+*.pyc
+*.xml
+/.idea

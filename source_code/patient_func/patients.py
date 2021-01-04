@@ -1,5 +1,6 @@
 from patient_database import Database
 from email_generator import Emails
+import date_generator
 import re
 import datetime as datetime
 import getpass  # hide password when inputting
@@ -11,7 +12,7 @@ from pandas import DataFrame
 import random
 import operator
 import cli_ui as ui
-import date_generator
+
 from dateutil.relativedelta import relativedelta
 import threading
 
@@ -46,7 +47,7 @@ class Patient:
             else:
                 print('This email has been registered. Please try again')
 
-        pWord = input('Password: ')
+        pWord = ui.ask_password('Password: ')
         DoB = input("Date of birth(in YYYY-MM-DD format): ")
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
@@ -137,21 +138,20 @@ class Patient:
                     option = list.index(apt, option)
                     if option == 0:
                         self.cancel_appointment(appointmentData[0])
-                        continue
-
-                elif appointmentData[-2] == 0:
-                    print("\nThis appointment is rejected.\n")
-
-                elif appointmentData[-1] == 0:
-                    print("\nThis appointment is confirmed.\n")
-                apt = ["Reschedule this appointment.",
-                       "Cancel this appointment.", "Back."]
-                option = ui.ask_choice("Choose an option", choices=apt, sort=False)
-                option = list.index(apt, option)
-                if option == 0:
-                    self.reschedule_appointment(appointmentData[0])
-                elif option == 1:
-                    self.cancel_appointment(appointmentData[0])
+                    continue
+                elif appointmentData[-2] == 0 or appointmentData[-1] == 0:
+                    if appointmentData[-2] == 0:
+                        print("\nThis appointment is rejected.\n")
+                    elif appointmentData[-1] == 0:
+                        print("\nThis appointment is confirmed.\n")
+                    apt = ["Reschedule this appointment.",
+                           "Cancel this appointment.", "Back."]
+                    option = ui.ask_choice("Choose an option", choices=apt, sort=False)
+                    option = list.index(apt, option)
+                    if option == 0:
+                        self.reschedule_appointment(appointmentData[0])
+                    elif option == 1:
+                        self.cancel_appointment(appointmentData[0])
             else:
                 break
 
