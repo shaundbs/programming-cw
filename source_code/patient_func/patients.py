@@ -369,7 +369,7 @@ class Patient:
     def view_prescription(self):
         # Fetch prescriptions from db.
         self.db.exec(
-            "SELECT  p.treatment_description, p.medicine_name, p.pres_frequency_in_days, p.expiryDate, p.prescription_id, p.appointment_id, p.startDate FROM Presciption AS P "
+            "SELECT  p.treatment_description, p.medicine_name, p.pres_frequency_in_days, p.expiryDate, p.prescription_id, p.appointment_id, p.startDate FROM Prescription AS P "
             "LEFT JOIN Users as U "
             "WHERE u.userId = '""" + str(self.patient_id) + """'""")
         output = self.db.c.fetchall()
