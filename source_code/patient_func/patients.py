@@ -1,6 +1,5 @@
 from patient_database import Database
 from email_generator import Emails
-import date_generator
 import re
 import datetime as datetime
 import getpass  # hide password when inputting
@@ -12,9 +11,11 @@ from pandas import DataFrame
 import random
 import operator
 import cli_ui as ui
-
+import date_generator
 from dateutil.relativedelta import relativedelta
-import threading
+# import gp_utilities
+import timedelta as td
+
 
 class Patient:
     patient_id = 0
@@ -47,7 +48,7 @@ class Patient:
             else:
                 print('This email has been registered. Please try again')
 
-        pWord = ui.ask_password('Password: ')
+        pWord = input('Password: ')
         DoB = input("Date of birth(in YYYY-MM-DD format): ")
         pWord = pWord.encode('utf-8')
         salt = bcrypt.gensalt()
@@ -59,8 +60,7 @@ class Patient:
         db.exec_many(
             "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
             a)
-        task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
-        task.start()
+        Emails.registration_email(email, fName, lName, "patient")
 
 
     def patient_home(self):
@@ -138,20 +138,21 @@ class Patient:
                     option = list.index(apt, option)
                     if option == 0:
                         self.cancel_appointment(appointmentData[0])
-                    continue
-                elif appointmentData[-2] == 0 or appointmentData[-1] == 0:
-                    if appointmentData[-2] == 0:
-                        print("\nThis appointment is rejected.\n")
-                    elif appointmentData[-1] == 0:
-                        print("\nThis appointment is confirmed.\n")
-                    apt = ["Reschedule this appointment.",
-                           "Cancel this appointment.", "Back."]
-                    option = ui.ask_choice("Choose an option", choices=apt, sort=False)
-                    option = list.index(apt, option)
-                    if option == 0:
-                        self.reschedule_appointment(appointmentData[0])
-                    elif option == 1:
-                        self.cancel_appointment(appointmentData[0])
+                        continue
+
+                elif appointmentData[-2] == 0:
+                    print("\nThis appointment is rejected.\n")
+
+                elif appointmentData[-1] == 0:
+                    print("\nThis appointment is confirmed.\n")
+                apt = ["Reschedule this appointment.",
+                       "Cancel this appointment.", "Back."]
+                option = ui.ask_choice("Choose an option", choices=apt, sort=False)
+                option = list.index(apt, option)
+                if option == 0:
+                    self.reschedule_appointment(appointmentData[0])
+                elif option == 1:
+                    self.cancel_appointment(appointmentData[0])
             else:
                 break
 
@@ -174,31 +175,84 @@ class Patient:
                 calendar_month = c.formatmonth(
                     year_input, month_input, day_input, 0)
                 print(calendar_month)
-                select_date = input(
-                    "Please enter a valid date in YYYY-MM-DD format between now and the close of the month (or enter any other value to return to the booking options menu): ")
-                dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-                last_booking_date = date_generator.date_sort(dn)
-                try:
-                    fm_selected = datetime.datetime.strptime(
-                        select_date, '%Y-%m-%d').date()
-                    if datetime.datetime.now().date() < fm_selected <= last_booking_date:
-                        print('The date {} is valid. Listing appointments... \n'.format(
-                            select_date))
-                        self.select_slots(select_date)
-                    elif fm_selected < datetime.datetime.now().date():
-                        print("Sorry, we are unable to book appointments for dates in the past")
-                    elif fm_selected == datetime.datetime.now().date():
-                        print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
-                    else:
-                        print(
-                            "Sorry, we are unable to book appointments too far into the future.\n"
-                            "Please enter a valid date between today and the close of next month:", last_booking_date)
-                except ValueError:
-                    print("Returning to the booking options screen...")
+                apt = ["Enter booking date",
+                       "Back"]
+                date_booker = ui.ask_choice("Choose an option", choices=apt, sort=False)
+                date_booker = list.index(apt, date_booker)
+                if date_booker in [0, 1]:
+                    while True:
+                        if date_booker == 0:
+                            select_date = input(
+                                "Please enter a valid date in YYYY-MM-DD format between now and the close of the month: "
+                              )
+                            dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
+                            last_booking_date = date_generator.date_sort(dn)
+                            try:
+                                year, month, day = select_date.split('-')
+                                isValidDate = True
+                                datetime.datetime(int(year), int(month), int(day))
+                            except ValueError:
+                                isValidDate = False
+                            if (isValidDate):
+                                self.limit_appointment_bookings(select_date)
+                                if self.limit_appointment_bookings(select_date) == 0:
+                                    fm_selected = datetime.datetime.strptime(
+                                        select_date, '%Y-%m-%d').date()
+                                    if datetime.datetime.now().date() < fm_selected <= last_booking_date:
+                                        print('The date {} is valid. Listing appointments... \n'.format(
+                                            select_date))
+                                        self.select_slots(select_date)
+                                    elif fm_selected < datetime.datetime.now().date():
+                                        print("Sorry, we are unable to book appointments for dates in the past")
+                                    elif fm_selected == datetime.datetime.now().date():
+                                        print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
+                                    else:
+                                        print(
+                                            "Sorry, we are unable to book appointments too far into the future.\n"
+                                            "Please enter a valid date between today and the close of next month:", last_booking_date)
+                                elif self.limit_appointment_bookings(select_date) > 0:
+                                    print(
+                                        "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
+                                        "as many patients as possible and there is fair assignment in place, "
+                                        "please select an alternative week where you"
+                                        " do not currently have an appointment booked.")
+                                    continue
+                            elif not(isValidDate):
+                                print("Sorry this value is not accepted")
+                                opts = ["Try again",
+                                       "Back to booking options menu"]
+                                navigate = ui.ask_choice("Choose an option", choices=opts, sort=False)
+                                navigate = list.index(opts, navigate)
+                                if navigate in [0, 1]:
+                                    if navigate == 1:
+                                        break
+                                    elif navigate == 2:
+                                        break
+                            else:
+                                print("This input will not be accepted im afraid - Please re-enter in YYYY-MM-DD format")
+                        elif date_booker == 1:
+                            break
             elif menu_choice == 2:
                 break
             else:
                 print("System Failure: please restart")
+
+    def limit_appointment_bookings(self, select_date):
+        day = select_date
+        dt = datetime.datetime.strptime(day, '%Y-%m-%d')
+        start = dt - td.Timedelta(days=dt.weekday())
+        end = start + td.Timedelta(days=4)
+        self.db.exec("""SELECT count(a.appointment_id) FROM Appointment AS A
+                            LEFT JOIN Slots AS S
+                            ON s.slot_id = a.slot_id
+                            WHERE a.patient_id = '""" + str(self.patient_id) + """' AND
+                            s.startTime BETWEEN '""" + str(start) + """' AND '""" + str(end) + """'""")
+        result = self.db.c.fetchall()
+        x = result[0]
+        weekly_appointment_count = x[0]
+        return weekly_appointment_count
+
+
 
     def reschedule_appointment(self, appointmentNo):
         self.tobecanceled = appointmentNo
@@ -312,8 +366,7 @@ class Patient:
             break
 
     def view_prescription(self):
-        print("Patient id: " + str(self.patient_id) +
-              "want to view prescription\n")
+        # gp_utilities.print_appointment_summary(self.patient_id)
         return
 
     def display_opening_hours(self, selected):
@@ -333,6 +386,7 @@ class Patient:
         print(tabulate(df2, headers='keys',
                        tablefmt='fancy_grid', showindex=False))
         return output[0]
+
 
     # def select_options(self, options):
     #     # TODO: Move to utilities.
