@@ -652,7 +652,6 @@ class Admin():
         # TODO:
 
 
-
     # def assign_new_admin(self):
     #     Admin.clear()
     #     ui.info_section(ui.blue, "Assign a new Admin user")
