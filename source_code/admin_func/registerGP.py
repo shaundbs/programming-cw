@@ -1,12 +1,10 @@
 import datetime
 import re
 from os import system
-
+import threading
 import bcrypt
 from admin_database import Database
-
-from email_generator import Emails
-
+from email_generator_admin import Emails
 
 def clear():
     _ = system('clear')
@@ -93,7 +91,7 @@ def confirmation():
 
 
     curr_date = datetime.datetime.now()
-    format_date = curr_date.strftime("%m/%d/%Y %H:%M")
+    format_date = curr_date.strftime("%m-%d-%Y %H:%M")
 
     # Encode password and insert user credentials into db
     passWord = pWord.encode('utf-8')
@@ -129,13 +127,14 @@ def confirmation():
 
         # Display summary of account details
         print("Registration successful!")
-        print("\nEmail has been sent with record of the account details\n")
+
 
         # Email new user with the relevant details
-        Emails.gp_registration_email(email, firstName, lastName, pWord, 'GP')
-
-
-
+        try:
+            Emails.gp_registration_email(email, firstName, lastName, pWord, 'GP')
+            print("\nEmail has been sent with record of the account details\n")
+        except Error as err:
+            print(err)
 
 
 
