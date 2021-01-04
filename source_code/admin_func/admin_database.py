@@ -17,11 +17,11 @@ class Database:
         self.build_script = open('../ehealth.db.sql', "r").read()
         self.c.executescript(self.build_script)
 
-    def patient_email_list(self):
-        self.c.execute("SELECT email FROM Users WHERE accountType = patient")
+    def email_list(self):
+        self.c.execute("SELECT email FROM Users")
         email_list = []
         for i in self.c.fetchall():
-            email_list.append(i[0])
+            email_list.append(i['email'])
         return email_list
 
     def exec_many(self, query, obj):
@@ -35,13 +35,6 @@ class Database:
     def exec(self, query):
         self.c.execute(query)
         self.connection.commit()
-
-    def gp_email_list(self):
-        self.c.execute("SELECT email FROM Users WHERE accountType = 'gp'")
-        email_list_gp = []
-        for i in self.c.fetchall():
-            email_list_gp.append(i[0])
-        return email_list_gp
 
     def fetch_data(self, query_string):
         self.c.execute(query_string)

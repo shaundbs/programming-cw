@@ -53,7 +53,7 @@ def registerGP():
             last_ver = True
 
     #Email validation
-    email_list_GP = Database().GP_email_list()
+    email_list = Database().email_list()
     email_repetition = True
 
     global email
@@ -63,12 +63,12 @@ def registerGP():
         email = input('Email: ')
         if not re.search(regex, email):
             print("Invalid Email. Please try again.")
-        elif email not in email_list_GP:
+        elif email not in email_list:
             email = email.lower()
             email_repetition = False
             break
         else:
-            print("This email address has already been registered. Please try again")
+            print("This email address has already been registered. Please try again.")
 
     #Set password
     pass_val = True
