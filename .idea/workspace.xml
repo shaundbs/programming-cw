@@ -20,8 +20,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dca5df2f-5d13-4a0d-af9d-2d86a5c66d3f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,6 +116,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="admin" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="programming-cw" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/source_code" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source_code/admin_func/admin.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="gp_testing" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="programming-cw" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -202,12 +223,14 @@
     </configuration>
     <list>
       <item itemvalue="Python.GP Test" />
-      <item itemvalue="Python.gp_testing" />
       <item itemvalue="Python.main" />
+      <item itemvalue="Python.gp_testing" />
       <item itemvalue="Python.setup" />
+      <item itemvalue="Python.admin" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.admin" />
         <item itemvalue="Python.gp_testing" />
         <item itemvalue="Python.setup" />
       </list>
@@ -420,5 +443,43 @@
     <MESSAGE value="all emails tested + working with threading." />
     <MESSAGE value="develop branch merged into gps" />
     <option name="LAST_COMMIT_MESSAGE" value="develop branch merged into gps" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="104" y="73" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1609782149374">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state x="104" y="73" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1280.777@0.23.1280.777" timestamp="1609782149374" />
+    <state width="1259" height="153" key="GridCell.Tab.0.bottom" timestamp="1609782195685">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state width="1259" height="153" key="GridCell.Tab.0.bottom/0.23.1280.777@0.23.1280.777" timestamp="1609782195685" />
+    <state width="1259" height="153" key="GridCell.Tab.0.center" timestamp="1609782195684">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state width="1259" height="153" key="GridCell.Tab.0.center/0.23.1280.777@0.23.1280.777" timestamp="1609782195684" />
+    <state width="1259" height="153" key="GridCell.Tab.0.left" timestamp="1609782195684">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state width="1259" height="153" key="GridCell.Tab.0.left/0.23.1280.777@0.23.1280.777" timestamp="1609782195684" />
+    <state width="1259" height="153" key="GridCell.Tab.0.right" timestamp="1609782195685">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state width="1259" height="153" key="GridCell.Tab.0.right/0.23.1280.777@0.23.1280.777" timestamp="1609782195685" />
+    <state width="1259" height="209" key="GridCell.Tab.1.bottom" timestamp="1609782178557">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state width="1259" height="209" key="GridCell.Tab.1.bottom/0.23.1280.777@0.23.1280.777" timestamp="1609782178557" />
+    <state width="1259" height="209" key="GridCell.Tab.1.center" timestamp="1609782178557">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state width="1259" height="209" key="GridCell.Tab.1.center/0.23.1280.777@0.23.1280.777" timestamp="1609782178557" />
+    <state width="1259" height="209" key="GridCell.Tab.1.left" timestamp="1609782178556">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state width="1259" height="209" key="GridCell.Tab.1.left/0.23.1280.777@0.23.1280.777" timestamp="1609782178556" />
+    <state width="1259" height="209" key="GridCell.Tab.1.right" timestamp="1609782178557">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state width="1259" height="209" key="GridCell.Tab.1.right/0.23.1280.777@0.23.1280.777" timestamp="1609782178557" />
   </component>
 </project>
