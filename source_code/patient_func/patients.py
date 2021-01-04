@@ -392,9 +392,8 @@ class Patient:
                     thewriter.writerow(index_8)
                     for i in output:
                         thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
-                        f.close()
+                    f.close()
                     print("Your prescription has been saved successfully")
-
             elif presc_opts == 1:
                 presc_number = 1
                 with open(os.path.join(save_path) + 'myprescription.txt', 'w', newline='') as f:
