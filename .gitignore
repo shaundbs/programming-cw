@@ -7,3 +7,4 @@
 *.xml
 /.idea
 *.db
+database/ehealth.db
