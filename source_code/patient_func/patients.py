@@ -243,10 +243,11 @@ class Patient:
         start = dt - td.Timedelta(days=dt.weekday())
         end = start + td.Timedelta(days=4)
         self.db.exec("""SELECT count(a.appointment_id) FROM Appointment AS A
-                            LEFT JOIN Slots AS S
-                            ON s.slot_id = a.slot_id
-                            WHERE a.patient_id = '""" + str(self.patient_id) + """' AND
-                            s.startTime BETWEEN '""" + str(start) + """' AND '""" + str(end) + """'""")
+                        LEFT JOIN Slots AS S
+                        ON s.slot_id = a.slot_id
+                        WHERE a.patient_id = '""" + str(self.patient_id) + """' AND
+                        a.is_confirmed = '1' AND
+                        s.startTime BETWEEN '""" + str(start) + """' AND '""" + str(end) + """'""")
         result = self.db.c.fetchall()
         x = result[0]
         weekly_appointment_count = x[0]
