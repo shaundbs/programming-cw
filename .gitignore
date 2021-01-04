@@ -6,3 +6,4 @@
 *.pyc
 *.xml
 /.idea
+*.db
