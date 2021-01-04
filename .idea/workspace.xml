@@ -20,10 +20,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dca5df2f-5d13-4a0d-af9d-2d86a5c66d3f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/programming-cw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/programming-cw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/source_code/loginsystem/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/source_code/loginsystem/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/ehealth.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/ehealth.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/source_code/patient_func/patients.py" beforeDir="false" afterPath="$PROJECT_DIR$/source_code/patient_func/patients.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -75,7 +73,7 @@
       <recent name="$PROJECT_DIR$/code/gp_func" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.patients">
+  <component name="RunManager" selected="Python.main">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="programming-cw" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -104,9 +102,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="SDK_HOME" value="C:\Users\shaun\AppData\Local\Microsoft\WindowsApps\python3.9.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/code/loginsystem" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source_code/loginsystem/main.py" />
@@ -139,10 +137,14 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.patients" />
+      <item itemvalue="Python.main" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.patients" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.patients" />
       </list>
     </recent_temporary>
   </component>
