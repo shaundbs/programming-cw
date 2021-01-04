@@ -385,13 +385,13 @@ class Patient:
         presc_opts = list.index(presc, presc_opts)
         if presc_opts in [0, 1, 2]:
             if presc_opts == 0:
-                with open('../../Prescriptions/myprescription.txt', 'w', newline='') as f:
+                with open('../../Prescriptions/myprescription.csv', 'w', newline='') as f:
                     thewriter = csv.writer(f)
                     thewriter.writerow(index_8)
                     for i in output:
                         thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
                     f.close()
-                    print("Your prescription has been saved successfully")
+                    print("Your prescription has been downloaded successfully")
             elif presc_opts == 1:
                 presc_number = 1
                 with open('../../Prescriptions/myprescription.txt', 'w', newline='') as f:
@@ -404,7 +404,7 @@ class Patient:
                         f.write("\n")
                         presc_number += 1
                     f.close()
-                    print("Your prescription has been saved successfully")
+                    print("Your prescription has been downloaded successfully")
             elif presc_opts == 2:
                 self.patient_home()
 
