@@ -351,7 +351,7 @@ class Patient:
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
                             print(
                                 "SUCCESS - \nYou have successfully requested an appointments with Dr "+str(gp_name[0]) + " " + str(gp_name[1]) + ", You will be alerted once your appointment is confirmed")
-                    break
+                    self.patient_home()
             except ValueError:
                 print("Please select a valid option.")
 
