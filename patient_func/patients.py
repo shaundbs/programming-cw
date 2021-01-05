@@ -1,6 +1,6 @@
-from patient_database import Database
-from email_generator import Emails
-import date_generator
+from .patient_database import Database
+from .patient_email_generator import Emails
+from . import date_generator
 import re
 import datetime as datetime
 import getpass  # hide password when inputting
@@ -12,14 +12,11 @@ from pandas import DataFrame
 import random
 import operator
 import cli_ui as ui
-import date_generator
-from dateutil.relativedelta import relativedelta
-# import gp_utilities
-import timedelta as td
-import csv
 
 from dateutil.relativedelta import relativedelta
 import threading
+from datetime import timedelta as td
+import csv
 
 class Patient:
     patient_id = 0

@@ -2,14 +2,14 @@ import os
 from os import system
 from time import sleep
 
-import admin_database as db
-import admin_utilities as util
+from . import admin_database as db
+from . import admin_utilities as util
 import bcrypt
 import cli_ui as ui
-from admin_database import Database
-from confirmPatient import confirmPatient, validate
+from .admin_database import Database
+from .confirmPatient import confirm_patient, validate
 from pandas import DataFrame
-from registerGP import registerGP, confirmation
+from .registerGP import registerGP, confirmation
 from tabulate import tabulate
 from termcolor import colored
 
@@ -292,7 +292,7 @@ class Admin():
 
     def approve_new_patients(self):
         try:
-            confirmPatient()
+            confirm_patient()
             selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
             self.handle_state_selection(selected)
         except:

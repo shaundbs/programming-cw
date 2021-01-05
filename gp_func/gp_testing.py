@@ -1,11 +1,5 @@
-import os
-import sys
-
-# sys.path.append(os.path.dirname(
-#     "/"))
-
-import gp_database as db
-from gp import Gp
+from . import gp_database as db
+from .gp import Gp
 import logging
 
 if __name__ == '__main__':

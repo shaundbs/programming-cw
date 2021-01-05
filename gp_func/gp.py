@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 
 import cli_ui as ui
 
-import gp_database as db
-import gp_utilities as util
+from . import gp_database as db
+from . import gp_utilities as util
 from state_manager import StateGenerator
 
 # state dictionary/graph to map out possible routes/options from each state/node.

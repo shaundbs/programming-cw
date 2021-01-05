@@ -84,7 +84,7 @@ class Emails:
         msg.attach(part1)
         msg.attach(part2)
 
-        fp = open('../logo.png', 'rb')
+        fp = open('logo.png', 'rb')
         msgimage = MIMEImage(fp.read())
         fp.close()
 

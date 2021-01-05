@@ -3,8 +3,8 @@ import re
 from os import system
 import threading
 import bcrypt
-from admin_database import Database
-from email_generator_admin import Emails
+from .admin_database import Database
+from .admin_email_generator import Emails
 
 def clear():
     _ = system('clear')
