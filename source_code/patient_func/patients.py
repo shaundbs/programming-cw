@@ -223,7 +223,7 @@ class Patient:
                                             " do not currently have an appointment booked.")
                                         continue
                                 else:
-                                    print("Sorry our surgery is close on weekends - you are unable to request an appointment for this date\n"
+                                    print("Sorry our surgery is closed on weekends - you are unable to request an appointment for this date\n"
                                           "Please refer to the calendar and request an appointment for a weekday.")
                             elif not(isValidDate):
                                 print("Sorry this value is not accepted")
