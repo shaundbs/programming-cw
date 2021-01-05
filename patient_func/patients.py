@@ -32,7 +32,9 @@ class Patient:
         # Register. User input.
         # TODO: data validation.
         fName = input('First Name:')
+        fName = fName.capitalize()
         lName = input('Last Name:')
+        lName = lName.capitalize()
         db = Database()
 
         email_repetition = True
@@ -368,46 +370,49 @@ class Patient:
 
     def view_prescription(self):
         # Fetch prescriptions from db.
-        self.db.exec(
-            "SELECT  p.treatment_description, p.medicine_name, p.pres_frequency_in_days, p.expiryDate, p.prescription_id, p.appointment_id, p.startDate FROM Prescription AS P "
-            "LEFT JOIN Users as U "
-            "WHERE u.userId = '""" + str(self.patient_id) + """'""")
-        output = self.db.c.fetchall()
-        index_8 = ["Treatment Desc", "Medicine Name", "Frequency of intake", "Expiry Date", "Prescription ID", "Appointment ID", "Start Date"]
-        df4 = DataFrame(output)
-        df4.columns = index_8
-        print(colored('Prescription Information', 'green',
-                      attrs=['bold']))
-        print(tabulate(df4, headers='keys',
-                       tablefmt='fancy_grid', showindex=False))
-        presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
-        presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
-        presc_opts = list.index(presc, presc_opts)
-        #options
-        if presc_opts in [0, 1, 2]:
-            if presc_opts == 0:
-                with open('../../Prescriptions/myprescriptions.csv', 'w', newline='') as f:
-                    thewriter = csv.writer(f)
-                    thewriter.writerow(index_8)
-                    for i in output:
-                        thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
-                    f.close()
-                    print("Your prescription has been downloaded successfully")
-            elif presc_opts == 1:
-                presc_number = 1
-                with open('../../Prescriptions/myprescriptions.txt', 'w', newline='') as f:
-                    f.write("Your prescriptions are as follows:\n"
-                            "\n")
-                    f.write(str(index_8))
-                    f.write("\n")
-                    for i in output:
-                        f.write("Prescription " + str(presc_number) + ": " + str(i))
+        try:
+            self.db.exec(
+                "SELECT  p.treatment_description, p.medicine_name, p.pres_frequency_in_days, p.expiryDate, p.prescription_id, p.appointment_id, p.startDate FROM Prescription AS P "
+                "LEFT JOIN Users as U "
+                "WHERE u.userId = '""" + str(self.patient_id) + """'""")
+            output = self.db.c.fetchall()
+            index_8 = ["Treatment Desc", "Medicine Name", "Frequency of intake", "Expiry Date", "Prescription ID", "Appointment ID", "Start Date"]
+            df4 = DataFrame(output)
+            df4.columns = index_8
+            print(colored('Prescription Information', 'green',
+                          attrs=['bold']))
+            print(tabulate(df4, headers='keys',
+                           tablefmt='fancy_grid', showindex=False))
+            presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
+            presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
+            presc_opts = list.index(presc, presc_opts)
+            #options
+            if presc_opts in [0, 1, 2]:
+                if presc_opts == 0:
+                    with open('../../Prescriptions/myprescriptions.csv', 'w', newline='') as f:
+                        thewriter = csv.writer(f)
+                        thewriter.writerow(index_8)
+                        for i in output:
+                            thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                        f.close()
+                        print("Your prescription has been downloaded successfully")
+                elif presc_opts == 1:
+                    presc_number = 1
+                    with open('../../Prescriptions/myprescriptions.txt', 'w', newline='') as f:
+                        f.write("Your prescriptions are as follows:\n"
+                                "\n")
+                        f.write(str(index_8))
                         f.write("\n")
-                        presc_number += 1
-                    f.close()
-                    print("Your prescription has been downloaded successfully")
-            elif presc_opts == 2:
-                self.patient_home()
+                        for i in output:
+                            f.write("Prescription " + str(presc_number) + ": " + str(i))
+                            f.write("\n")
+                            presc_number += 1
+                        f.close()
+                        print("Your prescription has been downloaded successfully")
+                elif presc_opts == 2:
+                    self.patient_home()
+        except ValueError:
+            print("Sorry - you currently do not have any prescriptions from our GP's to display")
 
 
     def display_opening_hours(self, selected):
