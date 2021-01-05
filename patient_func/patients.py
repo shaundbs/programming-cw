@@ -248,8 +248,8 @@ class Patient:
     def limit_appointment_bookings(self, select_date):
         day = select_date
         dt = datetime.datetime.strptime(day, '%Y-%m-%d')
-        start = dt - td.Timedelta(days=dt.weekday())
-        end = start + td.Timedelta(days=4)
+        start = dt - td(days=dt.weekday())
+        end = start + td(days=4)
         self.db.exec("""SELECT count(a.appointment_id) FROM Appointment AS A
                             LEFT JOIN Slots AS S
                             ON s.slot_id = a.slot_id
