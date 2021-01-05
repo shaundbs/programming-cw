@@ -293,7 +293,7 @@ class Admin():
 
     def approve_new_patients(self):
         try:
-            confirmPatient()
+            confirm_patient()
             selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
             self.handle_state_selection(selected)
         except:
