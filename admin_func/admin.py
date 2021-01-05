@@ -14,7 +14,6 @@ from tabulate import tabulate
 from termcolor import colored
 
 from state_manager import StateGenerator
-
 states = {
     # admin menu
     "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin", "Track Performance", "Log out"],
@@ -22,6 +21,7 @@ states = {
     "Manage Patient": ["Search by Date of Birth", "Search by Last Name", "Back"],
     "Search by Date of Birth": ["Manage Patient Account"],
     "Search by Last Name": ["Manage Patient Account"],
+    "Assign new admin": ["Back"],
 
     # data dashboard menu
     "Track Performance": ["GP Metrics", "Patient Metrics", "Prescription Metrics", "Back"],
@@ -61,6 +61,7 @@ states = {
     "Delete Medical History": ["Delete Medical History","Back"],
     "Deactivate Patient Account": [ "Deactivate the Patients account","Back"],
     "Reactivate Patient Account":  [ "Reactivate the Patients account","Back"],
+
 
 }
 
@@ -292,7 +293,7 @@ class Admin():
 
     def approve_new_patients(self):
         try:
-            confirm_patient()
+            confirmPatient()
             selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
             self.handle_state_selection(selected)
         except:
@@ -328,8 +329,8 @@ class Admin():
         Index1= ["UserID","First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active", "Signed UP"]
         Index2=["MedicalHistoryID","UserID","illness", "time_afflicted", "description", "prescribed_medication"]
         db1 = Database()
-        db1.exec_one( "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
-            (ID,))
+        db1.exec_one( "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?, accountType=?",
+            (ID,"patient",))
         result = db1.c.fetchall()
         df1 = DataFrame(result)
         df1.columns = Index1
@@ -636,7 +637,6 @@ class Admin():
         # Number of holiday days taken
         # number of specialists in each departments
 
-
     def patient_metrics(self):
         Admin.clear()
         ui.info_section(ui.blue, "Patient metrics")
@@ -652,31 +652,31 @@ class Admin():
         ui.info_section(ui.blue, "Prescription metrics")
         # TODO:
 
+    def assign_new_admin(self):
+        Admin.clear()
+        ui.info_section(ui.blue, "Assign a new Admin user")
+        assign_admin_confirm = ui.ask_yes_no("Are you sure you want to change the name of this GP's account?",
+                                            default=False)
+        if assign_admin_confirm == True:
+            new_fName = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
+            new_lName = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
+            new_email = ui.ask_string("Please enter the GP's new email: ")
+            new_password = ui.ask_password("Please enter a new password: ")
+            # encode password
+            new_password = new_password.encode('UTF-8')
+            # hash password
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(new_password, salt)
+            curr_date = datetime.datetime.now()
+            format_date = curr_date.strftime("%m-%d-%Y %H:%M")
 
-    # def assign_new_admin(self):
-    #     Admin.clear()
-    #     ui.info_section(ui.blue, "Assign a new Admin user")
-    #     assign_admin_confirm = ui.ask_yes_no("Are you sure you want to change the name of this GP's account?",
-    #                                         default=False)
-    #     if assign_admin_confirm == True:
-    #         new_fName = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
-    #         new_lName = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
-    #         new_email = ui.ask_string("Please enter the GP's new email: ")
-    #         new_password = ui.ask_password("Please enter a new password: ")
-    #         # encode password
-    #         new_password = new_password.encode('UTF-8')
-    #         # hash password
-    #         salt = bcrypt.gensalt()
-    #         hashed_password = bcrypt.hashpw(new_password, salt)
-    #
-    #
-    #         self.db = db.Database()
-    #         self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password, accountType)
-    #                             VALUES(?,?,?,?,?)""", [new_fName, new_lName, new_email, password, "admin"])
-    #         self.db.close_db()
-    #         self.state_gen.change_state("Admin Options")
-    #     else:
-    #         self.state_gen.change_state("Admin Options")
+            self.db = db.Database()
+            self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password,signUpDate, accountType)
+                                VALUES(?,?,?,?,?,?)""", [new_fName, new_lName, new_email, hashed_password,format_date, "admin"])
+            self.db.close_db()
+            self.state_gen.change_state("Admin Options")
+        else:
+            self.state_gen.change_state("Admin Options")
 
 # for testing admin functionality
 if __name__ == "__main__":
