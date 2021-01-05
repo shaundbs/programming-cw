@@ -18,6 +18,7 @@ from state_manager import StateGenerator
 states = {
     # admin menu
     "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin", "Track Performance", "Log out"],
+    "Return to menu": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin", "Track Performance", "Log out"],
     "Manage Patient": ["Search by Date of Birth", "Search by Last Name", "Back"],
     "Search by Date of Birth": ["Manage Patient Account"],
     "Search by Last Name": ["Manage Patient Account"],
@@ -31,7 +32,7 @@ states = {
     # Manage GP menu
     "Manage GP": ["Edit GP account Information", "Remove GP account", "Deactivate GP account", "Reactivate GP account",
                   "Back"],
-    "Return to menu": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Log out"],
+
     # Edit GP menu
     "Edit GP account information": ["Change GP name", "Change GP registered email address", "Reset GP password",
                                     "Back"],

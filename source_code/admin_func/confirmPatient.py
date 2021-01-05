@@ -30,7 +30,7 @@ def confirmPatient():
     query = "SELECT userID, firstName, lastName, email, signUpDate FROM Users WHERE is_registered = 0 and accountType = 'patient'"
     cursor.execute(query)
     records = cursor.fetchall()
-    print(records)
+
 
 
 
@@ -95,10 +95,6 @@ def validate():
             lastName = fullname_list[i][1]
 
             Emails.validation_email(email, firstName, lastName, 'patient')
-
-
-
-
 
 
 
