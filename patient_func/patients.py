@@ -1,6 +1,6 @@
-from .patient_database import Database
-from .patient_email_generator import Emails
-from . import date_generator
+from patient_database import Database
+from email_generator import Emails
+import date_generator
 import re
 import datetime as datetime
 import getpass  # hide password when inputting
@@ -15,7 +15,8 @@ import cli_ui as ui
 
 from dateutil.relativedelta import relativedelta
 import threading
-
+import timedelta as td
+import csv
 
 class Patient:
     patient_id = 0
@@ -63,21 +64,22 @@ class Patient:
         task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
         task.start()
 
-    def patient_home(self):
-        prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
 
-        while True:
-            option = ui.ask_choice("Choose an option:", choices=prv, sort=False)
-            if option == prv[0]:
-                self.request_appointment()
-            elif option == prv[1]:
-                self.view_appointment()
-            elif option == prv[2]:
-                self.view_referrals()
-            elif option == prv[3]:
-                self.view_prescription()
-            elif option == prv[4]:
-                break
+    def patient_home(self):
+            prv = ["Request Appointment", "View Appointments", "View Referrals","View Prescriptions", "Log out"]
+
+            while True:
+                option = ui.ask_choice("Choose an option:", choices=prv,sort=False)
+                if option == prv[0]:
+                    self.request_appointment()
+                elif option == prv[1]:
+                    self.view_appointment()
+                elif option == prv[2]:
+                    self.view_referrals()
+                elif option == prv[3]:
+                    self.view_prescription()
+                elif option == prv[4]:
+                    break
 
     def view_referrals(self):
         """
@@ -85,9 +87,7 @@ class Patient:
         """
         while True:
             # Fetch referrals from db.
-            self.db.exec_one(
-                "SELECT a.referred_specialist_id, s.firstName, s.lastName, s.hospital, d.name FROM Appointment a, Specialists s, Department d WHERE  s.department_id = d.department_id AND a.referred_specialist_id = s.specialist_id AND patient_id = ? AND a.referred_specialist_id IS NOT NULL",
-                (self.patient_id,))
+            self.db.exec_one("SELECT a.referred_specialist_id, s.firstName, s.lastName, s.hospital, d.name FROM Appointment a, Specialists s, Department d WHERE  s.department_id = d.department_id AND a.referred_specialist_id = s.specialist_id AND patient_id = ? AND a.referred_specialist_id IS NOT NULL", (self.patient_id,))
             result = self.db.c.fetchall()
             self.referralsList = []
             for i in result:
@@ -176,32 +176,84 @@ class Patient:
                 calendar_month = c.formatmonth(
                     year_input, month_input, day_input, 0)
                 print(calendar_month)
-                select_date = input(
-                    "Please enter a valid date in YYYY-MM-DD format between now and the close of the month (or enter any other value to return to the booking options menu): ")
-                dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-                last_booking_date = date_generator.date_sort(dn)
-                try:
-                    fm_selected = datetime.datetime.strptime(
-                        select_date, '%Y-%m-%d').date()
-                    if datetime.datetime.now().date() < fm_selected <= last_booking_date:
-                        print('The date {} is valid. Listing appointments... \n'.format(
-                            select_date))
-                        self.select_slots(select_date)
-                    elif fm_selected < datetime.datetime.now().date():
-                        print("Sorry, we are unable to book appointments for dates in the past")
-                    elif fm_selected == datetime.datetime.now().date():
-                        print(
-                            "Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
-                    else:
-                        print(
-                            "Sorry, we are unable to book appointments too far into the future.\n"
-                            "Please enter a valid date between today and the close of next month:", last_booking_date)
-                except ValueError:
-                    print("Returning to the booking options screen...")
+                apt = ["Enter booking date",
+                       "Back"]
+                date_booker = ui.ask_choice("Choose an option", choices=apt, sort=False)
+                date_booker = list.index(apt, date_booker)
+                if date_booker in [0, 1]:
+                    while True:
+                        if date_booker == 0:
+                            select_date = input(
+                                "Please enter a valid date in YYYY-MM-DD format between now and the close of the month: "
+                              )
+                            dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
+                            last_booking_date = date_generator.date_sort(dn)
+                            try:
+                                year, month, day = select_date.split('-')
+                                isValidDate = True
+                                datetime.datetime(int(year), int(month), int(day))
+                            except ValueError:
+                                isValidDate = False
+                            if (isValidDate):
+                                self.limit_appointment_bookings(select_date)
+                                if self.limit_appointment_bookings(select_date) == 0:
+                                    fm_selected = datetime.datetime.strptime(
+                                        select_date, '%Y-%m-%d').date()
+                                    if datetime.datetime.now().date() < fm_selected <= last_booking_date:
+                                        print('The date {} is valid. Listing appointments... \n'.format(
+                                            select_date))
+                                        self.select_slots(select_date)
+                                    elif fm_selected < datetime.datetime.now().date():
+                                        print("Sorry, we are unable to book appointments for dates in the past")
+                                    elif fm_selected == datetime.datetime.now().date():
+                                        print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
+                                    else:
+                                        print(
+                                            "Sorry, we are unable to book appointments too far into the future.\n"
+                                            "Please enter a valid date between today and the close of next month:", last_booking_date)
+                                elif self.limit_appointment_bookings(select_date) > 0:
+                                    print(
+                                        "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
+                                        "as many patients as possible and there is fair assignment in place, "
+                                        "please select an alternative week where you"
+                                        " do not currently have an appointment booked.")
+                                    continue
+                            elif not(isValidDate):
+                                print("Sorry this value is not accepted")
+                                opts = ["Try again",
+                                       "Back to booking options menu"]
+                                navigate = ui.ask_choice("Choose an option", choices=opts, sort=False)
+                                navigate = list.index(opts, navigate)
+                                if navigate in [0, 1]:
+                                    if navigate == 1:
+                                        break
+                                    elif navigate == 2:
+                                        break
+                            else:
+                                print("This input will not be accepted im afraid - Please re-enter in YYYY-MM-DD format")
+                        elif date_booker == 1:
+                            break
             elif menu_choice == 2:
                 break
             else:
                 print("System Failure: please restart")
+
+    def limit_appointment_bookings(self, select_date):
+        day = select_date
+        dt = datetime.datetime.strptime(day, '%Y-%m-%d')
+        start = dt - td.Timedelta(days=dt.weekday())
+        end = start + td.Timedelta(days=4)
+        self.db.exec("""SELECT count(a.appointment_id) FROM Appointment AS A
+                            LEFT JOIN Slots AS S
+                            ON s.slot_id = a.slot_id
+                            WHERE a.patient_id = '""" + str(self.patient_id) + """' AND
+                            s.startTime BETWEEN '""" + str(start) + """' AND '""" + str(end) + """'""")
+        result = self.db.c.fetchall()
+        x = result[0]
+        weekly_appointment_count = x[0]
+        return weekly_appointment_count
+
+
 
     def reschedule_appointment(self, appointmentNo):
         self.tobecanceled = appointmentNo
@@ -293,17 +345,13 @@ class Patient:
                             self.db.reschedule(a, self.tobecanceled)
                             self.tobecanceled = -1
                             print(
-                                "SUCCESS - \nYou have successfully reshceduled an appointments with Dr " + str(
-                                    gp_name[0]) + " " + str(
-                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                                "SUCCESS - \nYou have successfully reshceduled an appointments with Dr "+str(gp_name[0]) + " " + str(gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
                             print(
-                                "SUCCESS - \nYou have successfully requested an appointments with Dr " + str(
-                                    gp_name[0]) + " " + str(
-                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
-                    break
+                                "SUCCESS - \nYou have successfully requested an appointments with Dr "+str(gp_name[0]) + " " + str(gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                    self.patient_home()
             except ValueError:
                 print("Please select a valid option.")
 
@@ -319,9 +367,48 @@ class Patient:
             break
 
     def view_prescription(self):
-        print("Patient id: " + str(self.patient_id) +
-              "want to view prescription\n")
-        return
+        # Fetch prescriptions from db.
+        self.db.exec(
+            "SELECT  p.treatment_description, p.medicine_name, p.pres_frequency_in_days, p.expiryDate, p.prescription_id, p.appointment_id, p.startDate FROM Prescription AS P "
+            "LEFT JOIN Users as U "
+            "WHERE u.userId = '""" + str(self.patient_id) + """'""")
+        output = self.db.c.fetchall()
+        index_8 = ["Treatment Desc", "Medicine Name", "Frequency of intake", "Expiry Date", "Prescription ID", "Appointment ID", "Start Date"]
+        df4 = DataFrame(output)
+        df4.columns = index_8
+        print(colored('Prescription Information', 'green',
+                      attrs=['bold']))
+        print(tabulate(df4, headers='keys',
+                       tablefmt='fancy_grid', showindex=False))
+        presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
+        presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
+        presc_opts = list.index(presc, presc_opts)
+        #options
+        if presc_opts in [0, 1, 2]:
+            if presc_opts == 0:
+                with open('../../Prescriptions/myprescriptions.csv', 'w', newline='') as f:
+                    thewriter = csv.writer(f)
+                    thewriter.writerow(index_8)
+                    for i in output:
+                        thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                    f.close()
+                    print("Your prescription has been downloaded successfully")
+            elif presc_opts == 1:
+                presc_number = 1
+                with open('../../Prescriptions/myprescriptions.txt', 'w', newline='') as f:
+                    f.write("Your prescriptions are as follows:\n"
+                            "\n")
+                    f.write(str(index_8))
+                    f.write("\n")
+                    for i in output:
+                        f.write("Prescription " + str(presc_number) + ": " + str(i))
+                        f.write("\n")
+                        presc_number += 1
+                    f.close()
+                    print("Your prescription has been downloaded successfully")
+            elif presc_opts == 2:
+                self.patient_home()
+
 
     def display_opening_hours(self, selected):
         # get datetime object of the first and last appointments on that day = Opening hours
@@ -340,6 +427,7 @@ class Patient:
         print(tabulate(df2, headers='keys',
                        tablefmt='fancy_grid', showindex=False))
         return output[0]
+
 
     # def select_options(self, options):
     #     # TODO: Move to utilities.
