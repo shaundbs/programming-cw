@@ -35,7 +35,9 @@ class Patient:
         # Register. User input.
         # TODO: data validation.
         fName = input('First Name:')
+        fName = fName.capitalize()
         lName = input('Last Name:')
+        lName = lName.capitalize()
         db = Database()
 
         email_repetition = True
