@@ -1,3 +1,4 @@
+import logging
 import sys
 import os
 import re
@@ -19,7 +20,9 @@ class Panel:
         self.userId = None
 
     def welcome(self):
-        ui.info_section("Welcome to University College Hospital(UCH) - Online System.\n\nTel: 020 3456 7890\nAddress: University College Hospital, 235 Euston Road, London, NW1 2BU.")
+        ui.info_section(
+            "Welcome to University College Hospital(UCH) - Online System.\n\nTel: 020 3456 7890\nAddress: University "
+            "College Hospital, 235 Euston Road, London, NW1 2BU.")
 
     def login(self):
         email = ui.ask_string("Please input your registered email:")
@@ -63,21 +66,27 @@ class Panel:
         elif self.userType == 'admin':
             Admin(self.userId)
 
-# Main loop.
-while True:
-    newPanel = Panel()
-    newPanel.welcome()
-    registerStatus = ui.ask_yes_no("Do you already have an account?", default=False)
-    if registerStatus:
-        loginResult = newPanel.login()
-        if loginResult:
-            newPanel.enterSystem()
-            toExit = ui.ask_yes_no("Do you want to exit the system?", default=False)
-            if toExit:
-                break
-    else:
-        toRegister = ui.ask_yes_no("Do you want to register a new account?", default=False)
-        if toRegister:
-            Patient.register()
+
+if __name__ == '__main__':
+    # initialise logging file
+    logging.basicConfig(filename='e_patient_system.log', filemode='a', format='%(asctime)s - %(levelname)s - %('
+                                                                              'message)s')
+
+    # Main loop.
+    while True:
+        newPanel = Panel()
+        newPanel.welcome()
+        registerStatus = ui.ask_yes_no("Do you already have an account?", default=False)
+        if registerStatus:
+            loginResult = newPanel.login()
+            if loginResult:
+                newPanel.enterSystem()
+                toExit = ui.ask_yes_no("Do you want to exit the system?", default=False)
+                if toExit:
+                    break
         else:
-            break
+            toRegister = ui.ask_yes_no("Do you want to register a new account?", default=False)
+            if toRegister:
+                Patient.register()
+            else:
+                break
