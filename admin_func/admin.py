@@ -14,6 +14,7 @@ from tabulate import tabulate
 from termcolor import colored
 
 from state_manager import StateGenerator
+
 states = {
     # admin menu
     "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin", "Track Performance", "Log out"],
