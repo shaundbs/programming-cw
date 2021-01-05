@@ -1,7 +1,7 @@
 import os
 from os import system
 from time import sleep
-
+import re
 from . import admin_database as db
 from . import admin_utilities as util
 import bcrypt
@@ -313,6 +313,7 @@ class Admin():
     def return_to_menu(self):
         self.admin_options()
 
+        
 # manage patient functionality
     @staticmethod
     def SeePatientRecord(df):
@@ -491,12 +492,12 @@ class Admin():
             LastName = input("Enter the new Last Name: ")
             db = Database()
             db.exec_one("""UPDATE Users SET FirstName=?,LastName=?  WHERE userID=?""", (FirstName,LastName,self.ID,))
-            print("Successfully Updated Name,Wait 2 Seconds")
+            print("Successfully Updated Patient Name,Wait 2 Seconds")
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
         elif selected=="Change Date of Birth":
-            DoB = input("Enter the New Date of Birth: ")
+            DoB = util.get_user_date()
             db = Database()
             db.exec_one("""UPDATE Users SET date_of_birth=?  WHERE userID=?""", (DoB,self.ID,))
             print("Successfully Updated Date of Birth, Wait 2 Seconds")
@@ -505,10 +506,18 @@ class Admin():
             self.edit_patient_details()
 
         elif selected=="Change Patient email address":
-            email = input("Enter the New email : ")
+            email_repetition=True
+            while email_repetition:
+                regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
+                email = input('Email:')
+                if not re.search(regex, email):
+                    print("Invalid Email. Please try again.")
+                else:
+                    email_repetition = False
+
             db = Database()
             db.exec_one("""UPDATE Users SET email=?  WHERE userID=?""", (email,self.ID,))
-            print("Successfully Updated Date of Birth, Wait 2 Seconds")
+            print("Successfully Updated the email, Wait 2 Seconds")
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
