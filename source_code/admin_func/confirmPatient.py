@@ -6,7 +6,7 @@ from pandas import DataFrame
 from tabulate import tabulate
 from termcolor import colored
 
-from email_generator import Emails
+from email_generator_admin import Emails
 
 
 def clear():
@@ -18,14 +18,19 @@ def confirmPatient():
 
     print(colored("\nPatients requiring validation:   ", 'blue', attrs=['bold']))
 
+    try:
+        connection = sqlite3.connect('../database/ehealth.db')
+        cursor = connection.cursor()
 
-    connection = sqlite3.connect('../../database/ehealth.db')
-    cursor = connection.cursor()
+
+    except:
+        print("Unable to connect to database!")
 
     # Query database for patients in need of validation
     query = "SELECT userID, firstName, lastName, email, signUpDate FROM Users WHERE is_registered = 0 and accountType = 'patient'"
     cursor.execute(query)
     records = cursor.fetchall()
+
 
 
 
@@ -67,7 +72,7 @@ def validate():
     patients_validated = []
     patients_deleted = []
 
-    connection = sqlite3.connect('/Users/anna/Desktop/66CW/database/ehealth.db')
+    connection = sqlite3.connect('../database/ehealth.db')
     cursor = connection.cursor()
 
     # Loop through each patient and give user option to validate, delete or quit the program
@@ -83,12 +88,11 @@ def validate():
             print("Patient successfully validated!\n")
             patients_validated.append(validation_required[i])
 
+
             #Send user email confirming successful validation
             email = emails[i]
             firstName = fullname_list[i][0]
             lastName = fullname_list[i][1]
-
-
 
             Emails.validation_email(email, firstName, lastName, 'patient')
 

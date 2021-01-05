@@ -1,86 +1,86 @@
 import sys
 import os
+import re
 sys.path.append(os.getcwd()+'/patient_func')
 sys.path.append(os.getcwd()+'/gp_func')
+sys.path.append(os.getcwd()+'/admin_func')
 
+from admin_func.admin import Admin
 from patient_func.patients import Patient
 from gp_func.gp import Gp
 from patient_func.patient_database import Database
 import bcrypt
 import cli_ui as ui
 
-db = Database()
+
 # Welcome Page.
-def welcome():
-    print('Welcome')
+class Panel:
+    def __init__(self):
+        self.db = Database()
+        # self.tries = 0
+        self.userType = None
+        self.userId = None
 
-def login():
-    email = input('Email:')
+    def welcome(self):
+        ui.info_section("Welcome to University College Hospital(UCH) - Online System.\n\nTel: 020 3456 7890\nAddress: University College Hospital, 235 Euston Road, London, NW1 2BU.")
 
-    pWord = ui.ask_password('Password:')
-    a = (email,)
-    db.exec_one(
-        "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
-    record = db.c.fetchone()
+    def login(self):
+        email = ui.ask_string("Please input your registered email:")
+        pWord = ui.ask_password('Please input your password:')
+        a = (email,)
+        self.db.exec_one(
+            "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
+        record = self.db.c.fetchone()
 
-    if not record:
-        print('Sorry, your account does not exist in the system')
-        login()
-
-    elif bcrypt.checkpw(pWord.encode('utf-8'), record[0]):
-        if record[2] == 'patient':
-            if record[3] == 1:
-                return ['patient', record[1]]
+        if record and bcrypt.checkpw(pWord.encode('utf-8'), record[0]):
+            if record[2] == 'patient':
+                if record[3] == 1:
+                    self.userType = 'patient'
+                    self.userId = record[1]
+                else:
+                    ui.info('Sorry, your registration is not approved yet.')
+                    return False
+            elif record[2] == 'gp':
+                self.userType = 'gp'
+                self.userId = record[1]
+            elif record[2] == 'admin':
+                self.userType = 'admin'
+                self.userId = record[1]
+            return True
+        else:
+            if not record:
+                ui.info('Sorry, we could not find your account in the system. Please double check your input.')
             else:
-                print('Sorry, your registration is not approved yet.')
+                ui.info('Sorry, your password is not correct.')
+            retryLogin = ui.ask_yes_no("Do you want to have another try?", default=False)
+            if retryLogin:
+                self.login()
+            else:
                 return False
-        elif record[2] == 'gp':
-            return ['gp', record[1]]
-        elif record[2] == 'admin':
-            return ['admin', record[1]]
 
-    else:
-        print('Your password is wrong, Please retry.')
-        login()
+    def enterSystem(self):
+        if self.userType == 'patient':
+            Patient(self.userId).patient_home()
+        elif self.userType == 'gp':
+            Gp(self.userId)
+        elif self.userType == 'admin':
+            Admin(self.userId)
 
-def user_options():
-    print("1. Log in")
-    print("2. Register")
-    print("3. Exit")
-    option = input("Enter your option : ")
-    return option
-
-def password_checker(pw):
-    pass
-
-welcome()
-
+# Main loop.
 while True:
-    # Display login/register.
-    option = user_options()
-    if option == "1":
-        # Our patient want to log into the system.
-        result = login()
-        if result: # successful login
-            if result[0] == 'gp':
-                print('Log_in Successfull!')
-                print(' ')
-                gp = Gp(result[1])
-
-            elif result[0] == 'patient':
-                # Our patient successfully log in(after unlimited tries).
-                print('Log_in Successfull!')
-                print(' ')
-                a = Patient(result[1])
-                # Our patient is presented with available options.
-                a.patient_home()
-
-    elif option == "2":
-        # Patient Register.
-        Patient.register()
-
-    elif option == "3":
-        break
-
+    newPanel = Panel()
+    newPanel.welcome()
+    registerStatus = ui.ask_yes_no("Do you already have an account?", default=False)
+    if registerStatus:
+        loginResult = newPanel.login()
+        if loginResult:
+            newPanel.enterSystem()
+            toExit = ui.ask_yes_no("Do you want to exit the system?", default=False)
+            if toExit:
+                break
     else:
-        print('Wrong input. Please try again.')
+        toRegister = ui.ask_yes_no("Do you want to register a new account?", default=False)
+        if toRegister:
+            Patient.register()
+        else:
+            break

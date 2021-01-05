@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 
 class Emails:
     
-    @staticmethod
+
     def validation_email(recipient, firstName, lastName, accountType):
 
         sender_email = "gowerstsurgery.adm@gmail.com"
@@ -85,7 +85,7 @@ class Emails:
         msg.attach(part1)
         msg.attach(part2)
 
-        fp = open('logo.png', 'rb')
+        fp = open('../logo.png', 'rb')
         msgimage = MIMEImage(fp.read())
         fp.close()
 
@@ -103,7 +103,7 @@ class Emails:
 
 
 
-    @staticmethod
+
     def gp_registration_email(recipient, firstName, lastName, pWord, accountType):
         sender_email = "gowerstsurgery.adm@gmail.com"
         admin = sender_email
@@ -182,7 +182,7 @@ class Emails:
         msg.attach(part1)
         msg.attach(part2)
 
-        fp = open('logo.png', 'rb')
+        fp = open('../logo.png', 'rb')
         msgimage = MIMEImage(fp.read())
         fp.close()
 
