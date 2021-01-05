@@ -8,8 +8,8 @@ import cli_ui as ui
 from pick import pick
 from tabulate import tabulate
 
-import gp_database as db
-from email_generator import Emails
+from . import gp_database as db
+from .gp_email_generator import Emails
 
 
 # utility functions for the GP flow

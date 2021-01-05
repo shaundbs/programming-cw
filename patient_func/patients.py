@@ -1,6 +1,6 @@
-from patient_database import Database
-from email_generator import Emails
-import date_generator
+from .patient_database import Database
+from .patient_email_generator import Emails
+from . import date_generator
 import re
 import datetime as datetime
 import getpass  # hide password when inputting
@@ -15,6 +15,7 @@ import cli_ui as ui
 
 from dateutil.relativedelta import relativedelta
 import threading
+
 
 class Patient:
     patient_id = 0
@@ -62,22 +63,21 @@ class Patient:
         task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
         task.start()
 
-
     def patient_home(self):
-            prv = ["Request Appointment", "View Appointments", "View Referrals","View Prescriptions", "Log out"]
+        prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
 
-            while True:
-                option = ui.ask_choice("Choose an option:", choices=prv,sort=False)
-                if option == prv[0]:
-                    self.request_appointment()
-                elif option == prv[1]:
-                    self.view_appointment()
-                elif option == prv[2]:
-                    self.view_referrals()
-                elif option == prv[3]:
-                    self.view_prescription()
-                elif option == prv[4]:
-                    break
+        while True:
+            option = ui.ask_choice("Choose an option:", choices=prv, sort=False)
+            if option == prv[0]:
+                self.request_appointment()
+            elif option == prv[1]:
+                self.view_appointment()
+            elif option == prv[2]:
+                self.view_referrals()
+            elif option == prv[3]:
+                self.view_prescription()
+            elif option == prv[4]:
+                break
 
     def view_referrals(self):
         """
@@ -85,7 +85,9 @@ class Patient:
         """
         while True:
             # Fetch referrals from db.
-            self.db.exec_one("SELECT a.referred_specialist_id, s.firstName, s.lastName, s.hospital, d.name FROM Appointment a, Specialists s, Department d WHERE  s.department_id = d.department_id AND a.referred_specialist_id = s.specialist_id AND patient_id = ? AND a.referred_specialist_id IS NOT NULL", (self.patient_id,))
+            self.db.exec_one(
+                "SELECT a.referred_specialist_id, s.firstName, s.lastName, s.hospital, d.name FROM Appointment a, Specialists s, Department d WHERE  s.department_id = d.department_id AND a.referred_specialist_id = s.specialist_id AND patient_id = ? AND a.referred_specialist_id IS NOT NULL",
+                (self.patient_id,))
             result = self.db.c.fetchall()
             self.referralsList = []
             for i in result:
@@ -188,7 +190,8 @@ class Patient:
                     elif fm_selected < datetime.datetime.now().date():
                         print("Sorry, we are unable to book appointments for dates in the past")
                     elif fm_selected == datetime.datetime.now().date():
-                        print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
+                        print(
+                            "Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
                     else:
                         print(
                             "Sorry, we are unable to book appointments too far into the future.\n"
@@ -290,12 +293,16 @@ class Patient:
                             self.db.reschedule(a, self.tobecanceled)
                             self.tobecanceled = -1
                             print(
-                                "SUCCESS - \nYou have successfully reshceduled an appointments with Dr "+str(gp_name[0]) + " " + str(gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                                "SUCCESS - \nYou have successfully reshceduled an appointments with Dr " + str(
+                                    gp_name[0]) + " " + str(
+                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
                             print(
-                                "SUCCESS - \nYou have successfully requested an appointments with Dr "+str(gp_name[0]) + " " + str(gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                                "SUCCESS - \nYou have successfully requested an appointments with Dr " + str(
+                                    gp_name[0]) + " " + str(
+                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                     break
             except ValueError:
                 print("Please select a valid option.")

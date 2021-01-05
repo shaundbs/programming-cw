@@ -1,9 +1,6 @@
 import sys
 import os
 import re
-sys.path.append(os.getcwd()+'/patient_func')
-sys.path.append(os.getcwd()+'/gp_func')
-sys.path.append(os.getcwd()+'/admin_func')
 
 from admin_func.admin import Admin
 from patient_func.patients import Patient
