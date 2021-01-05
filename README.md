@@ -1,6 +1,6 @@
 # programming-cw
 ## Database Schema:
-1. Appointment 
+1. Appointment (data from patient team)
    - "slot_id"	INTEGER,
    - "is_confirmed"	INTEGER DEFAULT 0,
    - "is_rejected"	INTEGER DEFAULT 0,
@@ -11,9 +11,8 @@
    - **"referred_specialist_id"	INTEGER,**
    - **"clinical_notes"	TEXT,**
    - **"is_completed"	INTEGER,**
-(data from patient team)
 
-2. Users
+2. Users (data from all teams)
     - "firstName"	TEXT,
     - "lastName"	TEXT,
 	- "email"	TEXT,
@@ -24,36 +23,31 @@
 	- "signUpDate"	TEXT DEFAULT CURRENT_TIMESTAMP,(**format**)
 	- "userId"	INTEGER,
 	- **"date_of_birth"	TEXT,**
-(data from all teams)
 
-3. slots
+3. slots (data in 2021 year that **excludes weekend**)
    - "slot_id"	INTEGER,
    - "startTime"	TEXT,
    - "endTime"	TEXT,
-(data in 2021 year that **excludes weekend**)
 
-4. specialist
+4. specialist (data from gp team)
     - "firstName"	TEXT,
     - "lastName"	TEXT,
     - "**hospital**"	TEXT,
     - "specialist_id"	INTEGER,
     - "department_id"	INTEGER,
-(data from gp team)
 
-5. Department
+5. Department (data from gp team)
     - "name"	INTEGER,
     - "description"	INTEGER,
     - "department_id"	INTEGER
-(data from gp team)
 
-6. gp_time_off
+6. gp_time_off (data from gp team)
     - "time_off_id"	INTEGER,
     - "gp_id"	INTEGER,
     - "startTime"	TEXT,
     - "endTime"	TEXT
-(data from gp team)
 
-7. **Prescription**
+7. **Prescription** (data from gp team)
     - "medicine_name"	TEXT,
     - "treatment_description"	TEXT,
     - "pres_frequency_in_days"	NUMERIC,
@@ -61,16 +55,14 @@
     - "expiryDate"	TEXT,
     - "prescription_id"	INTEGER,
     - "appointment_id"	INTEGER
-(data from gp team)
 
-8. **MedicalHistory**
+8. **MedicalHistory** (data from admin team)
 	- "Medical_historyNo"	INTEGER,
 	- "UserID"	INTEGER,
 	- "illness"	TEXT,
 	- "time_afflicted"	TEXT,
 	- "description"	TEXT,
 	- "prescribed_medication"	TEXT
- (data from admin team)
  
 ## Resources:
 ### [SQLLITE3:](https://docs.python.org/3/library/sqlite3.html)
