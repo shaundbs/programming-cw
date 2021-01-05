@@ -22,6 +22,7 @@ states = {
     "Manage Patient": ["Search by Date of Birth", "Search by Last Name", "Back"],
     "Search by Date of Birth": ["Manage Patient Account"],
     "Search by Last Name": ["Manage Patient Account"],
+    "Assign new admin": ["Back"],
 
     # data dashboard menu
     "Track Performance": ["GP Metrics", "Patient Metrics", "Prescription Metrics", "Back"],
@@ -55,12 +56,13 @@ states = {
 
     # Manage Patient menu
     "Manage Patient Account": ["Edit Patient Details", "Add Medical History", "Delete Medical History",
-                               "Deactivated Patient Account", "Reactivated Patient Account","Back"],
+                               "Deactivate Patient Account", "Reactivate Patient Account","Back"],
     "Edit Patient Details": ["Change Patient name", "Change Date of Birth","Change Patient email address", "Back"],
     "Add Medical History": ["Add to the Medical History","Back"],
     "Delete Medical History": ["Delete Medical History","Back"],
     "Deactivate Patient Account": [ "Deactivate the Patients account","Back"],
     "Reactivate Patient Account":  [ "Reactivate the Patients account","Back"],
+
 
 }
 
@@ -416,8 +418,8 @@ class Admin():
             Index = ["ID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                      "Signed UP"]
             db.exec_one(
-                "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE date_of_birth = ?",
-                (DoB,))
+                "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE date_of_birth = ? and accountType=? ",
+                (DoB,'patient'))
             result = db.c.fetchall()
             row=len(result)
             if row ==0:
@@ -472,9 +474,9 @@ class Admin():
             self.to_add_medical_history()
         elif selected=="Delete Medical History":
             self.to_delete_medical_history()
-        elif selected=="Deactivated Patient Account":
+        elif selected=="Deactivate Patient Account":
             self.to_deactivate_patient_account()
-        elif selected=="Reactivated Patient Account":
+        elif selected=="Reactivate Patient Account":
             self.to_reactivate_patient_account()
         elif selected=="Back":
             self.handle_state_selection("Admin Options")
@@ -534,7 +536,7 @@ class Admin():
             db1 = Database()
 
             if row == 1 and Ref=="Empty":
-                MedNr = result[0][0]
+                MedNr = result[0]['Medical_historyNo']
 
                 db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
                                                                       prescribed_medication=? WHERE Medical_historyNo=?""",
@@ -636,7 +638,6 @@ class Admin():
         # Number of holiday days taken
         # number of specialists in each departments
 
-
     def patient_metrics(self):
         Admin.clear()
         ui.info_section(ui.blue, "Patient metrics")
@@ -652,31 +653,31 @@ class Admin():
         ui.info_section(ui.blue, "Prescription metrics")
         # TODO:
 
+    def assign_new_admin(self):
+        Admin.clear()
+        ui.info_section(ui.blue, "Assign a new Admin user")
+        assign_admin_confirm = ui.ask_yes_no("Please confirm if you want to assign a new Admin account?",
+                                            default=False)
+        if assign_admin_confirm == True:
+            new_fName = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
+            new_lName = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
+            new_email = ui.ask_string("Please enter the Admin's new email: ")
+            new_password = ui.ask_password("Please enter a new password: ")
+            # encode password
+            new_password = new_password.encode('UTF-8')
+            # hash password
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(new_password, salt)
+            curr_date = datetime.datetime.now()
+            format_date = curr_date.strftime("%m-%d-%Y %H:%M")
 
-    # def assign_new_admin(self):
-    #     Admin.clear()
-    #     ui.info_section(ui.blue, "Assign a new Admin user")
-    #     assign_admin_confirm = ui.ask_yes_no("Are you sure you want to change the name of this GP's account?",
-    #                                         default=False)
-    #     if assign_admin_confirm == True:
-    #         new_fName = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
-    #         new_lName = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
-    #         new_email = ui.ask_string("Please enter the GP's new email: ")
-    #         new_password = ui.ask_password("Please enter a new password: ")
-    #         # encode password
-    #         new_password = new_password.encode('UTF-8')
-    #         # hash password
-    #         salt = bcrypt.gensalt()
-    #         hashed_password = bcrypt.hashpw(new_password, salt)
-    #
-    #
-    #         self.db = db.Database()
-    #         self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password, accountType)
-    #                             VALUES(?,?,?,?,?)""", [new_fName, new_lName, new_email, password, "admin"])
-    #         self.db.close_db()
-    #         self.state_gen.change_state("Admin Options")
-    #     else:
-    #         self.state_gen.change_state("Admin Options")
+            self.db = db.Database()
+            self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password,signUpDate, accountType)
+                                VALUES(?,?,?,?,?,?)""", [new_fName, new_lName, new_email, hashed_password,format_date, "admin"])
+            self.db.close_db()
+            self.state_gen.change_state("Admin Options")
+        else:
+            self.state_gen.change_state("Admin Options")
 
 # for testing admin functionality
 if __name__ == "__main__":
