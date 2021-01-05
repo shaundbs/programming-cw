@@ -197,34 +197,35 @@ class Patient:
                                 datetime.datetime(int(year), int(month), int(day))
                             except ValueError:
                                 isValidDate = False
-                            if (isValidDate):
-                                self.limit_appointment_bookings(select_date)
-                                if self.weekday_bookings_only(select_date) == True:
-                                    if self.limit_appointment_bookings(select_date) == 0:
-                                        fm_selected = datetime.datetime.strptime(
-                                            select_date, '%Y-%m-%d').date()
-                                        if datetime.datetime.now().date() < fm_selected <= last_booking_date:
-                                            print('The date {} is valid. Listing appointments... \n'.format(
-                                                select_date))
-                                            self.select_slots(select_date)
-                                        elif fm_selected < datetime.datetime.now().date():
-                                            print("Sorry, we are unable to book appointments for dates in the past")
-                                        elif fm_selected == datetime.datetime.now().date():
-                                            print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
-                                        else:
-                                            print(
-                                                "Sorry, we are unable to book appointments too far into the future.\n"
-                                                "Please enter a valid date between today and the close of next month:", last_booking_date)
-                                    elif self.limit_appointment_bookings(select_date) > 0:
-                                        print(
-                                            "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
-                                            "as many patients as possible and there is fair assignment in place, "
-                                            "please select an alternative week where you"
-                                            " do not currently have an appointment booked.")
-                                        continue
+                            if not self.weekday_bookings_only(select_date):
+                                print(
+                                    "Sorry our surgery is closed on weekends - you are unable to request an appointment for this date \n"
+                                    "Please refer to the calendar and request an appointment for a weekday\n")
+                                continue
+                            else:
+                                print('You have selected a valid weekday')
+                            if self.limit_appointment_bookings(select_date) == 0:
+                                fm_selected = datetime.datetime.strptime(
+                                    select_date, '%Y-%m-%d').date()
+                                if datetime.datetime.now().date() < fm_selected <= last_booking_date:
+                                    print('The date {} is valid. Listing appointments... \n'.format(
+                                        select_date))
+                                    self.select_slots(select_date)
+                                elif fm_selected < datetime.datetime.now().date():
+                                    print("Sorry, we are unable to book appointments for dates in the past")
+                                elif fm_selected == datetime.datetime.now().date():
+                                    print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
                                 else:
-                                    print("Sorry our surgery is closed on weekends - you are unable to request an appointment for this date\n"
-                                          "Please refer to the calendar and request an appointment for a weekday.")
+                                    print(
+                                        "Sorry, we are unable to book appointments too far into the future.\n"
+                                        "Please enter a valid date between today and the close of next month:", last_booking_date)
+                            elif self.limit_appointment_bookings(select_date) > 0:
+                                print(
+                                    "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
+                                    "as many patients as possible and there is fair assignment in place, "
+                                    "please select an alternative week where you"
+                                    " do not currently have an appointment booked.")
+                                continue
                             elif not(isValidDate):
                                 print("Sorry this value is not accepted")
                                 opts = ["Try again",
