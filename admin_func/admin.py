@@ -536,7 +536,7 @@ class Admin():
             db1 = Database()
 
             if row == 1 and Ref=="Empty":
-                MedNr = result[0]['Medical_historyNo']
+                MedNr =  result[0]['Medical_historyNo']
 
                 db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
                                                                       prescribed_medication=? WHERE Medical_historyNo=?""",
