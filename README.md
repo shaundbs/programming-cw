@@ -1,5 +1,77 @@
 # programming-cw
+## Database Schema:
+1. Appointment 
+   - "slot_id"	INTEGER,
+   - "is_confirmed"	INTEGER DEFAULT 0,
+   - "is_rejected"	INTEGER DEFAULT 0,
+   - "appointment_id"	INTEGER,
+   - "patient_id"	INTEGER,
+   - "gp_id"	INTEGER,
+   - **"reason"	TEXT,**
+   - **"referred_specialist_id"	INTEGER,**
+   - **"clinical_notes"	TEXT,**
+   - **"is_completed"	INTEGER,**
+(data from patient team)
 
+2. Users
+    - "firstName"	TEXT,
+    - "lastName"	TEXT,
+	- "email"	TEXT,
+	- "password"	TEXT,
+	- "accountType"	TEXT,
+	- "is_registered"	INTEGER,
+	- "is_active"	INTEGER,
+	- "signUpDate"	TEXT DEFAULT CURRENT_TIMESTAMP,(**format**)
+	- "userId"	INTEGER,
+	- **"date_of_birth"	TEXT,**
+(data from all teams)
+
+3. slots
+   - "slot_id"	INTEGER,
+   - "startTime"	TEXT,
+   - "endTime"	TEXT,
+(data in 2021 year that **excludes weekend**)
+
+4. specialist
+    - "firstName"	TEXT,
+    - "lastName"	TEXT,
+    - "**hospital**"	TEXT,
+    - "specialist_id"	INTEGER,
+    - "department_id"	INTEGER,
+(data from gp team)
+
+5. Department
+    - "name"	INTEGER,
+    - "description"	INTEGER,
+    - "department_id"	INTEGER
+(data from gp team)
+
+6. gp_time_off
+    - "time_off_id"	INTEGER,
+    - "gp_id"	INTEGER,
+    - "startTime"	TEXT,
+    - "endTime"	TEXT
+(data from gp team)
+
+7. **Prescription**
+    - "medicine_name"	TEXT,
+    - "treatment_description"	TEXT,
+    - "pres_frequency_in_days"	NUMERIC,
+    - "startDate"	TEXT DEFAULT CURRENT_TIMESTAMP,
+    - "expiryDate"	TEXT,
+    - "prescription_id"	INTEGER,
+    - "appointment_id"	INTEGER
+(data from gp team)
+
+8. **MedicalHistory**
+	- "Medical_historyNo"	INTEGER,
+	- "UserID"	INTEGER,
+	- "illness"	TEXT,
+	- "time_afflicted"	TEXT,
+	- "description"	TEXT,
+	- "prescribed_medication"	TEXT
+ (data from admin team)
+ 
 ## Resources:
 ### [SQLLITE3:](https://docs.python.org/3/library/sqlite3.html)
 1. https://stackoverflow.com/questions/6318126/why-do-you-need-to-create-a-cursor-when-querying-a-sqlite-database
