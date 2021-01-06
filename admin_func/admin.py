@@ -17,22 +17,24 @@ from state_manager import StateGenerator
 
 states = {
     # admin menu
-    "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin", "Track Performance", "Log out"],
-    "Return to menu": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin", "Track Performance", "Log out"],
+    "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin",
+                      "Track performance", "Log out"],
+    "Return to menu": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin",
+                       "Track performance", "Log out"],
     "Log out": [""],
-    "Manage Patient": ["Search by Date of Birth", "Search by Last Name", "Back"],
-    "Search by Date of Birth": ["Manage Patient Account"],
-    "Search by Last Name": ["Manage Patient Account"],
+    "Manage Patient": ["Search by date of birth", "Search by last name", "Back"],
+    "Search by Date of Birth": ["Manage patient account"],
+    "Search by Last Name": ["Manage patient account"],
     "Assign new admin": ["Back"],
 
     # data dashboard menu
-    "Track Performance": ["GP Metrics", "Patient Metrics", "Prescription Metrics", "Back"],
-    "GP Metrics": ["Back"],
-    "patient Metrics": ["Back"],
-    "Prescription Metrics": ["Back"],
+    "Track performance": ["GP metrics", "Patient metrics", "Prescription metrics", "Back"],
+    "GP metrics": ["Back"],
+    "patient metrics": ["Back"],
+    "Prescription metrics": ["Back"],
 
     # Manage GP menu
-    "Manage GP": ["Edit GP account Information", "Remove GP account", "Deactivate GP account", "Reactivate GP account",
+    "Manage GP": ["Edit GP account information", "Remove GP account", "Deactivate GP account", "Reactivate GP account",
                   "Back"],
 
     # Edit GP menu
@@ -58,18 +60,18 @@ states = {
     "Delete all patients": ["Return to menu"],
 
     # Manage Patient menu
-    "Manage Patient Account": ["Edit Patient Details", "Add Medical History", "Delete Medical History",
-                               "Deactivate Patient Account", "Reactivate Patient Account","Back"],
-    "Edit Patient Details": ["Change Patient name", "Change Date of Birth", "Change Patient email address", "Back"],
-    "Add Medical History": ["Add to the Medical History","Back"],
-    "Delete Medical History": ["Delete Medical History","Back"],
-    "Deactivate Patient Account": [ "Deactivate the Patients account","Back"],
-    "Reactivate Patient Account":  [ "Reactivate the Patients account","Back"],
-
+    "Manage patient account": ["Edit patient details", "Add medical history", "Delete medical history",
+                               "Deactivate patient account", "Reactivate patient account", "Back"],
+    "Edit patient details": ["Change patient name", "Change date of birth", "Change patient email address", "Back"],
+    "Add medical history": ["Add to the medical History", "Back"],
+    "Delete medical history": ["Delete medical history", "Back"],
+    "Deactivate patient account": ["Deactivate the patients account", "Back"],
+    "Reactivate patient account": ["Reactivate the patients account", "Back"],
 
 }
 
-class Admin():
+
+class Admin:
     def __init__(self, user_id):
         # Create object from userId object from DB
         self.user_id = user_id
@@ -95,7 +97,8 @@ class Admin():
         else:
             self.state_gen.change_state(selected)
 
-    def state_selection_with_argument(self, selected, arg):
+    @staticmethod
+    def state_selection_with_argument(selected, arg):
         selected = selected.lower().replace(" ", "_")
         arg = str(arg)
         select = "self.to_" + selected + "(" + arg + ")"
@@ -188,7 +191,7 @@ class Admin():
         ui.info_section(ui.blue, "Change GP's name?")
         change_name_confirm = ui.ask_yes_no("Are you sure you want to change the name of this GP's account?",
                                             default=False)
-        if change_name_confirm == True:
+        if change_name_confirm:
             new_fName = ui.ask_string("Please enter the GP's new first name: ").capitalize()
             new_lName = ui.ask_string("Please enter the GP's new last name: ").capitalize()
             self.db = db.Database()
@@ -205,7 +208,7 @@ class Admin():
         ui.info_section(ui.blue, "Change GP's email ?")
         change_email_confirm = ui.ask_yes_no("Are you sure you want to change the email for this GP's account?",
                                              default=False)
-        if change_email_confirm == True:
+        if change_email_confirm:
             new_email = ui.ask_string("Please enter the GP's new email: ")
             # TODO: input validation
             self.db = db.Database()
@@ -221,7 +224,7 @@ class Admin():
         ui.info_section(ui.blue, "Reset GP's password?")
         reset_password_confirm = ui.ask_yes_no("Are you sure you want to reset the password for this account?",
                                                default=False)
-        if reset_password_confirm == True:
+        if reset_password_confirm:
             new_password = ui.ask_password("Please enter a new password: ")
             # TODO: input validation - e.g. ask admin to input new password
 
@@ -243,7 +246,7 @@ class Admin():
         Admin.clear()
         ui.info_section(ui.blue, 'Remove GP account?')
         delete_gp_confirm = ui.ask_yes_no("Are you sure you want to permanently remove this GP account?", default=False)
-        if delete_gp_confirm == True:
+        if delete_gp_confirm:
             self.db = db.Database()
             delete_gp_query = f"DELETE FROM Users WHERE userID= {gp_id}"
             self.db.exec(delete_gp_query)
@@ -257,7 +260,7 @@ class Admin():
         Admin.clear()
         ui.info_section(ui.blue, 'Deactivate GP account?')
         deactivate_gp_confirm = ui.ask_yes_no("Are you sure you want to deactivate this GP account?", default=False)
-        if deactivate_gp_confirm == True:
+        if deactivate_gp_confirm:
             self.db = db.Database()
             deactivate_gp_query = f"UPDATE Users SET is_active=0 WHERE userID={gp_id}"
             self.db.exec(deactivate_gp_query)
@@ -271,7 +274,7 @@ class Admin():
         Admin.clear()
         ui.info_section(ui.blue, 'Reactivate GP account?')
         reactivate_gp_confirm = ui.ask_yes_no("Are you sure you want to reactivate this GP account?", default=False)
-        if reactivate_gp_confirm == True:
+        if reactivate_gp_confirm:
             self.db = db.Database()
             reactivate_gp_query = f"UPDATE Users SET is_active=1 WHERE userID={gp_id}"
             self.db.exec(reactivate_gp_query)
@@ -314,7 +317,6 @@ class Admin():
         selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
-
     def continue_validation(self):
         validate()
         selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
@@ -326,37 +328,39 @@ class Admin():
     def return_to_menu(self):
         self.admin_options()
 
-
-# manage patient functionality
+    # manage patient functionality
     @staticmethod
     def SeePatientRecord(df):
-        x=1
-        while x==1:
+        x = 1
+        while x == 1:
             ID = int(input("Enter an ID Number from the table above to see a Patients Medical History: "))
             col_one_list = df['ID'].tolist()
             if ID not in col_one_list:
                 print("Invalid ID input, Please select an ID from the table below")
-                x=1
-                #Return to original Menu
+                x = 1
+                # Return to original Menu
             else:
-                x+=1
+                x += 1
 
-        Index1= ["UserID","First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active", "Signed UP"]
-        Index2=["MedicalHistoryID","UserID","illness", "time_afflicted", "description", "prescribed_medication"]
+        Index1 = ["UserID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
+                  "Signed UP"]
+        Index2 = ["MedicalHistoryID", "UserID", "illness", "time_afflicted", "description", "prescribed_medication"]
         db1 = Database()
-        db1.exec_one( "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
+        db1.exec_one(
+            "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
             (ID,))
         result = db1.c.fetchall()
         df1 = DataFrame(result)
         df1.columns = Index1
         db2 = Database()
-        db2.exec_one( "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM MedicalHistory WHERE userID = ?",
+        db2.exec_one(
+            "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM MedicalHistory WHERE userID = ?",
             (ID,))
         result = db2.c.fetchall()
-        row=len(result)
+        row = len(result)
         print(row)
 
-        if row==0:
+        if row == 0:
 
             db2.exec_one(
                 "INSERT INTO MedicalHistory(userID, illness,time_afflicted,description,prescribed_medication) VALUES(?, ?,?, ?,?)",
@@ -373,7 +377,7 @@ class Admin():
         else:
             df2 = DataFrame(result)
             df2.columns = Index2
-            return (ID,df1,df2)
+            return (ID, df1, df2)
 
     def display_patient_record(self):
         Admin.clear()
@@ -426,17 +430,17 @@ class Admin():
         if selected == None:
             self.handle_state_selection("Manage Patient")
 
-        if selected=="Search by Date of Birth":
+        if selected == "Search by Date of Birth":
             DoB = input("Enter the Date of Birth  (Format: YYYY-MM-DD EXAMPLE: 1996-10-16): ")
             db = Database()
             Index = ["ID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                      "Signed UP"]
             db.exec_one(
                 "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE date_of_birth = ? and accountType=? ",
-                (DoB,'patient'))
+                (DoB, 'patient'))
             result = db.c.fetchall()
-            row=len(result)
-            if row ==0:
+            row = len(result)
+            if row == 0:
                 print("No result found, Check if the Birth Date was entered in the correct format: DD-MM-YYYY ")
                 sleep(2)
                 Admin.clear()
@@ -446,22 +450,22 @@ class Admin():
                 df = DataFrame(result)
                 df.columns = Index
                 print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
-                SeePatientRecord=self.SeePatientRecord(df)
-                self.ID=SeePatientRecord[0]
-                self.DF1=SeePatientRecord[1]
+                SeePatientRecord = self.SeePatientRecord(df)
+                self.ID = SeePatientRecord[0]
+                self.DF1 = SeePatientRecord[1]
                 self.DF2 = SeePatientRecord[2]
                 self.to_manage_patient_account()
-        elif selected=="Search by Last Name":
+        elif selected == "Search by Last Name":
             Name = input("Enter the Last Name of the Patient: ")
             db = Database()
             Index = ["ID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                      "Signed UP"]
             db.exec_one(
                 "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE LastName = ? and accountType=? ",
-                (Name,'patient'))
+                (Name, 'patient'))
             result = db.c.fetchall()
-            row=len(result)
-            if row ==0:
+            row = len(result)
+            if row == 0:
                 print("No result found, Check if the Name was typed in correctly.")
                 sleep(2)
                 Admin.clear()
@@ -470,29 +474,29 @@ class Admin():
                 df = DataFrame(result)
                 df.columns = Index
                 print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
-                SeePatientRecord=Admin.SeePatientRecord(df)
-                self.ID=SeePatientRecord[0]
-                self.DF1=SeePatientRecord[1]
+                SeePatientRecord = Admin.SeePatientRecord(df)
+                self.ID = SeePatientRecord[0]
+                self.DF1 = SeePatientRecord[1]
                 self.DF2 = SeePatientRecord[2]
                 self.to_manage_patient_account()
-        elif selected=="Back":
+        elif selected == "Back":
             self.handle_state_selection("Admin Options")
 
     def manage_patient_account(self):
         self.display_patient_record()
         ui.info_section(ui.blue, 'Manage Patient Account Options')
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
-        if selected=="Edit Patient Details":
+        if selected == "Edit Patient Details":
             self.to_edit_patient_details()
-        elif selected=="Add Medical History":
+        elif selected == "Add Medical History":
             self.to_add_medical_history()
-        elif selected=="Delete Medical History":
+        elif selected == "Delete Medical History":
             self.to_delete_medical_history()
-        elif selected=="Deactivate Patient Account":
+        elif selected == "Deactivate Patient Account":
             self.to_deactivate_patient_account()
-        elif selected=="Reactivate Patient Account":
+        elif selected == "Reactivate Patient Account":
             self.to_reactivate_patient_account()
-        elif selected=="Back":
+        elif selected == "Back":
             self.handle_state_selection("Admin Options")
 
     def edit_patient_details(self):
@@ -500,26 +504,26 @@ class Admin():
         ui.info_section(ui.blue, 'Edit Patient Personal Account Options')
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
 
-        if selected=="Change Patient name":
+        if selected == "Change Patient name":
             FirstName = input("Enter the new First Name: ")
             LastName = input("Enter the new Last Name: ")
             db = Database()
-            db.exec_one("""UPDATE Users SET FirstName=?,LastName=?  WHERE userID=?""", (FirstName,LastName,self.ID,))
+            db.exec_one("""UPDATE Users SET FirstName=?,LastName=?  WHERE userID=?""", (FirstName, LastName, self.ID,))
             print("Successfully Updated Patient Name,Wait 2 Seconds")
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
-        elif selected=="Change Date of Birth":
+        elif selected == "Change Date of Birth":
             DoB = util.get_user_date()
             db = Database()
-            db.exec_one("""UPDATE Users SET date_of_birth=?  WHERE userID=?""", (DoB,self.ID,))
+            db.exec_one("""UPDATE Users SET date_of_birth=?  WHERE userID=?""", (DoB, self.ID,))
             print("Successfully Updated Date of Birth, Wait 2 Seconds")
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
 
-        elif selected=="Change Patient email address":
-            email_repetition=True
+        elif selected == "Change Patient email address":
+            email_repetition = True
             while email_repetition:
                 regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
                 email = input('Email:')
@@ -534,7 +538,7 @@ class Admin():
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
-        elif selected=="Back":
+        elif selected == "Back":
             self.handle_state_selection("Back")
 
     def add_medical_history(self):
@@ -546,10 +550,11 @@ class Admin():
 
             db1 = Database()
             db1.exec_one(
-                "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM MedicalHistory WHERE userID = ?",
+                "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
+                "MedicalHistory WHERE userID = ?",
                 (self.ID,))
             result = db1.c.fetchall()
-            row=len(result)
+            row = len(result)
             Ref = result[0]['illness']
             illness = input("Illness: ")
             time_afflicted = input("Time Afflicted: ")
@@ -557,18 +562,18 @@ class Admin():
             prescribed_medication = input("Prescribed Medication:")
             db1 = Database()
 
-            if row == 1 and Ref=="Empty":
-                MedNr =  result[0]['Medical_historyNo']
+            if row == 1 and Ref == "Empty":
+                MedNr = result[0]['Medical_historyNo']
 
                 db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
-                                                                      prescribed_medication=? WHERE Medical_historyNo=?""",
+                                prescribed_medication=? WHERE Medical_historyNo=?""",
                              (illness, time_afflicted, description, prescribed_medication, MedNr,))
                 self.add_medical_history()
             else:
 
-
                 db1.exec_one(
-                    "INSERT INTO MedicalHistory(userID, illness,time_afflicted,description,prescribed_medication) VALUES(?, ?,?, ?,?)",
+                    "INSERT INTO MedicalHistory(userID, illness,time_afflicted,description,prescribed_medication) "
+                    "VALUES(?, ?,?, ?,?)",
                     (self.ID, illness, time_afflicted, description, prescribed_medication))
                 self.add_medical_history()
         elif selected == "Back":
@@ -582,28 +587,29 @@ class Admin():
 
             db1 = Database()
             db1.exec_one(
-                "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM MedicalHistory WHERE userID = ?",
+                "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
+                "MedicalHistory WHERE userID = ?",
                 (self.ID,))
             result = db1.c.fetchall()
-            row=len(result)
-            df=DataFrame(result)
+            row = len(result)
+            df = DataFrame(result)
             col_one_list = df['Medical_historyNo'].tolist()
-            x=1
+            x = 1
 
-            if row ==1:
+            if row == 1:
 
-                while x==1:
+                while x == 1:
                     Nr = int(input('Enter the MedicalHistoryNr you would like to delete (see above): '))
                     if Nr in col_one_list:
 
-                        db1=Database()
+                        db1 = Database()
                         db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
-                                                                              prescribed_medication=? WHERE Medical_historyNo=?""",
+                                        prescribed_medication=? WHERE Medical_historyNo=?""",
                                      ("Empty", "Empty", "Empty", "Empty", Nr,))
-                        x=2
+                        x = 2
                     else:
                         print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
-                        x=1
+                        x = 1
 
                 self.handle_state_selection("Back")
             else:
@@ -612,12 +618,12 @@ class Admin():
                     if Nr in col_one_list:
                         db1 = Database()
                         db1.exec_one("DELETE FROM MedicalHistory WHERE Medical_historyNo=?", (Nr,))
-                        x=2
+                        x = 2
                     else:
                         print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
                         x = 1
                 self.delete_medical_history()
-        elif selected== "Back":
+        elif selected == "Back":
             self.handle_state_selection("Back")
 
     def deactivate_patient_account(self):
@@ -625,7 +631,7 @@ class Admin():
         ui.info_section(ui.blue, 'Deactivate Personal Account Options')
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
 
-        if selected=="Deactivate the Patients account":
+        if selected == "Deactivate the Patients account":
             db = Database()
             db.exec_one("""UPDATE Users SET is_active=0  WHERE userID=?""", (self.ID,))
             self.deactivate_patient_account()
@@ -638,7 +644,7 @@ class Admin():
         ui.info_section(ui.blue, 'Reactivate Personal Account Options')
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
 
-        if selected=="Reactivate the Patients account":
+        if selected == "Reactivate the Patients account":
             db = Database()
             db.exec_one("""UPDATE Users SET is_active=1  WHERE userID=?""", (self.ID,))
             self.reactivate_patient_account()
@@ -648,7 +654,8 @@ class Admin():
     def track_performance(self):
         Admin.clear()
         ui.info_section(ui.blue, "Performance metrics")
-        selected = util.user_select("Please choose one of the trackable items below.", self.state_gen.get_state_options())
+        selected = util.user_select("Please choose one of the trackable items below.",
+                                    self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
     def gp_metrics(self):
@@ -679,20 +686,18 @@ class Admin():
         Admin.clear()
         ui.info_section(ui.blue, "Assign a new Admin user")
         assign_admin_confirm = ui.ask_yes_no("Please confirm if you want to assign a new Admin account?",
-                                            default=False)
-        if assign_admin_confirm == True:
+                                             default=False)
+        if assign_admin_confirm:
             new_fName = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
             new_lName = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
             email_repetition = True
             while email_repetition:
                 regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
-                new_email = input("Please enter the Admin's new email:" )
+                new_email = input("Please enter the Admin's new email:")
                 if not re.search(regex, new_email):
                     print("Invalid Email. Please try again.")
                 else:
                     email_repetition = False
-
-
 
             new_password = ui.ask_password("Please enter a new password: ")
             # encode password
@@ -702,12 +707,15 @@ class Admin():
             hashed_password = bcrypt.hashpw(new_password, salt)
             curr_date = datetime.datetime.now()
             format_date = curr_date.strftime("%m-%d-%Y %H:%M")
-            is_registered=1
-            is_active=1
+            is_registered = 1
+            is_active = 1
 
             self.db = db.Database()
-            self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password,signUpDate, accountType, is_registered, is_active)
-                                VALUES(?,?,?,?,?,?,?,?)""", [new_fName, new_lName, new_email, hashed_password, format_date, "admin", is_registered, is_active])
+            self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password,signUpDate, accountType, 
+                                is_registered, is_active)
+                                VALUES(?,?,?,?,?,?,?,?)""",
+                             [new_fName, new_lName, new_email, hashed_password, format_date, "admin", is_registered,
+                              is_active])
             self.db.close_db()
             self.state_gen.change_state("Admin Options")
         else:
