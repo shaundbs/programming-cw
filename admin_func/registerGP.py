@@ -126,15 +126,16 @@ def confirmation():
         clear()
 
         # Display summary of account details
-        print("Registration successful!")
+        print("Registration successful!\n")
 
 
         # Email new user with the relevant details
         try:
+            print("Sending confirmation email...")
             Emails.gp_registration_email(email, firstName, lastName, pWord, 'GP')
             print("\nEmail has been sent with record of the account details\n")
         except Error as err:
-            print(err)
+            print("Sorry, unable to send email...")
 
 
 
