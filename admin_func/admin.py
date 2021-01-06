@@ -35,7 +35,7 @@ states = {
 
     # Manage GP menu
     "Manage GP": ["Edit GP account information", "Remove GP account", "Deactivate GP account", "Reactivate GP account",
-                  "Back"],
+                  "View GP calendar", "Back"],
 
     # Edit GP menu
     "Edit GP account information": ["Change GP name", "Change GP registered email address", "Reset GP password",
@@ -67,7 +67,7 @@ states = {
     "Delete medical history": ["Delete medical history", "Back"],
     "Deactivate patient account": ["Deactivate the patients account", "Back"],
     "Reactivate patient account": ["Reactivate the patients account", "Back"],
-
+    "View GP calendar": ["Back"],
 }
 
 
@@ -168,6 +168,8 @@ class Admin:
                 self.to_deactivate_gp_account(gp_id)
             elif selected == "Reactivate GP account":
                 self.to_reactivate_gp_account(gp_id)
+            elif selected == "View GP calendar":
+                self.to_view_gp_calendar(gp_id)
             else:
                 self.handle_state_selection("Manage GP")
         elif gp_id == "Back":
@@ -285,6 +287,11 @@ class Admin:
             self.state_gen.change_state("Manage GP")
         else:
             self.handle_state_selection("Back")
+
+    def view_gp_calendar(self, gp_id):
+        Admin.clear()
+        ui.info_section(ui.blue, 'View GP calendar')
+
 
     def register_new_gp(self):
         registerGP()
