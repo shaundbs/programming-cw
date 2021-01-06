@@ -19,6 +19,7 @@ states = {
     # admin menu
     "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin", "Track Performance", "Log out"],
     "Return to menu": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin", "Track Performance", "Log out"],
+    "Log out": [""],
     "Manage Patient": ["Search by Date of Birth", "Search by Last Name", "Back"],
     "Search by Date of Birth": ["Manage Patient Account"],
     "Search by Last Name": ["Manage Patient Account"],
@@ -57,7 +58,7 @@ states = {
     # Manage Patient menu
     "Manage Patient Account": ["Edit Patient Details", "Add Medical History", "Delete Medical History",
                                "Deactivate Patient Account", "Reactivate Patient Account","Back"],
-    "Edit Patient Details": ["Change Patient name", "Change Date of Birth","Change Patient email address", "Back"],
+    "Edit Patient Details": ["Change Patient name", "Change Date of Birth", "Change Patient email address", "Back"],
     "Add Medical History": ["Add to the Medical History","Back"],
     "Delete Medical History": ["Delete Medical History","Back"],
     "Deactivate Patient Account": [ "Deactivate the Patients account","Back"],
@@ -70,7 +71,7 @@ class Admin():
     def __init__(self, user_id):
         # Create object from userId object from DB
         self.user_id = user_id
-
+        print(self.user_id)
         # Get firstname and lastname of admin user
         self.db = db.Database()
         details_query = f"SELECT FIRSTNAME, LASTNAME FROM USERS WHERE USERID = {user_id}"
@@ -109,8 +110,7 @@ class Admin():
         self.handle_state_selection(selected)
 
     def log_out(self):
-        # TODO
-        pass
+        del self.state_gen
 
     def manage_gp(self):
         Admin.clear()
@@ -516,7 +516,7 @@ class Admin():
                     email_repetition = False
 
             db = Database()
-            db.exec_one("""UPDATE Users SET email=?  WHERE userID=?""", (email,self.ID,))
+            db.exec_one("""UPDATE Users SET email=?  WHERE userID=?""", (email, self.ID,))
             print("Successfully Updated the email, Wait 2 Seconds")
             sleep(2)
             Admin.clear()
@@ -694,11 +694,12 @@ class Admin():
 
             self.db = db.Database()
             self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password,signUpDate, accountType, is_registered, is_active)
-                                VALUES(?,?,?,?,?,?,?,?)""", [new_fName, new_lName, new_email, hashed_password,format_date, "admin",is_registered,is_active])
+                                VALUES(?,?,?,?,?,?,?,?)""", [new_fName, new_lName, new_email, hashed_password, format_date, "admin", is_registered, is_active])
             self.db.close_db()
             self.state_gen.change_state("Admin Options")
         else:
             self.state_gen.change_state("Admin Options")
+
 
 # for testing admin functionality
 if __name__ == "__main__":
