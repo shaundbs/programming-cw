@@ -12,6 +12,12 @@ import cli_ui as ui
 
 
 # Welcome Page.
+def welcome():
+    ui.info_section(
+        "Welcome to University College Hospital(UCH) - Online System.\n\nTel: 020 3456 7890\nAddress: University "
+        "College Hospital, 235 Euston Road, London, NW1 2BU.")
+
+
 class Panel:
     def __init__(self):
         self.db = Database()
@@ -19,21 +25,16 @@ class Panel:
         self.userType = None
         self.userId = None
 
-    def welcome(self):
-        ui.info_section(
-            "Welcome to University College Hospital(UCH) - Online System.\n\nTel: 020 3456 7890\nAddress: University "
-            "College Hospital, 235 Euston Road, London, NW1 2BU.")
-
     def login(self):
         while True:
             email = ui.ask_string("Please input your registered email:")
-            pWord = ui.ask_password('Please input your password:')
+            p_word = ui.ask_password('Please input your password:')
             a = (email,)
             self.db.exec_one(
                 "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
             record = self.db.c.fetchone()
 
-            if record and bcrypt.checkpw(pWord.encode('utf-8'), record[0]):
+            if record and bcrypt.checkpw(p_word.encode('utf-8'), record[0]):
                 if record[2] == 'patient':
                     if record[3] == 1:
                         self.userType = 'patient'
@@ -52,12 +53,12 @@ class Panel:
                     ui.info('Sorry, we could not find your account in the system. Please double check your input.')
                 else:
                     ui.info('Sorry, your password is not correct.')
-                retryLogin = ui.ask_yes_no("Do you want to have another try?", default=False)
-                if not retryLogin:
+                retry_login = ui.ask_yes_no("Do you want to have another try?", default=False)
+                if not retry_login:
                     ui.info('You have exited from the system')
                     break
 
-    def enterSystem(self):
+    def enter_system(self):
         if self.userType == 'patient':
             Patient(self.userId).patient_home()
         elif self.userType == 'gp':
@@ -74,12 +75,12 @@ if __name__ == '__main__':
     # Main loop.
     while True:
         newPanel = Panel()
-        newPanel.welcome()
+        welcome()
         registerStatus = ui.ask_yes_no("Do you already have an account?", default=False)
         if registerStatus:
             newPanel.login()
             if newPanel.userType:
-                newPanel.enterSystem()
+                newPanel.enter_system()
                 toExit = ui.ask_yes_no("Do you want to exit the system?", default=False)
                 if toExit:
                     ui.info('You have exited from the system.')

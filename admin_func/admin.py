@@ -7,7 +7,7 @@ from . import admin_utilities as util
 import bcrypt
 import cli_ui as ui
 from .admin_database import Database
-from .confirmPatient import confirm_patient, validate
+from .confirmPatient import confirm_patient, validate, approve_all, delete_all
 from pandas import DataFrame
 from .registerGP import registerGP, confirmation
 from tabulate import tabulate
@@ -51,9 +51,11 @@ states = {
     "Confirm details": ["Register another GP", "Return to menu"],
     "Register another GP": ["Confirm details", "Return to menu"],
     # Confirm Patient
-    "Approve new patients": ["Continue validation", "Back"],
+    "Approve new patients": ["Continue validation", "Approve all patients", "Delete all patients", "Back"],
     "Continue validation": ["Validate more entries", "Return to menu"],
     "Validate more entries": ["Continue validation", "Return to menu"],
+    "Approve all patients": ["Return to menu"],
+    "Delete all patients": ["Return to menu"],
 
     # Manage Patient menu
     "Manage Patient Account": ["Edit Patient Details", "Add Medical History", "Delete Medical History",
@@ -106,7 +108,7 @@ class Admin():
     def admin_options(self):
         Admin.clear()
         self.print_welcome()
-        selected = util.user_select("Please choose one of the options above.", self.state_gen.get_state_options())
+        selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
     def log_out(self):
@@ -299,8 +301,19 @@ class Admin():
             self.handle_state_selection(selected)
         except:
             print("\nNo patients currently require validation!\nRedirecting...")
-            sleep(3)
+            sleep(2)
             self.to_admin_options()
+
+    def approve_all_patients(self):
+        approve_all()
+        selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
+    def delete_all_patients(self):
+        delete_all()
+        selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
 
     def continue_validation(self):
         validate()
