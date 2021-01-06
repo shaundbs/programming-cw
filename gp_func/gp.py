@@ -26,11 +26,16 @@ states = {
     "select an appointment": ["show appointment details", "back"],
     "view appointments from another day": ["back"],
     "show appointment details": ["write clinical notes", "write prescriptions", "add referral", "finalise appointment",
-                                 "back"],
+                                 "view patient medical history", "back"],
     "write clinical notes": ["back"],
     "write prescriptions": ["back"],
     "add referral": ["back"],
-    "finalise appointment": ["back"]
+    "finalise appointment": ["back"],
+    "view patient medical history": ["view previous appointment records", "back"],
+    "view previous appointment records": ["view patient records by recency", "download all records as a csv", "back"],
+    "view patient records by recency": ["back"],
+    "download all records as a csv": ["back"]
+
 }
 
 
@@ -55,10 +60,13 @@ class Gp:
         self.curr_appt_date = "today"  # default is today
         self.curr_appt_id = None  # no appointment id set yet.
         self.curr_appt_month = "current_month"
+        self.patient_id = None
+        self.prev_appt_records = None
 
     def print_welcome(self):
         ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
         print("Hi Dr", self.firstname, self.lastname)
+        # todo add instructions
 
     def logout(self):
         # remove state tracking from the object. exiting out of class.
@@ -69,7 +77,7 @@ class Gp:
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
     def handle_state_selection(self, selected):
-        if selected == 'back':
+        if selected.lower() == 'back':
             self.state_gen.call_parent_state()
         else:
             self.state_gen.change_state(selected)
@@ -179,7 +187,7 @@ class Gp:
 
     def schedule_time_off(self):
         now = datetime.now()
-        #now = datetime.strptime("2020-01-01", '%Y-%m-%d')
+        # now = datetime.strptime("2020-01-01", '%Y-%m-%d')
 
         ui.info("When you would you like your time-off to start?")
         date_not_valid = True
@@ -309,7 +317,8 @@ class Gp:
                         ui.info(ui.green,
                                 f"Appointment on {selected_row['date']} with {selected_row['patient name']} successfully confirmed. Sending status update email to patient in background.")
                         #  send email of confirmation.
-                        util.create_thread_task(util.send_appt_confirmation_email, function_arguments_tuple=(selected_row['appointment_id'], True))
+                        util.create_thread_task(util.send_appt_confirmation_email,
+                                                function_arguments_tuple=(selected_row['appointment_id'], True))
 
                     else:
                         ui.info("There was an error, processing your request, please try later")
@@ -319,7 +328,8 @@ class Gp:
                         ui.info(ui.green,
                                 f"Appointment on {selected_row['date']} with {selected_row['patient name']} successfully rejected. Sending status update email to patient in background.")
                         # SEND EMAIL TO PATIENT NOTIFYING OF REJECTED APPT
-                        util.create_thread_task(util.send_appt_confirmation_email, function_arguments_tuple=(selected_row['appointment_id'], False))
+                        util.create_thread_task(util.send_appt_confirmation_email,
+                                                function_arguments_tuple=(selected_row['appointment_id'], False))
                     else:
                         ui.info("There was an error, processing your request, please try later")
 
@@ -344,6 +354,9 @@ class Gp:
 
         # state variables
         self.curr_appt_id = None  # reset current appointment if previously declared
+        self.patient_id = None
+        self.prev_appt_records = None
+
         appt_date = self.curr_appt_date
 
         ui.info_section(ui.blue, "View your appointments")
@@ -707,7 +720,7 @@ class Gp:
                 # logging
                 logging.exception("Exception occurred while finalising appt email.")
                 print(
-                    "an error occurred. The patient may not have been emailed successfully if this option was chosen.")
+                    "An error occurred. The patient may not have been emailed successfully if this option was chosen.")
 
             util.loading(load_time=2, new_line=False)
             ui.info_count(2, 3, "Finalisation process complete")
@@ -723,6 +736,83 @@ class Gp:
         else:
             selected = util.user_select("No where else to go from here...", choices=self.state_gen.get_state_options())
             self.handle_state_selection(selected)
+
+    def view_patient_medical_history(self):
+        # check how many records are available
+        appt_id = self.curr_appt_id
+        # use appt_id to get patient_id
+        get_patient_records_query = f"SELECT * FROM appointment where appointment_id = {appt_id} order by slot_id desc"
+        get_patient_records = self.db.fetch_data(get_patient_records_query)
+
+        patient_id = get_patient_records[0]["patient_id"]
+
+        get_medical_hist_query = f"SELECT * from MedicalHistory where UserID = {patient_id}"
+        get_medical_hist = self.db.fetch_data(get_medical_hist_query)
+
+        # general medical history info if any on record.
+        ui.info_section("View Patient Medical History\n")
+        ui.info(ui.bold, "General Medical History:")
+        if len(get_medical_hist) == 0:
+            ui.info(ui.indent("No known medical conditions for this patient.\n"))
+        else:
+            # if there is medical history, print out table showing data.
+            med_hist_table = util.output_sql_rows(get_medical_hist,
+                                                  ["illness", "time_afflicted", "description", "prescribed_medication"],
+                                                  ["illness", "time afflicted", "description", "prescribed medication"])
+            print(med_hist_table)
+
+        # if no prev records available, only go back.
+        ui.info(ui.bold, "Previous appointment records:")
+        if len(get_patient_records) < 2:  # only current appointment (i.e. no previous records)
+            ui.info(ui.indent("No previous appointments for this patient on the system.\n"))
+            selected = util.user_select("Return to home screen:", ["Back"])
+            self.handle_state_selection(selected)
+        else:
+            # if available - "patient has X records from previous appointments available"
+            ui.info(ui.standout,
+                    f"Records on the system from previous appointments available to view: {len(get_patient_records)}\n")
+            self.prev_appt_records = get_patient_records  # set state variable for future states if prev appt data
+            # needed
+            # show options - view previous appointment records, back
+            selected = util.user_select("What would you like to do?", choices=self.state_gen.get_state_options())
+            self.handle_state_selection(selected)
+
+    def view_previous_appointment_records(self):
+        # "there are X no. records"  - option: select a number to view by recency OR download full history OR back
+        ui.info_section("View previous appointment records")
+        ui.info_1(f"{len(self.prev_appt_records)} record(s) available to view.")
+
+        # options
+        selected = util.user_select("How would you like to view these records?", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
+    def view_patient_records_by_recency(self):
+        # give option to choose limit on sql query order by date desc
+        limit_chosen = False
+        valid_numbers = [x+1 for x in range(len(self.prev_appt_records))]
+        while not limit_chosen:
+            limit_number = ui.ask_string(f"Please enter how many records you would like to view (total records:{len(self.prev_appt_records)}):")
+            try:
+                int(limit_number)
+                if limit_number in valid_numbers:
+                    limit_chosen = True
+                else:
+                    ui.info("Please enter a number equal to or less than the number of total records.")
+            except ValueError:
+                ui.info("Please enter a number.")
+
+        # get results.
+        ui.info(f"Fetching {limit_number} results")
+        util.loading()
+        for i in range(limit_number):
+            # get each appointment up to index - results already ordered.
+            util.print_appointment_summary(self.prev_appt_records[i]["appointment_id"])
+
+        util.user_select("What would you like to do next?", choices=self.state_gen.get_state_options())
+
+    def download_all_records_as_a_csv(self):
+        # todo output
+        pass
 
     def view_appointments_from_another_day(self):
         ui.info(ui.blue, "View appointments from another day.")
