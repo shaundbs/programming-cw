@@ -348,7 +348,7 @@ class Patient:
         print(colored('Available slots on the ' + select_date + ' ', 'green',
                       attrs=['bold']))
         print(tabulate(df1, headers='keys',
-                       tablefmt='pretty', showindex=True))
+                       tablefmt='grid', showindex=True))
         print(str(num+1) + ". Back")
         return [result_session, available_session]
 
@@ -427,7 +427,7 @@ class Patient:
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
             print(tabulate(df4, headers='keys',
-                           tablefmt='pretty', showindex=True))
+                           tablefmt='grid', showindex=True))
             presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
             presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
             presc_opts = list.index(presc, presc_opts)
@@ -477,7 +477,7 @@ class Patient:
         print(colored('Opening hours: ' +
                       selected + ' ', 'green', attrs=['bold']))
         print(tabulate(df2, headers='keys',
-                       tablefmt='pretty', showindex=False))
+                       tablefmt='grid', showindex=False))
         return output[0]
 
     # def select_options(self, options):
@@ -497,5 +497,5 @@ class Patient:
     #     return selected
 
 
-if __name__ == "__main__":
-    Patient(4).patient_home()
+# if __name__ == "__main__":
+    # Patient(4).patient_home()
