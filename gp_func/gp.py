@@ -90,6 +90,7 @@ class Gp:
 
     def manage_calendar(self):
         print("Welcome to your calendar")
+        self.curr_appt_month = "current_month"
 
         selected = util.user_select("Where to go next?", self.state_gen.get_state_options())
         self.handle_state_selection(
@@ -168,14 +169,17 @@ class Gp:
                         slot["status"] = "Confirmed appointment"
                     else:
                         slot["status"] = "Unconfirmed appointment"
-        print(slots)
         table_data = util.output_sql_rows(slots, ["startTime", "status"])
         print(table_data)
+        selected = util.user_select("Where to now?", self.state_gen.get_state_options())
+
+        self.handle_state_selection(selected)
         # options = ["Take specific slot off", "back"]
         # selected = ui.ask_choice("Would you like to?", choices=options)
 
     def schedule_time_off(self):
-        now = datetime.strptime("2020-01-01", '%Y-%m-%d')
+        now = datetime.now()
+        #now = datetime.strptime("2020-01-01", '%Y-%m-%d')
 
         ui.info("When you would you like your time-off to start?")
         date_not_valid = True
@@ -183,8 +187,10 @@ class Gp:
             start_time = util.get_user_date()
             if datetime.strptime(start_time, '%Y-%m-%d') > now + timedelta(days=30):
                 date_not_valid = False
+            elif datetime.strptime(start_time, '%Y-%m-%d') > now:
+                ui.info("Time-off must be booked more than 30 days in advance")
             else:
-                ui.info("Time-off must be booked 30 days in advance")
+                ui.info("Time-off cannot be booked in the past")
 
         ui.info("When you would you like your time off to end?")
         date_not_valid = True
