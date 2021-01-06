@@ -67,22 +67,21 @@ class Patient:
         task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
         task.start()
 
-
     def patient_home(self):
-            prv = ["Request Appointment", "View Appointments", "View Referrals","View Prescriptions", "Log out"]
+        prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
 
-            while True:
-                option = ui.ask_choice("Choose an option:", choices=prv,sort=False)
-                if option == prv[0]:
-                    self.request_appointment()
-                elif option == prv[1]:
-                    self.view_appointment()
-                elif option == prv[2]:
-                    self.view_referrals()
-                elif option == prv[3]:
-                    self.view_prescription()
-                elif option == prv[4]:
-                    break
+        while True:
+            option = ui.ask_choice("Choose an option:", choices=prv, sort=False)
+            if option == prv[0]:
+                self.request_appointment()
+            elif option == prv[1]:
+                self.view_appointment()
+            elif option == prv[2]:
+                self.view_referrals()
+            elif option == prv[3]:
+                self.view_prescription()
+            elif option == prv[4]:
+                break
 
     def view_referrals(self):
         """
@@ -90,7 +89,9 @@ class Patient:
         """
         while True:
             # Fetch referrals from db.
-            self.db.exec_one("SELECT a.referred_specialist_id, s.firstName, s.lastName, s.hospital, d.name FROM Appointment a, Specialists s, Department d WHERE  s.department_id = d.department_id AND a.referred_specialist_id = s.specialist_id AND patient_id = ? AND a.referred_specialist_id IS NOT NULL", (self.patient_id,))
+            self.db.exec_one(
+                "SELECT a.referred_specialist_id, s.firstName, s.lastName, s.hospital, d.name FROM Appointment a, Specialists s, Department d WHERE  s.department_id = d.department_id AND a.referred_specialist_id = s.specialist_id AND patient_id = ? AND a.referred_specialist_id IS NOT NULL",
+                (self.patient_id,))
             result = self.db.c.fetchall()
             self.referralsList = []
             for i in result:
@@ -188,10 +189,11 @@ class Patient:
                         if date_booker == 0:
                             select_date = input(
                                 "Please enter a valid date in YYYY-MM-DD format between now and the close of the month: "
-                              )
+                            )
                             dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
                             last_booking_date = date_generator.date_sort(dn)
                             try:
+                                # check if the date is in YYYY-MM-DD format
                                 year, month, day = select_date.split('-')
                                 isValidDate = True
                                 datetime.datetime(int(year), int(month), int(day))
@@ -200,6 +202,7 @@ class Patient:
                             except ValueError:
                                 isValidDate = False
                             if not isValidDate:
+                                # if not request user tries again
                                 print("Sorry this value is not accepted - please use the YYYY-MM-DD format")
                                 opts = ["Try again", "Back to booking options menu"]
                                 navigate = ui.ask_choice("Choose an option", choices=opts, sort=False)
@@ -212,18 +215,22 @@ class Patient:
                             elif isValidDate and self.weekday_bookings_only(select_date):
                                 if self.limit_appointment_bookings(select_date) == 0:
                                     if datetime.datetime.now().date() < fm_selected <= last_booking_date:
+                                        # if all conditions are met list out appts
                                         print('The date {} is valid. Listing appointments... \n'.format(
                                             select_date))
                                         self.select_slots(select_date)
                                     elif fm_selected < datetime.datetime.now().date():
                                         print("Sorry, we are unable to book appointments for dates in the past")
                                     elif fm_selected == datetime.datetime.now().date():
-                                        print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
+                                        print(
+                                            "Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
                                     elif datetime.datetime.now().date() < fm_selected > last_booking_date:
                                         print(
                                             "Sorry, we are unable to book appointments too far into the future.\n"
-                                            "Please enter a valid date between today and the close of next month:", last_booking_date)
+                                            "Please enter a valid date between today and the close of next month:",
+                                            last_booking_date)
                                 elif self.limit_appointment_bookings(select_date) > 0:
+                                    # if patient already has an appt for that week request they book for another
                                     print(
                                         "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
                                         "as many patients as possible and there is fair assignment in place, "
@@ -232,19 +239,22 @@ class Patient:
                                     continue
                             elif isValidDate and not self.weekday_bookings_only(select_date) and \
                                     datetime.datetime.now().date() < fm_selected <= last_booking_date:
+                                # if the date given is valid but a weekend print ---
                                 print(
                                     "Sorry our surgery is closed on weekends - you are unable to request an "
                                     "appointment for this date \n"
                                     "Please refer to the calendar and request an appointment for a weekday\n")
                                 continue
                             elif datetime.datetime.now().date() < fm_selected > last_booking_date:
+                                # if the date is valid but too far into the future print and continue loop
                                 print(
                                     "Sorry, we are unable to book appointments too far into the future.\n"
                                     "Please enter a valid date between today and the close of next month:",
                                     last_booking_date)
                                 continue
                             else:
-                                print("This input will not be accepted im afraid - Please re-enter in YYYY-MM-DD format")
+                                print(
+                                    "This input will not be accepted im afraid - Please re-enter in YYYY-MM-DD format")
                         elif date_booker == 1:
                             break
             elif menu_choice == 2:
@@ -253,6 +263,7 @@ class Patient:
                 print("System Failure: please restart")
 
     def limit_appointment_bookings(self, select_date):
+        # queries the DB to see if a patient already has an appt between for a week they have selected
         day = select_date
         dt = datetime.datetime.strptime(day, '%Y-%m-%d')
         start = dt - td(days=dt.weekday())
@@ -268,6 +279,7 @@ class Patient:
         return weekly_appointment_count
 
     def weekday_bookings_only(self, chosen_date):
+        # restrict bookings to weekdays only using this function
         x = datetime.datetime.strptime(chosen_date, '%Y-%m-%d').weekday()
         if x < 5:
             status = True
@@ -365,12 +377,16 @@ class Patient:
                             self.db.reschedule(a, self.tobecanceled)
                             self.tobecanceled = -1
                             print(
-                                "SUCCESS - \nYou have successfully reshceduled an appointments with Dr "+str(gp_name[0]) + " " + str(gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                                "SUCCESS - \nYou have successfully reshceduled an appointments with Dr " + str(
+                                    gp_name[0]) + " " + str(
+                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
                             print(
-                                "SUCCESS - \nYou have successfully requested an appointments with Dr "+str(gp_name[0]) + " " + str(gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                                "SUCCESS - \nYou have successfully requested an appointments with Dr " + str(
+                                    gp_name[0]) + " " + str(
+                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                     self.patient_home()
             except ValueError:
                 print("Please select a valid option.")
@@ -394,9 +410,11 @@ class Patient:
                 "LEFT JOIN Users as U "
                 "WHERE u.userId = '""" + str(self.patient_id) + """'""")
             output = self.db.c.fetchall()
-            index_8 = ["Treatment Desc", "Medicine Name", "Frequency of intake", "Expiry Date", "Prescription ID", "Appointment ID", "Start Date"]
+            index_8 = ["Treatment Desc", "Medicine Name", "Frequency of intake", "Expiry Date", "Prescription ID",
+                       "Appointment ID", "Start Date"]
             df4 = DataFrame(output)
             df4.columns = index_8
+            # print prescriptions out as one table
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
             print(tabulate(df4, headers='keys',
@@ -404,9 +422,10 @@ class Patient:
             presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
             presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
             presc_opts = list.index(presc, presc_opts)
-            #options
+            # options
             if presc_opts in [0, 1, 2]:
                 if presc_opts == 0:
+                    # save to Prescription folder as a .csv
                     with open('../../Prescriptions/myprescriptions.csv', 'w', newline='') as f:
                         thewriter = csv.writer(f)
                         thewriter.writerow(index_8)
@@ -416,6 +435,7 @@ class Patient:
                         print("Your prescription has been downloaded successfully")
                 elif presc_opts == 1:
                     presc_number = 1
+                    # save to Prescription folder as a .txt
                     with open('../../Prescriptions/myprescriptions.txt', 'w', newline='') as f:
                         f.write("Your prescriptions are as follows:\n"
                                 "\n")
@@ -430,8 +450,8 @@ class Patient:
                 elif presc_opts == 2:
                     self.patient_home()
         except ValueError:
+            # no prescription in the DB so return ---
             print("Sorry - you currently do not have any prescriptions from our GP's to display")
-
 
     def display_opening_hours(self, selected):
         # get datetime object of the first and last appointments on that day = Opening hours
@@ -450,7 +470,6 @@ class Patient:
         print(tabulate(df2, headers='keys',
                        tablefmt='fancy_grid', showindex=False))
         return output[0]
-
 
     # def select_options(self, options):
     #     # TODO: Move to utilities.
