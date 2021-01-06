@@ -233,7 +233,7 @@ class Patient:
                                 elif self.limit_appointment_bookings(select_date) > 0:
                                     # if patient already has an appt for that week request they book for another
                                     print(
-                                        "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
+                                        "Sorry you have already requested an appointment booked for this week. \nTo ensure that our GPs are able to see "
                                         "as many patients as possible and there is fair assignment in place, "
                                         "please select an alternative week where you"
                                         " do not currently have an appointment booked.")
@@ -337,12 +337,13 @@ class Patient:
         index_1 = ["Available Slots"]
         df1 = DataFrame(result_session)
         df1.columns = index_1
+        df1.index += 1
         self.display_opening_hours(select_date)
         print(colored('Available slots on the ' + select_date + ' ', 'green',
                       attrs=['bold']))
         print(tabulate(df1, headers='keys',
-                       tablefmt='fancy_grid', showindex=True))
-        print(str(num) + ". Back")
+                       tablefmt='pretty', showindex=True))
+        print(str(num+1) + ". Back")
         return [result_session, available_session]
 
     def select_slots(self, select_date):
@@ -363,7 +364,7 @@ class Patient:
                     symptoms = input("Please list any symptoms or concerns you may have so that we may"
                                      " inform your assigned GP...\n"
                                      "or hit enter if you do not want to disclose now: \n ")
-                    key = session[booked_slot][:2]
+                    key = session[booked_slot-1][:2]
                     slot = result[key][0][1]
                     gp = result[key][0][0]
                     gp_name = self.db.gp_name(gp)
@@ -419,7 +420,7 @@ class Patient:
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
             print(tabulate(df4, headers='keys',
-                           tablefmt='fancy_grid', showindex=False))
+                           tablefmt='pretty', showindex=False))
             presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
             presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
             presc_opts = list.index(presc, presc_opts)
@@ -469,7 +470,7 @@ class Patient:
         print(colored('Opening hours: ' +
                       selected + ' ', 'green', attrs=['bold']))
         print(tabulate(df2, headers='keys',
-                       tablefmt='fancy_grid', showindex=False))
+                       tablefmt='pretty', showindex=False))
         return output[0]
 
     # def select_options(self, options):
