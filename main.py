@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # Main loop.
     while True:
         newPanel = Panel()
-        newPanel.welcome()
+        welcome()
         registerStatus = ui.ask_yes_no("Do you already have an account?", default=False)
         if registerStatus:
             newPanel.login()
