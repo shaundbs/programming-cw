@@ -64,6 +64,7 @@ class Patient:
         db.exec_many(
             "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
             a)
+        print('You have successfully requested an account. Please wait for confirmation from us:)')
         task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
         task.start()
 
