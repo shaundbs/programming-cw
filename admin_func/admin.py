@@ -12,7 +12,7 @@ from pandas import DataFrame
 from .registerGP import registerGP, confirmation
 from tabulate import tabulate
 from termcolor import colored
-
+import datetime
 from state_manager import StateGenerator
 
 states = {
@@ -662,7 +662,7 @@ class Admin():
         ui.info_section(ui.blue, "Prescription metrics")
         # TODO:
 
-    def assign_new_admin(self):
+ def assign_new_admin(self):
         Admin.clear()
         ui.info_section(ui.blue, "Assign a new Admin user")
         assign_admin_confirm = ui.ask_yes_no("Please confirm if you want to assign a new Admin account?",
@@ -670,7 +670,17 @@ class Admin():
         if assign_admin_confirm == True:
             new_fName = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
             new_lName = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
-            new_email = ui.ask_string("Please enter the Admin's new email: ")
+            email_repetition = True
+            while email_repetition:
+                regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
+                new_email = input("Please enter the Admin's new email:" )
+                if not re.search(regex, new_email):
+                    print("Invalid Email. Please try again.")
+                else:
+                    email_repetition = False
+
+
+
             new_password = ui.ask_password("Please enter a new password: ")
             # encode password
             new_password = new_password.encode('UTF-8')
@@ -679,10 +689,12 @@ class Admin():
             hashed_password = bcrypt.hashpw(new_password, salt)
             curr_date = datetime.datetime.now()
             format_date = curr_date.strftime("%m-%d-%Y %H:%M")
+            is_registered=1
+            is_active=1
 
             self.db = db.Database()
-            self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password,signUpDate, accountType)
-                                VALUES(?,?,?,?,?,?)""", [new_fName, new_lName, new_email, hashed_password,format_date, "admin"])
+            self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password,signUpDate, accountType, is_registered, is_active)
+                                VALUES(?,?,?,?,?,?,?,?)""", [new_fName, new_lName, new_email, hashed_password,format_date, "admin",is_registered,is_active])
             self.db.close_db()
             self.state_gen.change_state("Admin Options")
         else:
