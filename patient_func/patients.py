@@ -422,11 +422,12 @@ class Patient:
                        "Appointment ID", "Start Date"]
             df4 = DataFrame(output)
             df4.columns = index_8
+            df4.index += 1
             # print prescriptions out as one table
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
             print(tabulate(df4, headers='keys',
-                           tablefmt='pretty', showindex=False))
+                           tablefmt='pretty', showindex=True))
             presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
             presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
             presc_opts = list.index(presc, presc_opts)
