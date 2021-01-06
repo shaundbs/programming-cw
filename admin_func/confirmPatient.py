@@ -20,7 +20,7 @@ def confirm_patient():
     print(colored("\nPatients requiring validation:   ", 'blue', attrs=['bold']))
 
     try:
-        connection = sqlite3.connect('../database/ehealth.db')
+        connection = sqlite3.connect('database/ehealth.db')
         cursor = connection.cursor()
 
 
@@ -66,7 +66,7 @@ def validate():
     patients_validated = []
     patients_deleted = []
 
-    connection = sqlite3.connect('../database/ehealth.db')
+    connection = sqlite3.connect('database/ehealth.db')
     cursor = connection.cursor()
 
     # Loop through each patient and give user option to validate, delete or quit the program
