@@ -101,6 +101,9 @@ class Patient:
             for i in self.referralsList:
                 output.append("Your are referred to our specialist Dr " + str(i[1]) + " " + str(
                     i[2]) + " at Department " + str(i[4]) + " of Hopsital " + str(i[3]) + ".")
+            if len(output) == 0:
+                print("Sorry, you have no referrals at the moment.")
+                break
             output.append("Back.")
             option = ui.ask_choice("Choose a referral:", choices=output, sort=False)
             if option != "Back.":
@@ -131,6 +134,9 @@ class Patient:
                     status = "rejected."
                 apt.append("Your appointment with Dr " +
                            str(i[1]) + " " + str(i[2]) + " at " + str(i[3][:10]) + " is " + status)
+            if len(apt) == 0:
+                print("Sorry, you have no appointments at the moment.")
+                break
             apt.append("Back")
             # Redirects to appointment management.
             option = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
