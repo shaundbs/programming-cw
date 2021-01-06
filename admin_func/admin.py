@@ -444,8 +444,8 @@ class Admin():
             Index = ["ID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                      "Signed UP"]
             db.exec_one(
-                "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE LastName = ?",
-                (Name,))
+                "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE LastName = ? and accountType=? ",
+                (Name,'patient'))
             result = db.c.fetchall()
             row=len(result)
             if row ==0:
