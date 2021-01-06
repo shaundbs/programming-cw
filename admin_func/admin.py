@@ -249,9 +249,11 @@ class Admin:
         if delete_gp_confirm:
             self.db = db.Database()
             delete_gp_query = f"DELETE FROM Users WHERE userID= {gp_id}"
+            reject_gp_appointments_query = f"UPDATE Appointment SET is_rejected='1' WHERE gp_id={gp_id}"
             self.db.exec(delete_gp_query)
+            self.db.exec(reject_gp_appointments_query)
             self.db.close_db()
-            ui.info_2(ui.standout, f"This account has been deleted.")
+            ui.info_2(ui.standout, f"This account has been deleted and all upcoming appointments rejected.")
             self.state_gen.change_state("Manage GP")
         else:
             self.handle_state_selection("Back")
