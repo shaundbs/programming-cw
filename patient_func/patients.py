@@ -20,6 +20,7 @@ import csv
 from dateutil.relativedelta import relativedelta
 import threading
 
+
 class Patient:
     patient_id = 0
 
@@ -194,41 +195,13 @@ class Patient:
                                 year, month, day = select_date.split('-')
                                 isValidDate = True
                                 datetime.datetime(int(year), int(month), int(day))
-                            except ValueError:
-                                isValidDate = False
-                            if not self.weekday_bookings_only(select_date):
-                                print(
-                                    "Sorry our surgery is closed on weekends - you are unable to request an appointment for this date \n"
-                                    "Please refer to the calendar and request an appointment for a weekday\n")
-                                continue
-                            else:
-                                print('You have selected a valid weekday')
-                            if self.limit_appointment_bookings(select_date) == 0:
                                 fm_selected = datetime.datetime.strptime(
                                     select_date, '%Y-%m-%d').date()
-                                if datetime.datetime.now().date() < fm_selected <= last_booking_date:
-                                    print('The date {} is valid. Listing appointments... \n'.format(
-                                        select_date))
-                                    self.select_slots(select_date)
-                                elif fm_selected < datetime.datetime.now().date():
-                                    print("Sorry, we are unable to book appointments for dates in the past")
-                                elif fm_selected == datetime.datetime.now().date():
-                                    print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
-                                else:
-                                    print(
-                                        "Sorry, we are unable to book appointments too far into the future.\n"
-                                        "Please enter a valid date between today and the close of next month:", last_booking_date)
-                            elif self.limit_appointment_bookings(select_date) > 0:
-                                print(
-                                    "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
-                                    "as many patients as possible and there is fair assignment in place, "
-                                    "please select an alternative week where you"
-                                    " do not currently have an appointment booked.")
-                                continue
-                            elif not(isValidDate):
-                                print("Sorry this value is not accepted")
-                                opts = ["Try again",
-                                       "Back to booking options menu"]
+                            except ValueError:
+                                isValidDate = False
+                            if not isValidDate:
+                                print("Sorry this value is not accepted - please use the YYYY-MM-DD format")
+                                opts = ["Try again", "Back to booking options menu"]
                                 navigate = ui.ask_choice("Choose an option", choices=opts, sort=False)
                                 navigate = list.index(opts, navigate)
                                 if navigate in [0, 1]:
@@ -236,6 +209,40 @@ class Patient:
                                         break
                                     elif navigate == 2:
                                         break
+                            elif isValidDate and self.weekday_bookings_only(select_date):
+                                if self.limit_appointment_bookings(select_date) == 0:
+                                    if datetime.datetime.now().date() < fm_selected <= last_booking_date:
+                                        print('The date {} is valid. Listing appointments... \n'.format(
+                                            select_date))
+                                        self.select_slots(select_date)
+                                    elif fm_selected < datetime.datetime.now().date():
+                                        print("Sorry, we are unable to book appointments for dates in the past")
+                                    elif fm_selected == datetime.datetime.now().date():
+                                        print("Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
+                                    elif datetime.datetime.now().date() < fm_selected > last_booking_date:
+                                        print(
+                                            "Sorry, we are unable to book appointments too far into the future.\n"
+                                            "Please enter a valid date between today and the close of next month:", last_booking_date)
+                                elif self.limit_appointment_bookings(select_date) > 0:
+                                    print(
+                                        "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
+                                        "as many patients as possible and there is fair assignment in place, "
+                                        "please select an alternative week where you"
+                                        " do not currently have an appointment booked.")
+                                    continue
+                            elif isValidDate and not self.weekday_bookings_only(select_date) and \
+                                    datetime.datetime.now().date() < fm_selected <= last_booking_date:
+                                print(
+                                    "Sorry our surgery is closed on weekends - you are unable to request an "
+                                    "appointment for this date \n"
+                                    "Please refer to the calendar and request an appointment for a weekday\n")
+                                continue
+                            elif datetime.datetime.now().date() < fm_selected > last_booking_date:
+                                print(
+                                    "Sorry, we are unable to book appointments too far into the future.\n"
+                                    "Please enter a valid date between today and the close of next month:",
+                                    last_booking_date)
+                                continue
                             else:
                                 print("This input will not be accepted im afraid - Please re-enter in YYYY-MM-DD format")
                         elif date_booker == 1:
