@@ -313,7 +313,7 @@ class Admin():
     def return_to_menu(self):
         self.admin_options()
 
-        
+
 # manage patient functionality
     @staticmethod
     def SeePatientRecord(df):
@@ -662,7 +662,7 @@ class Admin():
         ui.info_section(ui.blue, "Prescription metrics")
         # TODO:
 
- def assign_new_admin(self):
+    def assign_new_admin(self):
         Admin.clear()
         ui.info_section(ui.blue, "Assign a new Admin user")
         assign_admin_confirm = ui.ask_yes_no("Please confirm if you want to assign a new Admin account?",
