@@ -52,21 +52,45 @@ class Patient:
             else:
                 print('This email has been registered. Please try again')
 
-        pWord = ui.ask_password('Password: ')
-        DoB = input("Date of birth(in YYYY-MM-DD format): ")
-        pWord = pWord.encode('utf-8')
-        salt = bcrypt.gensalt()
-        hashed = bcrypt.hashpw(pWord, salt)
-        aType = "patient"
-        time_now = datetime.datetime.now()
-        date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
-        a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
-        db.exec_many(
-            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
-            a)
-        print('You have successfully requested an account. Please wait for confirmation from us:)')
-        task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
-        task.start()
+        pWord = input('Password: ')
+        while True:
+            DoB = input("Date of birth(in YYYY-MM-DD format): ")
+            try:
+                # check if the date is in YYYY-MM-DD format
+                year, month, day = DoB.split('-')
+                isValidDate = True
+                datetime.datetime(int(year), int(month), int(day))
+            except ValueError:
+                isValidDate = False
+            if isValidDate:
+                fm_selected = datetime.datetime.strptime(
+                    DoB, '%Y-%m-%d').date()
+                if fm_selected < datetime.datetime.now().date() - relativedelta(years=120):
+                    print("Sorry the date of birth entered is too far into the past - please try again")
+                    continue
+                elif fm_selected > datetime.datetime.now().date():
+                    print("It is not possible for your DoB to be set in the future - please try again")
+                    continue
+                elif fm_selected < datetime.datetime.now().date():
+                    pWord = pWord.encode('utf-8')
+                    salt = bcrypt.gensalt()
+                    hashed = bcrypt.hashpw(pWord, salt)
+                    aType = "patient"
+                    time_now = datetime.datetime.now()
+                    date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
+                    a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
+                    db.exec_many(
+                        "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
+                        a)
+                    print('You have successfully requested an account. Please wait for confirmation from us:)')
+                    task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
+                    task.start()
+                    break
+            elif not isValidDate:
+                print("Sorry this input is not accepted. Please re-enter your DoB in YYYY-MM-DD format")
+                continue
+
+
 
     def patient_home(self):
         prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
