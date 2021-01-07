@@ -66,7 +66,7 @@ class Patient:
             else:
                 print('This email has been registered. Please try again')
         while True:
-            pWord = input('Password: ')
+            pWord = ui.ask_password('Password: ')
             if len(pWord) < 7:
                 print("Please note that the minimum length of password is 8.")
             else:
