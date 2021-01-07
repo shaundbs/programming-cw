@@ -177,7 +177,7 @@ class Admin:
 
     def edit_gp_account_information(self, gp_id, chosen_gp_table):
         Admin.clear()
-        ui.info_section(ui.blue, 'Edit GP account?')
+        ui.info_section(ui.blue, 'Edit GP account')
 
         # Refresh chose_gp table
         self.db = db.Database()
@@ -273,23 +273,44 @@ class Admin:
         reset_password_confirm = ui.ask_yes_no("Are you sure you want to reset the password for this account?",
                                                default=False)
         if reset_password_confirm:
-            new_password = ui.ask_password("Please enter a new password: ")
-            # TODO: input validation - e.g. ask admin to input new password
-
-            # encode password
-            new_password = new_password.encode('UTF-8')
-            # hash password
-            salt = bcrypt.gensalt()
-            hashed_password = bcrypt.hashpw(new_password, salt)
-            # update password in db
+            # retrieve GP's current password
             self.db = db.Database()
-            self.db.exec_one("""UPDATE Users SET password=?  WHERE userID=?""", [hashed_password, gp_id])
+            old_password_query = f"SELECT password from Users WHERE userID = {gp_id}"
+            old_password = self.db.fetch_data(old_password_query)
+            old_password = old_password[0]['password']
             self.db.close_db()
-            # redirect to manage GP page
-            self.handle_state_selection("Manage GP")
-            # , chosen_gp_table
+
+            if old_password:
+                # password validation
+                is_long_enough = False
+                while not is_long_enough:
+                    # Prompt user for new password
+                    new_password = ui.ask_password('Password: ')
+                    new_password = new_password.encode('utf-8')
+                    # do this if ladder the other way, atm not getting past 1st rung if satisfied
+                    if len(new_password) < 5:
+                        print("The minimum length for a password is 5 characters. Please try again.")
+                    elif bcrypt.checkpw(new_password, old_password):
+                        print('Your new password cannot be the same as your old password. Please try again.')
+                    else:
+                        is_long_enough = True
+
+                # hash password
+                salt = bcrypt.gensalt()
+                hashed_password = bcrypt.hashpw(new_password, salt)
+                # update password in db
+                self.db = db.Database()
+                self.db.exec_one("""UPDATE Users SET password=?  WHERE userID=?""", [hashed_password, gp_id])
+                self.db.close_db()
+                # success notification
+                ui.info_section(ui.blue, "")
+                ui.info_2(ui.standout, f"Successfully reset GP's password. Please wait whilst you are redirected.")
+                sleep(3)
+                # redirect
+                self.to_edit_gp_account_information(gp_id, chosen_gp_table)
+        # if user has change of heart before changing password, redirect
         else:
-            self.handle_state_selection("Manage GP")
+            self.to_edit_gp_account_information(gp_id, chosen_gp_table)
 
     def remove_gp_account(self, gp_id):
         Admin.clear()
