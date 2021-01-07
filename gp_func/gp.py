@@ -741,12 +741,15 @@ class Gp:
         # check how many records are available
         appt_id = self.curr_appt_id
         # use appt_id to get patient_id
-        get_patient_records_query = f"SELECT * FROM appointment where appointment_id = {appt_id} order by slot_id desc"
+        get_patient_records_query = f"SELECT * FROM appointment where patient_id = (select patient_id from " \
+                                    f"appointment where appointment_id = {appt_id}) order by slot_id desc "
+        # todo limit above query to only past appts
         get_patient_records = self.db.fetch_data(get_patient_records_query)
+        patient_id_query = f"select patient_id from appointment where appointment_id = {appt_id}"
+        patient_id_fetch = self.db.fetch_data(patient_id_query)
+        self.patient_id = patient_id_fetch[0]["patient_id"]
 
-        patient_id = get_patient_records[0]["patient_id"]
-
-        get_medical_hist_query = f"SELECT * from MedicalHistory where UserID = {patient_id}"
+        get_medical_hist_query = f"SELECT * from MedicalHistory where UserID = {self.patient_id}"
         get_medical_hist = self.db.fetch_data(get_medical_hist_query)
 
         # general medical history info if any on record.
@@ -769,8 +772,8 @@ class Gp:
             self.handle_state_selection(selected)
         else:
             # if available - "patient has X records from previous appointments available"
-            ui.info(ui.standout,
-                    f"Records on the system from previous appointments available to view: {len(get_patient_records)}\n")
+            ui.info(ui.indent(
+                f"Records on the system from previous appointments available to view: {len(get_patient_records)}\n"))
             self.prev_appt_records = get_patient_records  # set state variable for future states if prev appt data
             # needed
             # show options - view previous appointment records, back
@@ -780,7 +783,7 @@ class Gp:
     def view_previous_appointment_records(self):
         # "there are X no. records"  - option: select a number to view by recency OR download full history OR back
         ui.info_section("View previous appointment records")
-        ui.info_1(f"{len(self.prev_appt_records)} record(s) available to view.")
+        ui.info_2(f"{len(self.prev_appt_records)} record(s) available to view.")
 
         # options
         selected = util.user_select("How would you like to view these records?", self.state_gen.get_state_options())
@@ -789,11 +792,13 @@ class Gp:
     def view_patient_records_by_recency(self):
         # give option to choose limit on sql query order by date desc
         limit_chosen = False
-        valid_numbers = [x+1 for x in range(len(self.prev_appt_records))]
+        valid_numbers = [x + 1 for x in range(len(self.prev_appt_records))]
+        print(valid_numbers)
         while not limit_chosen:
-            limit_number = ui.ask_string(f"Please enter how many records you would like to view (total records:{len(self.prev_appt_records)}):")
+            limit_number = ui.ask_string(
+                f"Please enter how many records you would like to view (total records:{len(self.prev_appt_records)}):")
             try:
-                int(limit_number)
+                limit_number = int(limit_number)
                 if limit_number in valid_numbers:
                     limit_chosen = True
                 else:
@@ -808,7 +813,8 @@ class Gp:
             # get each appointment up to index - results already ordered.
             util.print_appointment_summary(self.prev_appt_records[i]["appointment_id"])
 
-        util.user_select("What would you like to do next?", choices=self.state_gen.get_state_options())
+        selected = util.user_select("What would you like to do next?", choices=self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
 
     def download_all_records_as_a_csv(self):
         # todo output
