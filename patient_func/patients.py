@@ -71,6 +71,9 @@ class Patient:
                 elif fm_selected > datetime.datetime.now().date():
                     print("It is not possible for your DoB to be set in the future - please try again")
                     continue
+                elif fm_selected > datetime.datetime.now().date() - datetime.timedelta(16 * 365):
+                    print("Sorry, you must be at least 16 years of age to register for this e-health management service")
+                    continue
                 elif fm_selected < datetime.datetime.now().date():
                     pWord = pWord.encode('utf-8')
                     salt = bcrypt.gensalt()
