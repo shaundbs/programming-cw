@@ -503,7 +503,20 @@ class Gp:
                 self.to_write_clinical_notes()  # restart state from scratch if gp wants to try writing again.
 
     def write_prescriptions(self, appt_id):
-        # todo check if this appt is in the future, if so stop GP from adding. return to previous screen.
+        # check if this appt is in the future, if so stop GP from adding. return to previous screen.
+        too_early_query = f"SELECT date(s.starttime) > date('now') as is_after_now FROM APPOINTMENT LEFT JOIN SLOTS S " \
+                              f"USING (SLOT_ID) where appointment_id = {self.curr_appt_id}"
+        too_early = self.db.fetch_data(too_early_query)
+        too_early = too_early[0]["is_after_now"]
+
+        if too_early == 1:
+            ui.info("Sorry, prescriptions cannot be written for appointments in the future. \nPrescriptions may be "
+                    "written for appointments today, or amended for appointments in the past.")
+            ui.info("Returning to previous screen")
+            util.loading(load_time=4)
+            self.handle_state_selection("back")
+
+        # otherwise all ok, continue with prescription flow.
 
         ui.info("Please follow the prompts to enter a prescription for the patient.")
 
@@ -707,10 +720,8 @@ class Gp:
                 self.to_show_appointment_details()
 
             # send email or not of appt details
-            # TODO SEND EMAIL FUNCTION, SEND EMAIL.
             try:
                 if email:
-                    # TODO send email
                     ui.info_3("Sending email... please wait...")
                     util.email_appt_summary(appt_id)
                     util.loading(load_time=2, new_line=False)
@@ -744,9 +755,9 @@ class Gp:
         # check how many records are available
         appt_id = self.curr_appt_id
         # use appt_id to get patient_id
-        get_patient_records_query = f"SELECT * FROM appointment left join slots d using (slot_id) where patient_id = " \
+        get_patient_records_query = f"SELECT * FROM appointment left join slots s using (slot_id) where patient_id = " \
                                     f"(select patient_id from " \
-                                    f"appointment where appointment_id = {appt_id}) where s.endTime < 'now' order by " \
+                                    f"appointment where appointment_id = {appt_id}) and s.endTime < 'now' order by " \
                                     f"slot_id asc "
         get_patient_records = self.db.fetch_data(get_patient_records_query)
 
@@ -761,7 +772,7 @@ class Gp:
         ui.info_section("View Patient Medical History\n")
         ui.info(ui.bold, "General Medical History:")
         if len(get_medical_hist) == 0:
-            ui.info(ui.indent("No known medical conditions for this patient.\n"))
+            ui.info(ui.indent("No known medical conditions for this patient."))
         else:
             # if there is medical history, print out table showing data.
             med_hist_table = util.output_sql_rows(get_medical_hist,
@@ -770,19 +781,19 @@ class Gp:
             print(med_hist_table)
 
         # if no prev records available, only go back.
-        ui.info(ui.bold, "Previous appointment records:")
+        ui.info(ui.bold, "\nPrevious appointment records:")
         if len(get_patient_records) == 0:  # i.e. no previous records
-            ui.info(ui.indent("No previous appointments for this patient on the system.\n"))
+            ui.info(ui.indent("No previous appointments for this patient on the system."))
             selected = util.user_select("Return to home screen:", ["Back"])
             self.handle_state_selection(selected)
         else:
             # if available - "patient has X records from previous appointments available"
             ui.info(ui.indent(
-                f"Records on the system from previous appointments available to view: {len(get_patient_records)}\n"))
+                f"Records on the system from previous appointments available to view: {len(get_patient_records)}"))
             self.prev_appt_records = get_patient_records  # set state variable for future states if prev appt data
             # needed
             # show options - view previous appointment records, back
-            selected = util.user_select("What would you like to do?", choices=self.state_gen.get_state_options())
+            selected = util.user_select("\nWhat would you like to do?", choices=self.state_gen.get_state_options())
             self.handle_state_selection(selected)
 
     def view_previous_appointment_records(self):
@@ -811,7 +822,7 @@ class Gp:
                 ui.info("Please enter a number.")
 
         # get results.
-        ui.info(f"Fetching {limit_number} results")
+        ui.info(f"Fetching {limit_number} results in order of appointment date")
         util.loading()
         for i in range(limit_number):
             # get each appointment up to index - results already ordered.
@@ -823,7 +834,8 @@ class Gp:
         self.handle_state_selection(selected)
 
     def download_all_records_as_a_csv(self):
-        get_patient_name_query = f"SELECT firstname || ' ' || lastname as patient_name, firstname || '_' || lastname as p_name_underscore from users where userid = {self.patient_id}"
+        get_patient_name_query = f"SELECT firstname || ' ' || lastname as patient_name, firstname || '_' || lastname " \
+                                 f"as p_name_underscore from users where userid = {self.patient_id} "
         get_patient_name = self.db.fetch_data(get_patient_name_query)
         patient_name = get_patient_name[0]["patient_name"]
         name_no_spaces = get_patient_name[0]["p_name_underscore"]
@@ -832,14 +844,15 @@ class Gp:
         if ui.ask_yes_no(f"Please confirm you would like to download appointment history records for {patient_name}"):
             try:
                 ui.info(ui.ellipsis, "Downloading data")
-                util.create_thread_task(util.loading, ())
+                ui.info_count(0, 3, "Fetching data from database")
                 # CSV
-                csv_filename = f"user_data/patient_records_{name_no_spaces}_{datetime.today().strftime('%Y-%m-%d')}.csv"
+                csv_filename = f"user_downloaded_data/patient_records_{name_no_spaces}_{datetime.today().strftime('%Y%m%d')}.csv"
 
                 full_records_query = "select u.firstName || ' ' || u.lastname as patient_name, u.date_of_birth as " \
                                      "patient_dob, u2.firstName || ' ' || u2.lastname as doctor_seen, starttime as " \
                                      "appt_time, reason, clinical_notes, medicine_name, treatment_description, " \
-                                     "pres_frequency_in_days, prescription_startDate, prescription_expiryDate, " \
+                                     "pres_frequency_in_days, startDate as prescription_startDate, expiryDate as " \
+                                     "prescription_expiryDate, " \
                                      "sp.firstName || ' '|| sp.lastName as referred_specialist, hospital as " \
                                      "referred_hospital, d.name as referred_dept_name from Appointment a left join " \
                                      "Slots s using (slot_id) left join Prescription p on p.appointment_id = " \
@@ -848,6 +861,8 @@ class Gp:
                                      "Users u2 on a.gp_id = u2.userId left join Department d on d.department_id = " \
                                      "sp.department_id where patient_id = 4 and s.endTime <'now' "
                 full_records = self.db.fetch_data(full_records_query)
+                ui.info_count(1, 3, "Creating CSV file")
+                ui.info_count(2, 3, "Inserting medical record data")
 
                 with open(csv_filename, "w") as records_csv:
                     csv_writer = csv.DictWriter(records_csv, fieldnames=full_records[0].keys())
@@ -855,7 +870,8 @@ class Gp:
                     for row in full_records:
                         csv_writer.writerow(row)
 
-                ui.info_2("CSV saved successfully. Please check the user_data folder in the application directory.")
+                ui.info_2(
+                    "CSV saved successfully. Please check the user_downloaded_data folder in the application directory.")
                 ui.info("Returning to previous screen")
                 util.loading()
                 self.handle_state_selection("back")
