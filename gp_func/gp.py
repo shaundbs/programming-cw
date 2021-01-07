@@ -58,7 +58,7 @@ class Gp:
 
     def print_welcome(self):
         ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
-        print("Hi Dr", self.firstname, self.lastname)
+        print("Hi Dr.", self.firstname, self.lastname)
 
     def logout(self):
         # remove state tracking from the object. exiting out of class.
