@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     # print(user_id)
 
-    user = Gp(16)
+    user = Gp(15)
     print("LOGGED OUT!!!! out of code now.")
 
 

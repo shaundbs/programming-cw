@@ -71,10 +71,8 @@ class Gp:
 
     def logout(self):
         # remove state tracking from the object. exiting out of class.
-        # todo - issues after multiple back buttons, goes back to older page, then realises no state gen object. Why?
-        # maybe better way to do this than garbage collection? go back to initial state?
-        # maybe add another func to state gen to delete all states?
         del self.state_gen
+        pass
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
     def handle_state_selection(self, selected):
@@ -90,6 +88,14 @@ class Gp:
         # reset state variable if back to main options.
         self.curr_appt_date = "today"
         self.curr_appt_month = "current_month"
+
+        # instructions
+        ui.info(ui.faint, "\nInfo:"
+                          "\n'Manage calendar' to book time off, see your scheduled appointments and booked holiday. "
+                          "\n'Confirm appointments' to confirm or reject appointments patients have "
+                          "requested with you. "
+                          "\n'View my appointments' to view your appointments for today or another day and begin your "
+                          "consultations.\n")
 
         selected = util.user_select("Choose an option", self.state_gen.get_state_options())
 
@@ -489,8 +495,6 @@ class Gp:
             ui.info_1("Your clinical notes:")
 
         ui.info(ui.indent(notes, 6))
-        # todo - should writing or ediitng be own states? with notes as state varibale? then could edit at any point
-        #  or even append to notes not yet commited?
         if ui.ask_yes_no(
                 "Are you happy to add the clinical notes to the appointment? Select 'No' to discard changes or 'Yes' "
                 "to save."):
@@ -518,7 +522,7 @@ class Gp:
     def write_prescriptions(self, appt_id):
         # check if this appt is in the future, if so stop GP from adding. return to previous screen.
         too_early_query = f"SELECT date(s.starttime) > date('now') as is_after_now FROM APPOINTMENT LEFT JOIN SLOTS S " \
-                              f"USING (SLOT_ID) where appointment_id = {self.curr_appt_id}"
+                          f"USING (SLOT_ID) where appointment_id = {self.curr_appt_id}"
         too_early = self.db.fetch_data(too_early_query)
         too_early = too_early[0]["is_after_now"]
 
