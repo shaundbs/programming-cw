@@ -114,7 +114,7 @@ class Patient:
 
 
     def patient_home(self):
-        prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
+        prv = ["Request appointment", "View appointments", "View referrals", "View prescriptions", "Log out"]
 
         while True:
             option = ui.ask_choice("Choose an option:", choices=prv, sort=False)
