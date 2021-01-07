@@ -16,6 +16,8 @@ from dateutil.relativedelta import relativedelta
 # import gp_utilities
 from datetime import timedelta as td
 import csv
+import os
+import pandas as pd
 
 from dateutil.relativedelta import relativedelta
 import threading
@@ -388,7 +390,7 @@ class Patient:
             try:
                 booked_slot = int(input("Enter your option : "))
 
-                if booked_slot == len(result):
+                if booked_slot == (len(result)+1):
                     break
                 elif booked_slot in range(8):
                     # Assign GP6 to this appointment temporarily.
@@ -450,6 +452,7 @@ class Patient:
             df4 = DataFrame(output)
             df4.columns = index_8
             df4.index += 1
+            pd.DataFrame(df4)
             # print prescriptions out as one table
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
@@ -458,31 +461,69 @@ class Patient:
             presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
             presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
             presc_opts = list.index(presc, presc_opts)
+
+            #  method for printing out prescriptions as either .txt or .csv
+            def print_prescription(data_type):
+                if data_type == "csv":
+                    try:
+                        #  create directory for downloaded files
+                        directory = "downloadable_data"
+                        directory2 = "Prescriptions"
+                        parent_dir = '../../programming-cw'
+                        path = os.path.join(parent_dir, directory)
+                        final_path = os.path.join(path, directory2)
+                        os.makedirs(final_path)
+                        # save prescription in directory  as a .csv
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w', newline='') as f:
+                            thewriter = csv.writer(f)
+                            thewriter.writerow(index_8)
+                            for i in output:
+                                thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                            f.close()
+                            print("Your prescription has been downloaded successfully")
+                    except:
+                        #  unless directory already exists
+                        # save to existing Prescription folder as a .csv
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w', newline='') as f:
+                            thewriter = csv.writer(f)
+                            thewriter.writerow(index_8)
+                            for i in output:
+                                thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                            f.close()
+                            print("Your prescription has been downloaded successfully")
+                elif data_type == "txt":
+                    try:
+                        directory = "downloadable_data"
+                        directory2 = "Prescriptions"
+                        parent_dir = '../../programming-cw'
+                        path = os.path.join(parent_dir, directory)
+                        final_path = os.path.join(path, directory2)
+                        os.makedirs(final_path)
+                        # save to Prescription folder as a .txt
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w', newline='') as f:
+                            f.write("Your prescriptions are as follows:\n"
+                                    "\n")
+                            f.write("\n")
+                            f.write(df4.to_string(header=index_8, index=True))
+                            f.close()
+                            print("Your prescription has been downloaded successfully")
+                    except:
+                        #  unless directory already exists
+                        # save to existing Prescription folder as a .csv
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w', newline='') as f:
+                            f.write("Your prescriptions are as follows:\n"
+                                    "\n")
+                            f.write("\n")
+                            f.write(df4.to_string(header=index_8, index=True))
+                            f.close()
+                            print("Your prescription has been downloaded successfully")
+
             # options
             if presc_opts in [0, 1, 2]:
                 if presc_opts == 0:
-                    # save to Prescription folder as a .csv
-                    with open('../../Prescriptions/myprescriptions.csv', 'w', newline='') as f:
-                        thewriter = csv.writer(f)
-                        thewriter.writerow(index_8)
-                        for i in output:
-                            thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
-                        f.close()
-                        print("Your prescription has been downloaded successfully")
+                    print_prescription("csv")
                 elif presc_opts == 1:
-                    presc_number = 1
-                    # save to Prescription folder as a .txt
-                    with open('../../Prescriptions/myprescriptions.txt', 'w', newline='') as f:
-                        f.write("Your prescriptions are as follows:\n"
-                                "\n")
-                        f.write(str(index_8))
-                        f.write("\n")
-                        for i in output:
-                            f.write("Prescription " + str(presc_number) + ": " + str(i))
-                            f.write("\n")
-                            presc_number += 1
-                        f.close()
-                        print("Your prescription has been downloaded successfully")
+                    print_prescription("txt")
                 elif presc_opts == 2:
                     self.patient_home()
         except ValueError:
