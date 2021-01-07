@@ -211,12 +211,24 @@ class Admin:
         change_email_confirm = ui.ask_yes_no("Are you sure you want to change the email for this GP's account?",
                                              default=False)
         if change_email_confirm:
-            new_email = ui.ask_string("Please enter the GP's new email: ")
-            # TODO: input validation
+            change_email = True
             self.db = db.Database()
+            email_list = self.db.email_list()
+            while change_email:
+                regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
+                new_email = ui.ask_string("Please enter the GP's new email: ")
+                if not re.search(regex, new_email):
+                    print("Invalid Email. Please try again.")
+                elif new_email in email_list:
+                    print('This email has already been registered. Please try again')
+                else:
+                    change_email = False
+                    break
+
             self.db.exec_one("""UPDATE Users SET email=? WHERE userID=?""", [new_email, gp_id])
             self.db.close_db()
-            # ui.info_2(ui.standout, f"This account's email has been changed to: {new_fName} {new_email}")
+            print("Successfully updated email, please wait 2 Seconds")
+            sleep(2)
             self.state_gen.change_state("Manage GP")
         else:
             self.handle_state_selection("Manage GP")
