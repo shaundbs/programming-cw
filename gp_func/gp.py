@@ -793,7 +793,6 @@ class Gp:
         # give option to choose limit on sql query order by date desc
         limit_chosen = False
         valid_numbers = [x + 1 for x in range(len(self.prev_appt_records))]
-        print(valid_numbers)
         while not limit_chosen:
             limit_number = ui.ask_string(
                 f"Please enter how many records you would like to view (total records:{len(self.prev_appt_records)}):")
@@ -817,7 +816,7 @@ class Gp:
         self.handle_state_selection(selected)
 
     def download_all_records_as_a_csv(self):
-        # todo output
+        # todo output csv from dictionary items
         pass
 
     def view_appointments_from_another_day(self):
