@@ -123,7 +123,7 @@ class Admin:
         Admin.clear()
         ui.info_section(ui.blue, 'Manage GP Menu')
 
-        # show GPs in system2
+        # show GPs in system
         self.db = db.Database()
         gp_acct_query = f"SELECT userID, firstname, lastName, email, is_active FROM users WHERE accountType = 'gp'"
         gp_acct_result = self.db.fetch_data(gp_acct_query)
@@ -163,7 +163,7 @@ class Admin:
             selected = util.user_select("Please choose what you would like to do with the GP account show above: ",
                                         self.state_gen.get_state_options())
             if selected == "Edit GP account Information":
-                self.to_edit_gp_account_information(gp_id)
+                self.to_edit_gp_account_information(gp_id, chosen_gp_table)
             elif selected == "Remove GP account":
                 self.to_remove_gp_account(gp_id)
             elif selected == "Deactivate GP account":
@@ -175,65 +175,99 @@ class Admin:
         elif gp_id == "Back":
             self.handle_state_selection("Admin Options")
 
-    def edit_gp_account_information(self, gp_id):
+    def edit_gp_account_information(self, gp_id, chosen_gp_table):
         Admin.clear()
         ui.info_section(ui.blue, 'Edit GP account?')
+
+        # Refresh chose_gp table
+        self.db = db.Database()
+        gp_acct_query = f"SELECT userID, firstname, lastName, email, is_active FROM users WHERE accountType = 'gp' " \
+                        f"AND userID={gp_id}"
+        gp_acct_result = self.db.fetch_data(gp_acct_query)
+        self.db.close_db()
+        gp_dataframe_header = ['ID', 'First Name', 'Last Name', 'email', 'Active?']
+        gp_dataframe = DataFrame(gp_acct_result)
+        gp_dataframe.columns = gp_dataframe_header
+        chosen_gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='grid', showindex=False)
+        print(chosen_gp_table + "\n")
+
+        # control program flow
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
         if selected == "Change GP name":
-            self.to_change_gp_name(gp_id)
+            self.to_change_gp_name(gp_id, chosen_gp_table)
         elif selected == "Change GP registered email address":
-            self.to_change_gp_registered_email_address(gp_id)
+            self.to_change_gp_registered_email_address(gp_id, chosen_gp_table)
         elif selected == "Reset GP password":
-            self.to_reset_gp_password(gp_id)
+            self.to_reset_gp_password(gp_id, chosen_gp_table)
         else:
             self.handle_state_selection("Manage GP")
 
-    def change_gp_name(self, gp_id):
+    def change_gp_name(self, gp_id, chosen_gp_table):
         Admin.clear()
         ui.info_section(ui.blue, "Change GP's name?")
-        change_name_confirm = ui.ask_yes_no("Are you sure you want to change the name of this GP's account?",
-                                            default=False)
-        if change_name_confirm:
+
+        while True:
             new_firstname = ui.ask_string("Please enter the GP's new first name: ").capitalize()
+            if new_firstname.isalpha():
+                break
+            else:
+                print("Please only include letters.")
+        while True:
             new_lastname = ui.ask_string("Please enter the GP's new last name: ").capitalize()
+            if new_lastname.isalpha():
+                break
+            else:
+                print("Please only include letters.")
+
+        name_changed_confirm = ui.ask_yes_no("Are you sure you want to change the name for this GP's account "
+                                              "to the above?", default=False)
+        if not name_changed_confirm:
+            self.to_edit_gp_account_information(gp_id, chosen_gp_table)
+        else:
             self.db = db.Database()
             self.db.exec_one("""UPDATE Users SET firstname=?,LastName=? WHERE userID=?""",
                              [new_firstname, new_lastname, gp_id])
             self.db.close_db()
-            # ui.info_2(ui.standout, f"This account's name has been changed to: {new_fName} {new_lName}")
-            self.state_gen.change_state("Manage GP")
-        else:
-            self.handle_state_selection("Manage GP")
+            ui.info_section(ui.blue, "")
+            ui.info_2(ui.standout, f"Successfully updated GP's name to: {new_firstname} {new_lastname}. "
+                                   f"Please wait whilst you are redirected.")
+            sleep(3)
+            self.to_edit_gp_account_information(gp_id, chosen_gp_table)
 
-    def change_gp_registered_email_address(self, gp_id):
+
+    def change_gp_registered_email_address(self, gp_id, chosen_gp_table):
         Admin.clear()
         ui.info_section(ui.blue, "Change GP's email ?")
-        change_email_confirm = ui.ask_yes_no("Are you sure you want to change the email for this GP's account?",
-                                             default=False)
-        if change_email_confirm:
-            change_email = True
-            self.db = db.Database()
-            email_list = self.db.email_list()
-            while change_email:
-                regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
-                new_email = ui.ask_string("Please enter the GP's new email: ")
-                if not re.search(regex, new_email):
-                    print("Invalid Email. Please try again.")
-                elif new_email in email_list:
-                    print('This email has already been registered. Please try again')
-                else:
-                    change_email = False
-                    break
 
+        change_email = True
+        self.db = db.Database()
+        email_list = self.db.email_list()
+        while change_email:
+            regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
+            new_email = ui.ask_string("Please enter the GP's new email: ")
+            if not re.search(regex, new_email):
+                print("Invalid Email. Please try again.")
+            elif new_email in email_list:
+                print('This email has already been registered. Please try again')
+            else:
+                new_email = new_email.lower()
+                change_email = False
+                break
+
+        email_changed_confirm = ui.ask_yes_no("Are you sure you want to change the email for this GP's account "
+                                              "to the above?", default=False)
+        if not email_changed_confirm:
+            self.to_edit_gp_account_information(gp_id, chosen_gp_table)
+        else:
+            self.db = db.Database()
             self.db.exec_one("""UPDATE Users SET email=? WHERE userID=?""", [new_email, gp_id])
             self.db.close_db()
-            print("Successfully updated email, please wait 2 Seconds")
-            sleep(2)
-            self.state_gen.change_state("Manage GP")
-        else:
-            self.handle_state_selection("Manage GP")
+            ui.info_section(ui.blue, "")
+            ui.info_2(ui.standout, f"Successfully updated GP's email. Please wait whilst you are redirected.")
+            sleep(3)
+            self.to_edit_gp_account_information(gp_id, chosen_gp_table)
 
-    def reset_gp_password(self, gp_id):
+    def reset_gp_password(self, gp_id, chosen_gp_table):
         Admin.clear()
         ui.info_section(ui.blue, "Reset GP's password?")
         reset_password_confirm = ui.ask_yes_no("Are you sure you want to reset the password for this account?",
@@ -253,6 +287,7 @@ class Admin:
             self.db.close_db()
             # redirect to manage GP page
             self.handle_state_selection("Manage GP")
+            # , chosen_gp_table
         else:
             self.handle_state_selection("Manage GP")
 
