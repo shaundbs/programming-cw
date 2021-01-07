@@ -446,6 +446,19 @@ class Gp:
     def write_clinical_notes(self):
         appt_id = self.curr_appt_id
 
+        too_early_query = f"SELECT date(s.starttime) > date('now') as is_after_now FROM APPOINTMENT LEFT JOIN SLOTS S " \
+                          f"USING (SLOT_ID) where appointment_id = {self.curr_appt_id}"
+        too_early = self.db.fetch_data(too_early_query)
+        too_early = too_early[0]["is_after_now"]
+
+        if too_early == 1:
+            ui.warning("This appointment is in the future.")
+            proceed = ui.ask_yes_no("Are you sure you would like to proceed?")
+            if not proceed:
+                ui.info("Returning to previous screen.")
+                util.loading()
+                self.handle_state_selection("back")
+
         # get clinical notes for this appt
         clinical_notes_query = f"SELECT clinical_notes, appointment_id from Appointment where appointment_id = {appt_id}"
         clinical_notes = self.db.fetch_data(clinical_notes_query)
@@ -846,7 +859,7 @@ class Gp:
                 ui.info(ui.ellipsis, "Downloading data")
                 ui.info_count(0, 3, "Fetching data from database")
                 # CSV
-                csv_filename = f"user_downloaded_data/patient_records_{name_no_spaces}_{datetime.today().strftime('%Y%m%d')}.csv"
+                csv_filename = f"downloaded_data/patient_records_{name_no_spaces}_{datetime.today().strftime('%Y%m%d')}.csv"
 
                 full_records_query = "select u.firstName || ' ' || u.lastname as patient_name, u.date_of_birth as " \
                                      "patient_dob, u2.firstName || ' ' || u2.lastname as doctor_seen, starttime as " \
@@ -871,7 +884,7 @@ class Gp:
                         csv_writer.writerow(row)
 
                 ui.info_2(
-                    "CSV saved successfully. Please check the user_downloaded_data folder in the application directory.")
+                    "CSV saved successfully. Please check the downloaded_data folder in the application directory.")
                 ui.info("Returning to previous screen")
                 util.loading()
                 self.handle_state_selection("back")
