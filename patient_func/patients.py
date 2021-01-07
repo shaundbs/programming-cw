@@ -34,10 +34,22 @@ class Patient:
     def register(cls):
         # Register. User input.
         # TODO: data validation.
-        fName = input('First Name:')
-        lName = input('Last Name:')
-        db = Database()
+        while True:
+            fName = input('First Name:')
+            if fName.isalpha():
+                fName = fName.capitalize()
+                break
+            else:
+                print("Please only include letters.")
+        while True:
+            lName = input('Last Name:')
+            if lName.isalpha():
+                lName = lName.capitalize()
+                break
+            else:
+                print("Please only include letters.")
 
+        db = Database()
         email_repetition = True
         email_list = Database().patient_email_list()
 
@@ -51,8 +63,12 @@ class Patient:
                 break
             else:
                 print('This email has been registered. Please try again')
-
-        pWord = input('Password: ')
+        while True:
+            pWord = input('Password: ')
+            if len(pWord) < 7:
+                print("Please note that the minimum length of password is 8.")
+            else:
+                break
         while True:
             DoB = input("Date of birth(in YYYY-MM-DD format): ")
             try:
