@@ -503,6 +503,8 @@ class Gp:
                 self.to_write_clinical_notes()  # restart state from scratch if gp wants to try writing again.
 
     def write_prescriptions(self, appt_id):
+        # todo check if this appt is in the future, if so stop GP from adding. return to previous screen.
+
         ui.info("Please follow the prompts to enter a prescription for the patient.")
 
         prescription_insert_stmt = "INSERT INTO PRESCRIPTION (medicine_name, treatment_description, " \
@@ -826,18 +828,48 @@ class Gp:
         patient_name = get_patient_name[0]["patient_name"]
         name_no_spaces = get_patient_name[0]["p_name_underscore"]
 
-        #confirmation
+        # confirmation
         if ui.ask_yes_no(f"Please confirm you would like to download appointment history records for {patient_name}"):
-            try :
-                ui.info(ui.ellipsis,"Downloading data")
-                util.create_thread_task(util.loading,())
+            try:
+                ui.info(ui.ellipsis, "Downloading data")
+                util.create_thread_task(util.loading, ())
                 # CSV
-                csv_filename = f"patient_records_{name_no_spaces}_{datetime.today().strftime('%Y-%m-%d')}.csv"
+                csv_filename = f"user_data/patient_records_{name_no_spaces}_{datetime.today().strftime('%Y-%m-%d')}.csv"
+
+                full_records_query = "select u.firstName || ' ' || u.lastname as patient_name, u.date_of_birth as " \
+                                     "patient_dob, u2.firstName || ' ' || u2.lastname as doctor_seen, starttime as " \
+                                     "appt_time, reason, clinical_notes, medicine_name, treatment_description, " \
+                                     "pres_frequency_in_days, prescription_startDate, prescription_expiryDate, " \
+                                     "sp.firstName || ' '|| sp.lastName as referred_specialist, hospital as " \
+                                     "referred_hospital, d.name as referred_dept_name from Appointment a left join " \
+                                     "Slots s using (slot_id) left join Prescription p on p.appointment_id = " \
+                                     "a.appointment_id left join Specialists sp on sp.specialist_id = " \
+                                     "a.referred_specialist_id left join users u on a.patient_id = u.userId left join " \
+                                     "Users u2 on a.gp_id = u2.userId left join Department d on d.department_id = " \
+                                     "sp.department_id where patient_id = 4 and s.endTime <'now' "
+                full_records = self.db.fetch_data(full_records_query)
 
                 with open(csv_filename, "w") as records_csv:
-                    csv_writer = csv.DictWriter(records_csv,[key for key, value in self.prev_appt_records[0]])
+                    csv_writer = csv.DictWriter(records_csv, fieldnames=full_records[0].keys())
+                    csv_writer.writeheader()
+                    for row in full_records:
+                        csv_writer.writerow(row)
 
-        pass
+                ui.info_2("CSV saved successfully. Please check the user_data folder in the application directory.")
+                ui.info("Returning to previous screen")
+                util.loading()
+                self.handle_state_selection("back")
+
+            except IOError:
+                logging.exception("Exception occurred fetching and saving data as CSV:")
+                ui.error("Sorry, an error occurred while saving the data as a CSV")
+                ui.info("Returning to previous screen")
+                util.loading()
+                self.handle_state_selection("back")
+        else:  # if download not confirmed.
+            ui.info("Returning to previous screen")
+            util.loading()
+            self.handle_state_selection("back")
 
     def view_appointments_from_another_day(self):
         ui.info(ui.blue, "View appointments from another day.")
