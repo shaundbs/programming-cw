@@ -66,11 +66,15 @@ class Patient:
             else:
                 print('This email has been registered. Please try again')
         while True:
-            pWord = ui.ask_password('Password: ')
-            if len(pWord) < 7:
+            pWord = ui.ask_password('Password:')
+            if len(pWord) < 8:
                 print("Please note that the minimum length of password is 8.")
             else:
-                break
+                confirmpwd = ui.ask_password('Confirm your password:')
+                if pWord == confirmpwd:
+                    break
+                else:
+                    print("Sorry, you created different passwords. Please try again.\n")
         while True:
             DoB = input("Date of birth(in YYYY-MM-DD format): ")
             try:
@@ -160,7 +164,7 @@ class Patient:
         while True:
             # Fetch appointments from db.
             self.db.exec_one(
-                "SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime",
+                "SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected,a.is_completed FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime",
                 (self.patient_id,))
             self.appointmentList = []
             result = self.db.c.fetchall()
@@ -171,9 +175,11 @@ class Patient:
             print("")
             apt = []
             for i in self.appointmentList:
-                if i[-2] + i[-1] == 0:
+                if i[-1] == 1:
+                    status = "completed."
+                elif i[-3] + i[-2] == 0:
                     status = "not yet confirmed."
-                elif i[-2] == 1:
+                elif i[-3] == 1:
                     status = "confirmed."
                 else:
                     status = "rejected."
@@ -189,7 +195,21 @@ class Patient:
             if option < len(apt) - 1:
                 # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
                 appointmentData = self.appointmentList[option]
-                if (appointmentData[-2] + appointmentData[-1]) == 0:
+                if appointmentData[-1] == 1:
+                    print("\nThis appointment is completed.")
+                    aptid = (appointmentData[0],)
+                    self.db.exec_one("SELECT clinical_notes FROM Appointment WHERE appointment_id = ?",aptid)
+                    result = self.db.c.fetchone()
+                    notes = result[0]
+                    if not notes:
+                        print("Sorry, you have no clinical notes for this appointment.")
+                    else:
+                        print("Clinical notes: "+notes)
+                    while True:
+                        option = ui.ask_yes_no("Do you want to be redirected to appointment list?", default=False)
+                        if option:
+                            break
+                elif (appointmentData[-3] + appointmentData[-2]) == 0:
                     print("\nThis appointment is not approved yet.")
                     apt = ["Cancel this appointment.", "Back."]
                     option = ui.ask_choice("Choose an option", choices=apt, sort=False)
@@ -197,8 +217,8 @@ class Patient:
                     if option == 0:
                         self.cancel_appointment(appointmentData[0])
                     continue
-                elif appointmentData[-2] == 0 or appointmentData[-1] == 0:
-                    if appointmentData[-2] == 0:
+                elif appointmentData[-3] == 0 or appointmentData[-2] == 0:
+                    if appointmentData[-3] == 0:
                         print("\nThis appointment is rejected.\n")
                     elif appointmentData[-1] == 0:
                         print("\nThis appointment is confirmed.\n")
