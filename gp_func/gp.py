@@ -1,4 +1,5 @@
 import calendar
+import csv
 import logging
 from datetime import datetime, timedelta
 
@@ -741,10 +742,12 @@ class Gp:
         # check how many records are available
         appt_id = self.curr_appt_id
         # use appt_id to get patient_id
-        get_patient_records_query = f"SELECT * FROM appointment where patient_id = (select patient_id from " \
-                                    f"appointment where appointment_id = {appt_id}) order by slot_id desc "
-        # todo limit above query to only past appts
+        get_patient_records_query = f"SELECT * FROM appointment left join slots d using (slot_id) where patient_id = " \
+                                    f"(select patient_id from " \
+                                    f"appointment where appointment_id = {appt_id}) where s.endTime < 'now' order by " \
+                                    f"slot_id asc "
         get_patient_records = self.db.fetch_data(get_patient_records_query)
+
         patient_id_query = f"select patient_id from appointment where appointment_id = {appt_id}"
         patient_id_fetch = self.db.fetch_data(patient_id_query)
         self.patient_id = patient_id_fetch[0]["patient_id"]
@@ -766,7 +769,7 @@ class Gp:
 
         # if no prev records available, only go back.
         ui.info(ui.bold, "Previous appointment records:")
-        if len(get_patient_records) < 2:  # only current appointment (i.e. no previous records)
+        if len(get_patient_records) == 0:  # i.e. no previous records
             ui.info(ui.indent("No previous appointments for this patient on the system.\n"))
             selected = util.user_select("Return to home screen:", ["Back"])
             self.handle_state_selection(selected)
@@ -810,13 +813,30 @@ class Gp:
         util.loading()
         for i in range(limit_number):
             # get each appointment up to index - results already ordered.
-            util.print_appointment_summary(self.prev_appt_records[i]["appointment_id"])
+            desired_index = len(self.prev_appt_records) - limit_number + i  # results are in time asc, we want to print
+            # most recent results with latest as last printed for the number chosen
+            util.print_appointment_summary(self.prev_appt_records[desired_index]["appointment_id"])
 
         selected = util.user_select("What would you like to do next?", choices=self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
     def download_all_records_as_a_csv(self):
-        # todo output csv from dictionary items
+        get_patient_name_query = f"SELECT firstname || ' ' || lastname as patient_name, firstname || '_' || lastname as p_name_underscore from users where userid = {self.patient_id}"
+        get_patient_name = self.db.fetch_data(get_patient_name_query)
+        patient_name = get_patient_name[0]["patient_name"]
+        name_no_spaces = get_patient_name[0]["p_name_underscore"]
+
+        #confirmation
+        if ui.ask_yes_no(f"Please confirm you would like to download appointment history records for {patient_name}"):
+            try :
+                ui.info(ui.ellipsis,"Downloading data")
+                util.create_thread_task(util.loading,())
+                # CSV
+                csv_filename = f"patient_records_{name_no_spaces}_{datetime.today().strftime('%Y-%m-%d')}.csv"
+
+                with open(csv_filename, "w") as records_csv:
+                    csv_writer = csv.DictWriter(records_csv,[key for key, value in self.prev_appt_records[0]])
+
         pass
 
     def view_appointments_from_another_day(self):
