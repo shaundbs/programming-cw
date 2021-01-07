@@ -126,7 +126,7 @@ class Admin():
         gp_dataframe_header = ['ID', 'First Name', 'Last Name', 'email', 'Active?']
         gp_dataframe = DataFrame(gp_acct_result)
         gp_dataframe.columns = gp_dataframe_header
-        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='pretty', showindex=False)
+        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='grid', showindex=False)
         print(gp_table + "\n")
 
         # allow admin user to choose desired gp account
@@ -397,9 +397,9 @@ class Admin():
         df2.columns = Index2
 
         print(colored('Patient Personal Record', 'green', attrs=['bold']))
-        print(tabulate(df1, headers='keys', tablefmt='fancy_grid', showindex=False))
+        print(tabulate(df1, headers='keys', tablefmt='grid', showindex=False))
         print(colored('Patient Medical History', 'green', attrs=['bold']))
-        print(tabulate(df2, headers='keys', tablefmt='fancy_grid', showindex=False))
+        print(tabulate(df2, headers='keys', tablefmt='grid', showindex=False))
 
     def display_patient_PersRecord(self):
         Admin.clear()
@@ -414,7 +414,7 @@ class Admin():
         df1.columns = Index1
 
         print(colored('Patient Personal Record', 'green', attrs=['bold']))
-        print(tabulate(df1, headers='keys', tablefmt='fancy_grid', showindex=False))
+        print(tabulate(df1, headers='keys', tablefmt='grid', showindex=False))
 
     def manage_patient(self):
 
@@ -445,7 +445,7 @@ class Admin():
             else:
                 df = DataFrame(result)
                 df.columns = Index
-                print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
+                print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
                 SeePatientRecord=self.SeePatientRecord(df)
                 self.ID=SeePatientRecord[0]
                 self.DF1=SeePatientRecord[1]
@@ -469,7 +469,7 @@ class Admin():
             else:
                 df = DataFrame(result)
                 df.columns = Index
-                print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
+                print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
                 SeePatientRecord=Admin.SeePatientRecord(df)
                 self.ID=SeePatientRecord[0]
                 self.DF1=SeePatientRecord[1]
