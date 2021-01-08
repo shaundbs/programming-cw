@@ -3,7 +3,7 @@ import re
 import threading  # send emails in background
 from datetime import datetime
 from time import sleep
-from os import system
+import os
 
 import cli_ui as ui
 from pick import pick
@@ -223,7 +223,7 @@ def get_multi_line_input(user_prompt):
 
 
 def sys_clear():
-    _ = system('cls||clear')
+    _ = os.system('cls' if os.name =='nt' else 'clear')
 
 
 def print_appointment_summary(appt_id):

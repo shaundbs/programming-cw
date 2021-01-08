@@ -845,28 +845,31 @@ class Admin:
             df1 = DataFrame(result)
             df1.columns = index1
 
+            no_space_name = result[0]['firstName'] + "_" + result[0]['lastName']
+
             db2 = Database()
             db2.exec_one(
                 "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
                 "MedicalHistory WHERE userID = ?",
                 (self.ID,))
-            result = db2.c.fetchall()
+            result= db2.c.fetchall()
             index2 = ["MedicalHistoryID", "UserID", "illness", "time_afflicted", "description", "prescribed_medication"]
             df2 = DataFrame(result)
             df2.columns = index2
             curr_date = datetime.datetime.now()
             format_date = curr_date.strftime("%m_%d_%Y_%H_%M_%S_")
-
-            outname = format_date+"Patient_record.csv"
-            outdir = './Download'
-            if not os.path.exists(outdir):
-                os.mkdir(outdir)
-            fullname = os.path.join(outdir, outname)
+            file_name = format_date+no_space_name+"_Patient_record.csv"
+            curr_dir = os.path.abspath(os.getcwd())
+            dir_name = "downloaded_data"
+            # check file path and directory exists, if not create it
+            save_path = os.path.join(curr_dir, dir_name)
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            csv_file = os.path.join(save_path, file_name)
             result = df1.append(df2, sort=False)
-            result.to_csv(fullname,index=False)
-            path =outdir + "/"+outname
+            result.to_csv(csv_file, index=False)
 
-            print(path)
+            print(save_path)
             ui.info_2(ui.standout, f"Patients Record was downloaded and saved in the path above."
                                    f"Please wait whilst you are redirected.")
             sleep(3)

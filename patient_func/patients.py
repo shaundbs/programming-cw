@@ -22,7 +22,6 @@ from dateutil.relativedelta import relativedelta
 import threading
 from . import patient_utilities as util
 
-
 class Patient:
     patient_id = 0
 
@@ -152,6 +151,7 @@ class Patient:
 
         while True:
             option = ui.ask_choice("Choose an option:", choices=prv, sort=False)
+            util.clear()
             if option == prv[0]:
                 self.request_appointment()
             elif option == prv[1]:
@@ -167,6 +167,7 @@ class Patient:
         """
         docstring
         """
+        util.clear()
         while True:
             # Fetch referrals from db.
             self.db.exec_one(
@@ -225,12 +226,14 @@ class Patient:
                 break
             apt.append("Back")
             # Redirects to appointment management.
+            util.clear()
             option = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
             option = list.index(apt, option)
             if option < len(apt) - 1:
                 # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
+                util.clear()
                 appointmentData = self.appointmentList[option]
-                print('\nAppointment Date: '+appointmentData[3][:10])
+                print('Appointment Date: '+appointmentData[3][:10])
                 print('Time Slot: '+appointmentData[3][-8:-3]+" - "+appointmentData[4][-8:-3])
                 print('GP: Dr ' + appointmentData[1] + " "+ appointmentData[2])
                 if appointmentData[-1] == 1:
@@ -269,6 +272,7 @@ class Patient:
                     elif option == 1:
                         self.cancel_appointment(appointmentData[0])
             else:
+                util.clear()
                 break
 
     def request_appointment(self):
