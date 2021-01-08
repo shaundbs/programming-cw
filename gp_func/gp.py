@@ -543,7 +543,6 @@ class Gp:
                 # Return to Appointment details
                 self.to_show_appointment_details()
 
-            # todo - this may break if a user users double quotation marks... - could use """ triple quotations in the get multi input fn?
             if success:
                 ui.info(ui.green, "Clinical notes successfully saved.")
             else:

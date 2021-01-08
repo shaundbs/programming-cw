@@ -13,7 +13,7 @@ from .registerGP import registerGP, confirmation
 from tabulate import tabulate
 from termcolor import colored
 import datetime
-from datetime import datetime
+from datetime import date, datetime as Datetime
 from state_manager import StateGenerator
 
 
@@ -108,7 +108,7 @@ class Admin:
 
     @staticmethod
     def clear():
-        _ = system('clear')
+        _ = system('cls||clear')
 
     def admin_options(self):
         Admin.clear()
@@ -591,11 +591,22 @@ class Admin:
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
 
         if selected == "Change Patient name":
-            FirstName = input("Enter the new First Name: ")
-            LastName = input("Enter the new Last Name: ")
+            while True:
+                FirstName = ui.ask_string("Please enter the Patient's new first name: ").capitalize()
+                if FirstName.isalpha():
+                    break
+                else:
+                    print("Please only include letters.")
+            while True:
+                LastName = ui.ask_string("Please enter the Patient's new last name: ").capitalize()
+                if LastName.isalpha():
+                    break
+                else:
+                    print("Please only include letters.")
             db = Database()
             db.exec_one("""UPDATE Users SET firstname=?,LastName=?  WHERE userID=?""", (FirstName, LastName, self.ID,))
-            print("Successfully Updated Patient Name,Wait 2 Seconds")
+            ui.info_2(ui.standout, f"Successfully Updated Patient Name. "
+                                   f"Please wait whilst you are redirected.")
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
@@ -603,15 +614,16 @@ class Admin:
             Check_Date_of_birth = True
             while Check_Date_of_birth:
                 DoB = util.get_user_date()
-                user_input = datetime.strptime(DoB, "%Y-%m-%d")
-                today = datetime.now()
+                user_input = Datetime.strptime(DoB, "%Y-%m-%d")
+                today = Datetime.now()
                 if today.date() > user_input.date():
                     Check_Date_of_birth = False
                 else:
                     print("Date of Birth cannot be set in the future!")
             db = Database()
             db.exec_one("""UPDATE Users SET date_of_birth=?  WHERE userID=?""", (DoB, self.ID,))
-            print("Successfully Updated Date of Birth, Wait 2 Seconds")
+            ui.info_2(ui.standout, f"Successfully Updated Date of Birth. "
+                                   f"Please wait whilst you are redirected.")
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
@@ -628,7 +640,8 @@ class Admin:
 
             db = Database()
             db.exec_one("""UPDATE Users SET email=?  WHERE userID=?""", (email, self.ID,))
-            print("Successfully Updated the email, Wait 2 Seconds")
+            ui.info_2(ui.standout, f"Successfully Updated the email. "
+                                   f"Please wait whilst you are redirected.")
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
@@ -662,6 +675,9 @@ class Admin:
                 db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
                                 prescribed_medication=? WHERE Medical_historyNo=?""",
                              (illness, time_afflicted, description, prescribed_medication, mednr,))
+                ui.info_2(ui.standout, f"Medical History was added to the Patients record."
+                                       f"Please wait whilst you are redirected.")
+                sleep(2)
                 self.add_medical_history()
             else:
 
@@ -669,6 +685,9 @@ class Admin:
                     "INSERT INTO MedicalHistory(userID, illness,time_afflicted,description,prescribed_medication) "
                     "VALUES(?, ?,?, ?,?)",
                     (self.ID, illness, time_afflicted, description, prescribed_medication))
+                ui.info_2(ui.standout, f"Medical History was added to the Patients record."
+                                       f"Please wait whilst you are redirected.")
+                sleep(2)
                 self.add_medical_history()
         elif selected == "Back":
             self.handle_state_selection("Back")
@@ -700,6 +719,9 @@ class Admin:
                         db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
                                         prescribed_medication=? WHERE Medical_historyNo=?""",
                                      ("Empty", "Empty", "Empty", "Empty", nr,))
+                        ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
+                                               f"Please wait whilst you are redirected.")
+                        sleep(2)
                         x = 2
                     else:
                         print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
@@ -712,6 +734,9 @@ class Admin:
                     if nr in col_one_list:
                         db1 = Database()
                         db1.exec_one("DELETE FROM MedicalHistory WHERE Medical_historyNo=?", (nr,))
+                        ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
+                                               f"Please wait whilst you are redirected.")
+                        sleep(2)
                         x = 2
                     else:
                         print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
@@ -728,7 +753,8 @@ class Admin:
         if selected == "Deactivate the Patients account":
             db = Database()
             db.exec_one("""UPDATE Users SET is_active=0  WHERE userID=?""", (self.ID,))
-            print("Patients account has been deactivated")
+            ui.info_2(ui.standout, f"Patients account has been deactivated. "
+                                   f"Please wait whilst you are redirected.")
             sleep(2)
             self.deactivate_patient_account()
         elif selected == "Back":
@@ -743,7 +769,8 @@ class Admin:
         if selected == "Reactivate the Patients account":
             db = Database()
             db.exec_one("""UPDATE Users SET is_active=1  WHERE userID=?""", (self.ID,))
-            print("Patients account has been reactivated")
+            ui.info_2(ui.standout, f"Patients account has been reactivated. "
+                                   f"Please wait whilst you are redirected.")
             sleep(2)
             self.reactivate_patient_account()
         elif selected == "Back":
@@ -804,7 +831,7 @@ class Admin:
             salt = bcrypt.gensalt()
             hashed_password = bcrypt.hashpw(new_password, salt)
             curr_date = datetime.datetime.now()
-            format_date = curr_date.strftime("%m-%d-%Y %H:%M")
+            format_date = curr_date.strftime("%m/%d/%Y %H:%M:%S")
             is_registered = 1
             is_active = 1
 
@@ -815,7 +842,10 @@ class Admin:
                              [new_fname, new_lname, new_email, hashed_password, format_date, "admin", is_registered,
                               is_active])
             self.db.close_db()
+            ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.")
+            sleep(2)
             self.state_gen.change_state("Admin Options")
+
         else:
             self.state_gen.change_state("Admin Options")
 
