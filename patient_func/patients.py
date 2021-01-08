@@ -16,10 +16,11 @@ from dateutil.relativedelta import relativedelta
 # import gp_utilities
 from datetime import timedelta as td
 import csv
-
+import os
+import pandas as pd
 from dateutil.relativedelta import relativedelta
 import threading
-
+from . import patient_utilities as util
 
 class Patient:
     patient_id = 0
@@ -34,10 +35,22 @@ class Patient:
     def register(cls):
         # Register. User input.
         # TODO: data validation.
-        fName = input('First Name:')
-        lName = input('Last Name:')
-        db = Database()
+        while True:
+            fName = input('First Name:')
+            if fName.isalpha():
+                fName = fName.capitalize()
+                break
+            else:
+                print("Please only include letters.")
+        while True:
+            lName = input('Last Name:')
+            if lName.isalpha():
+                lName = lName.capitalize()
+                break
+            else:
+                print("Please only include letters.")
 
+        db = Database()
         email_repetition = True
         email_list = Database().patient_email_list()
 
@@ -51,27 +64,94 @@ class Patient:
                 break
             else:
                 print('This email has been registered. Please try again')
+        while True:
+            pWord = ui.ask_password('Password:')
+            if len(pWord) < 8:
+                print("Please note that the minimum length of password is 8.")
+            else:
+                confirmpwd = ui.ask_password('Confirm your password:')
+                if pWord == confirmpwd:
+                    break
+                else:
+                    print("Sorry, you created different passwords. Please try again.\n")
+        while True:
+            DoB = input("Date of birth(in YYYY-MM-DD format): ")
+            try:
+                # check if the date is in YYYY-MM-DD format
+                year, month, day = DoB.split('-')
+                isValidDate = True
+                datetime.datetime(int(year), int(month), int(day))
+            except ValueError:
+                isValidDate = False
+            if isValidDate:
+                fm_selected = datetime.datetime.strptime(
+                    DoB, '%Y-%m-%d').date()
+                if fm_selected < datetime.datetime.now().date() - relativedelta(years=120):
+                    print("Sorry the date of birth entered is too far into the past - please try again")
+                    continue
+                elif fm_selected > datetime.datetime.now().date():
+                    print("It is not possible for your DoB to be set in the future - please try again")
+                    continue
+                elif fm_selected > datetime.datetime.now().date() - datetime.timedelta(16 * 365):
+                    print(
+                        "Sorry, you must be at least 16 years of age to register for this e-health management service")
+                    continue
+                elif fm_selected < datetime.datetime.now().date():
+                    pWord = pWord.encode('utf-8')
+                    salt = bcrypt.gensalt()
+                    hashed = bcrypt.hashpw(pWord, salt)
+                    aType = "patient"
+                    time_now = datetime.datetime.now()
+                    date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
+                    a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
+                    db.exec_many(
+                        "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
+                        a)
+                    print('You have successfully requested an account. Please wait for confirmation from us:)')
+                    task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"),
+                                            daemon=True)
+                    task.start()
+                    util.clear()
+                    break
+            elif not isValidDate:
+                print("Sorry this input is not accepted. Please re-enter your DoB in YYYY-MM-DD format")
+                continue
 
-        pWord = ui.ask_password('Password: ')
-        DoB = input("Date of birth(in YYYY-MM-DD format): ")
-        pWord = pWord.encode('utf-8')
-        salt = bcrypt.gensalt()
-        hashed = bcrypt.hashpw(pWord, salt)
-        aType = "patient"
-        time_now = datetime.datetime.now()
-        date_time = time_now.strftime("%m-%d-%Y %H:%M:%S")
-        a = [(fName, lName, email, hashed, aType, date_time, DoB), ]
-        db.exec_many(
-            "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
-            a)
-        task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
-        task.start()
+    def print_welcome(self):
+        self.db.exec("""SELECT firstName, lastName FROM Users WHERE userId = '""" + str(self.patient_id) + """'""")
+        output = self.db.c.fetchall()
+        y = output[0]
+        fName = y[0]
+        lName = y[1]
+        ui.info_section(ui.blue, '\nWelcome to the Patient Dashboard')
+        print("Hi, " + fName + " " + lName + "\n")
 
     def patient_home(self):
-        prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
+        self.print_welcome()
+        prv = ["Request appointment", "View appointments", "View referrals", "View prescriptions", "Log out"]
+        # if user has an appointment to receive vaccine
+        if self.covid_appt_count() >= 1:
+            # have they received it yet or not - if so clear notification
+            self.dismiss_covid_notification()
+        else:
+            # if user has no appointments - find out if they are high risk based on age and qualify for vaccine
+            if self.high_risk_top_waitinglist_notification():
+                print(" ")
+            # if age < 60 == low-risk patient
+            elif self.low_risk_notification():
+                print(" ")
+            # if high-risk but registered with us >30 days
+            elif not self.high_risk_top_waitinglist_notification():
+                print(colored('*New Notification*\n', 'red',
+                              attrs=['bold']))
+                print("-- You have been identified as a high risk patient to COVID-19 and have been placed on our "
+                      "waiting list.\n-- This classification has been made based on your age making you more "
+                      "susceptible to the virus. You will be invited to receive a vaccination with us "
+                      "in due course.\n")
 
         while True:
             option = ui.ask_choice("Choose an option:", choices=prv, sort=False)
+            util.clear()
             if option == prv[0]:
                 self.request_appointment()
             elif option == prv[1]:
@@ -87,6 +167,7 @@ class Patient:
         """
         docstring
         """
+        util.clear()
         while True:
             # Fetch referrals from db.
             self.db.exec_one(
@@ -97,9 +178,15 @@ class Patient:
             for i in result:
                 self.referralsList.append(list(i))
             output = []
+            print(" ")
+            util.loader('Loading')
+            print("\n")
             for i in self.referralsList:
                 output.append("Your are referred to our specialist Dr " + str(i[1]) + " " + str(
                     i[2]) + " at Department " + str(i[4]) + " of Hopsital " + str(i[3]) + ".")
+            if len(output) == 0:
+                print("Sorry, you have no referrals at the moment.\n")
+                break
             output.append("Back.")
             option = ui.ask_choice("Choose a referral:", choices=output, sort=False)
             if option != "Back.":
@@ -111,45 +198,71 @@ class Patient:
         while True:
             # Fetch appointments from db.
             self.db.exec_one(
-                "SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime",
+                "SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected,a.is_completed FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime",
                 (self.patient_id,))
             self.appointmentList = []
             result = self.db.c.fetchall()
             for i in result:
                 self.appointmentList.append(i)
+            print(" ")
+            util.loader('Loading')
+            print("\n")
 
             # Print appointments and options.
-            print("")
             apt = []
             for i in self.appointmentList:
-                if i[-2] + i[-1] == 0:
+                if i[-1] == 1:
+                    status = "completed."
+                elif i[-3] + i[-2] == 0:
                     status = "not yet confirmed."
-                elif i[-2] == 1:
+                elif i[-3] == 1:
                     status = "confirmed."
                 else:
                     status = "rejected."
                 apt.append("Your appointment with Dr " +
                            str(i[1]) + " " + str(i[2]) + " at " + str(i[3][:10]) + " is " + status)
+            if len(apt) == 0:
+                print("Sorry, you have no appointments at the moment.")
+                break
             apt.append("Back")
             # Redirects to appointment management.
+            util.clear()
             option = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
             option = list.index(apt, option)
             if option < len(apt) - 1:
                 # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
+                util.clear()
                 appointmentData = self.appointmentList[option]
-                if (appointmentData[-2] + appointmentData[-1]) == 0:
-                    print("\nThis appointment is not approved yet.")
+                print('Appointment Date: '+appointmentData[3][:10])
+                print('Time Slot: '+appointmentData[3][-8:-3]+" - "+appointmentData[4][-8:-3])
+                print('GP: Dr ' + appointmentData[1] + " "+ appointmentData[2])
+                if appointmentData[-1] == 1:
+                    print("This appointment is completed.")
+                    aptid = (appointmentData[0],)
+                    self.db.exec_one("SELECT clinical_notes FROM Appointment WHERE appointment_id = ?", aptid)
+                    result = self.db.c.fetchone()
+                    notes = result[0]
+                    if not notes:
+                        print("Sorry, you have no clinical notes for this appointment.")
+                    else:
+                        print("Clinical notes: " + notes)
+                    while True:
+                        option = ui.ask_yes_no("Do you want to be redirected to appointment list?", default=False)
+                        if option:
+                            break
+                elif (appointmentData[-3] + appointmentData[-2]) == 0:
+                    print("This appointment is not approved yet.")
                     apt = ["Cancel this appointment.", "Back."]
                     option = ui.ask_choice("Choose an option", choices=apt, sort=False)
                     option = list.index(apt, option)
                     if option == 0:
                         self.cancel_appointment(appointmentData[0])
                     continue
-                elif appointmentData[-2] == 0 or appointmentData[-1] == 0:
-                    if appointmentData[-2] == 0:
-                        print("\nThis appointment is rejected.\n")
+                elif appointmentData[-3] == 0 or appointmentData[-2] == 0:
+                    if appointmentData[-3] == 0:
+                        print("This appointment is rejected.\n")
                     elif appointmentData[-1] == 0:
-                        print("\nThis appointment is confirmed.\n")
+                        print("This appointment is confirmed.\n")
                     apt = ["Reschedule this appointment.",
                            "Cancel this appointment.", "Back."]
                     option = ui.ask_choice("Choose an option", choices=apt, sort=False)
@@ -159,6 +272,7 @@ class Patient:
                     elif option == 1:
                         self.cancel_appointment(appointmentData[0])
             else:
+                util.clear()
                 break
 
     def request_appointment(self):
@@ -192,6 +306,7 @@ class Patient:
                             )
                             dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
                             last_booking_date = date_generator.date_sort(dn)
+                            util.clear()
                             try:
                                 # check if the date is in YYYY-MM-DD format
                                 year, month, day = select_date.split('-')
@@ -218,6 +333,7 @@ class Patient:
                                         # if all conditions are met list out appts
                                         print('The date {} is valid. Listing appointments... \n'.format(
                                             select_date))
+                                        util.loader('Loading')
                                         self.select_slots(select_date)
                                     elif fm_selected < datetime.datetime.now().date():
                                         print("Sorry, we are unable to book appointments for dates in the past")
@@ -232,7 +348,7 @@ class Patient:
                                 elif self.limit_appointment_bookings(select_date) > 0:
                                     # if patient already has an appt for that week request they book for another
                                     print(
-                                        "Sorry you already have an appointment booked for this week. \nTo ensure that our GPs are able to see "
+                                        "Sorry you have already requested an appointment booked for this week. \nTo ensure that our GPs are able to see "
                                         "as many patients as possible and there is fair assignment in place, "
                                         "please select an alternative week where you"
                                         " do not currently have an appointment booked.")
@@ -277,6 +393,119 @@ class Patient:
         x = result[0]
         weekly_appointment_count = x[0]
         return weekly_appointment_count
+
+    def receive_covid_notification(self):
+        # queries the DB to see if a patient already has an appt between for a week they have selected
+        self.db.exec("""SELECT date_of_birth, signUpDate FROM Users
+                           WHERE userId = '""" + str(self.patient_id) + """'""")
+        result = self.db.c.fetchall()
+        x = result[0]
+        date_of_birth = x[0]
+        sign_up = x[1]
+        sign_up_date = sign_up[:10]
+        vaccinations = ["Pfizer-BioNTech", "Oxford University/AstraZeneca", "Moderna mRNA-1273"]
+        chosen_vac = random.choice(vaccinations)
+        if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() < datetime.datetime.now().date() - \
+                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
+                < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
+            vulnerable_individual = True
+            print(colored('*New Notification*', 'red',
+                          attrs=['bold']))
+            print("You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
+                  "first dose of the " + chosen_vac + " vaccination.\nThis classification has been made based on your "
+                                                      "age and you have been on the waiting list for over 30 days (30 days since the date that you "
+                                                      "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
+                                                      " or 'COVID-19 Immunisation' so that you may be protected.\n - we look forward to hearing from you.\n")
+        else:
+            vulnerable_individual = False
+            print("You have not been identified as a high risk patient to COVID-19. However you will be invited to "
+                  "receive a vaccination in due course. Please stay at home and protect the NHS :)\n")
+        return vulnerable_individual
+
+    def high_risk_top_waitinglist_notification(self):
+        # queries the DB to see if a patient already has an appt between for a week they have selected
+        self.db.exec("""SELECT date_of_birth, signUpDate FROM Users
+                            WHERE userId = '""" + str(self.patient_id) + """'""")
+        result = self.db.c.fetchall()
+        x = result[0]
+        date_of_birth = x[0]
+        sign_up = x[1]
+        sign_up_date = sign_up[:10]
+        vaccinations = ["Pfizer-BioNTech", "Oxford University/AstraZeneca"]
+        chosen_vac = random.choice(vaccinations)
+        if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() < datetime.datetime.now().date() - \
+                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
+                < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
+            high_risk_top_waitinglist = True
+            print(colored('*New Notification*', 'red',
+                          attrs=['bold']))
+            print(
+                "-- You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
+                "first dose of the " + chosen_vac + " vaccination.\n-- This classification has been made based on your "
+                                                    "age and you have been on the waiting list for over 30 days (30 days since the date that you "
+                                                    "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
+                                                    " or 'COVID-19 Immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
+        else:
+            high_risk_top_waitinglist = False
+        return high_risk_top_waitinglist
+
+    def low_risk_notification(self):
+        # queries the DB to see if a patient already has an appt between for a week they have selected
+        self.db.exec("""SELECT date_of_birth, signUpDate FROM Users
+                             WHERE userId = '""" + str(self.patient_id) + """'""")
+        result = self.db.c.fetchall()
+        x = result[0]
+        date_of_birth = x[0]
+        if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() > datetime.datetime.now().date() - \
+                datetime.timedelta(60 * 365):
+            low_risk_patient = True
+            print(colored('*New Notification*', 'red',
+                          attrs=['bold']))
+            print("In accordance with our system, you have been classified as a low-risk patient to COVID-19.\n"
+                  "However, you will receive an invite to have a vaccination in due course but we are currently "
+                  "prioritising the vulnerable groups.\nPlease stay at home and protect the NHS! :)")
+        else:
+            low_risk_patient = False
+        return low_risk_patient
+
+    def covid_appt_count(self):
+        # queries the DB to see number of COVID_19 related appts
+        self.db.exec("""SELECT count(a.appointment_id) FROM Appointment AS a
+                        LEFT JOIN slots s
+                        ON a.slot_id = s.slot_id
+                        WHERE a.patient_id = '""" + str(self.patient_id) + """'
+                        and
+                        a.reason = 'COVID-19 immunisation' or a.reason = 'COVID-19 vaccination'""")
+        result = self.db.c.fetchall()
+        tup = result[0]
+        counter = tup[0]
+        return counter
+
+    def dismiss_covid_notification(self):
+        # queries the DB to see if a patient already has an appt between for a week they have selected
+        self.db.exec("""SELECT a.reason, s.endTime FROM Appointment AS a
+        LEFT JOIN slots s
+        ON a.slot_id = s.slot_id
+        WHERE a.patient_id = '""" + str(self.patient_id) + """'
+        and
+        a.reason = 'COVID-19 immunisation' or a.reason = 'COVID-19 vaccination'""")
+        result = self.db.c.fetchall()
+        tup = result[0]
+        end_time = tup[1]
+        vaccination_time = end_time[:10]
+        if datetime.datetime.strptime(vaccination_time, '%Y-%m-%d').date() < datetime.datetime.now().date():
+            print(colored('*New Notification*', 'red',
+                          attrs=['bold']))
+            print("-- Congratulations! You have now received you first dose of the "
+                  "COVID-19 vaccine.\n-- We will contact you again in 3 months time to receive your second dose.\n")
+            immunised = True
+        else:
+            print(colored('*New Notification*', 'red',
+                          attrs=['bold']))
+            print("-- You have an upcoming appointment to receive a COVID-19 vaccination.\n-- Please check your "
+                  "'View appointments' tab for further details. \n")
+            immunised = False
+        return immunised
 
     def weekday_bookings_only(self, chosen_date):
         # restrict bookings to weekdays only using this function
@@ -323,7 +552,7 @@ class Patient:
                 available_session[i[0]] = [[i[4], i[1]]]
 
         # Prompt user to select slots.
-        print("Please select an appointment time:")
+        print("\n\nPlease select an appointment time:")
         sessions = ["09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00",
                     "13:00-14:00", "14:00-15:00", "15:00-16:00", "16:00-17:00"]
         num = 0
@@ -336,12 +565,14 @@ class Patient:
         index_1 = ["Available Slots"]
         df1 = DataFrame(result_session)
         df1.columns = index_1
+        df1.index += 1
+        print("\n")
         self.display_opening_hours(select_date)
         print(colored('Available slots on the ' + select_date + ' ', 'green',
                       attrs=['bold']))
         print(tabulate(df1, headers='keys',
-                       tablefmt='fancy_grid', showindex=True))
-        print(str(num) + ". Back")
+                       tablefmt='grid', showindex=True))
+        print(str(num + 1) + ". Back")
         return [result_session, available_session]
 
     def select_slots(self, select_date):
@@ -353,16 +584,16 @@ class Patient:
             try:
                 booked_slot = int(input("Enter your option : "))
 
-                if booked_slot == len(result):
+                if booked_slot == (len(result) + 1):
                     break
-                elif booked_slot in range(8):
+                elif booked_slot in range(9):
                     # Assign GP6 to this appointment temporarily.
                     # selected_session = available_session[booked_slot - 1][:2]
                     # ask the patient to input any symptoms they may have or default value is 'none'
                     symptoms = input("Please list any symptoms or concerns you may have so that we may"
                                      " inform your assigned GP...\n"
                                      "or hit enter if you do not want to disclose now: \n ")
-                    key = session[booked_slot][:2]
+                    key = session[booked_slot - 1][:2]
                     slot = result[key][0][1]
                     gp = result[key][0][0]
                     gp_name = self.db.gp_name(gp)
@@ -373,6 +604,9 @@ class Patient:
                     option = ui.ask_choice("Choose an option", choices=["Yes", "No"], sort=False)
                     option = list.index(["Yes", "No"], option)
                     if option == 0:
+                        print("- Appointment Date: " + select_date)
+                        print("- Time Slot: " + session[booked_slot-1])
+                        print("- GP: Dr " + gp_name[0] + " " + gp_name[1])
                         if self.tobecanceled > 0:
                             self.db.reschedule(a, self.tobecanceled)
                             self.tobecanceled = -1
@@ -380,6 +614,7 @@ class Patient:
                                 "SUCCESS - \nYou have successfully reshceduled an appointments with Dr " + str(
                                     gp_name[0]) + " " + str(
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                            util.clear()
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
@@ -387,6 +622,7 @@ class Patient:
                                 "SUCCESS - \nYou have successfully requested an appointments with Dr " + str(
                                     gp_name[0]) + " " + str(
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                            util.clear()
                     self.patient_home()
             except ValueError:
                 print("Please select a valid option.")
@@ -406,52 +642,119 @@ class Patient:
         # Fetch prescriptions from db.
         try:
             self.db.exec(
-                "SELECT  p.treatment_description, p.medicine_name, p.pres_frequency_in_days, p.expiryDate, p.prescription_id, p.appointment_id, p.startDate FROM Prescription AS P "
-                "LEFT JOIN Users as U "
-                "WHERE u.userId = '""" + str(self.patient_id) + """'""")
+                "SELECT p.medicine_name, p.treatment_description, p.pres_frequency_in_days, p.startDate, p.expiryDate, p.prescription_id, p.appointment_id FROM Prescription AS P "
+                "LEFT JOIN Appointment as a "
+                "ON a.appointment_id = p.appointment_id "
+                "LEFT JOIN Users as u "
+                "ON a.patient_id = u.userId "
+                "WHERE u.userId = '""" + str(18) + """'""")
             output = self.db.c.fetchall()
-            index_8 = ["Treatment Desc", "Medicine Name", "Frequency of intake", "Expiry Date", "Prescription ID",
-                       "Appointment ID", "Start Date"]
+            index_8 = ["Medicine Name", "Treatment Desc", "Frequency of intake (days)", "Start Date", "Expiry Date",
+                       "Prescription ID", "Appointment ID"]
             df4 = DataFrame(output)
             df4.columns = index_8
+            df4.index += 1
+            pd.DataFrame(df4)
+            print(" ")
+            util.loader('Loading')
+            print("\n")
             # print prescriptions out as one table
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
             print(tabulate(df4, headers='keys',
-                           tablefmt='fancy_grid', showindex=False))
+                           tablefmt='grid', showindex=True))
             presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
             presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
             presc_opts = list.index(presc, presc_opts)
+
+            #  method for printing out prescriptions as either .txt or .csv
+            def print_prescription(data_type):
+                if data_type == "csv":
+                    try:
+                        #  create directory for downloaded files
+                        directory = "downloadable_data"
+                        directory2 = "Prescriptions"
+                        parent_dir = '../../programming-cw'
+                        path = os.path.join(parent_dir, directory)
+                        final_path = os.path.join(path, directory2)
+                        os.makedirs(final_path)
+                        # save prescription in directory  as a .csv
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                                  newline='') as f:
+                            thewriter = csv.writer(f)
+                            thewriter.writerow(index_8)
+                            for i in output:
+                                thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                            f.close()
+                            print(" ")
+                            util.loader('Downloading')
+                            print("\n")
+                            print("Your prescription has been downloaded successfully\n")
+                    except:
+                        #  unless directory already exists
+                        # save to existing Prescription folder as a .csv
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                                  newline='') as f:
+                            thewriter = csv.writer(f)
+                            thewriter.writerow(index_8)
+                            for i in output:
+                                thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                            f.close()
+                            print(" ")
+                            util.loader('Downloading')
+                            print("\n")
+                            print("Your prescription has been downloaded successfully\n")
+                elif data_type == "txt":
+                    try:
+                        directory = "downloadable_data"
+                        directory2 = "Prescriptions"
+                        parent_dir = '../../programming-cw'
+                        path = os.path.join(parent_dir, directory)
+                        final_path = os.path.join(path, directory2)
+                        os.makedirs(final_path)
+                        # save to Prescription folder as a .txt
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                                  newline='') as f:
+                            f.write("Your prescriptions are as follows:\n"
+                                    "\n")
+                            f.write("\n")
+                            f.write(df4.to_string(header=index_8, index=True))
+                            f.close()
+                            print(" ")
+                            util.loader('Downloading')
+                            print("\n")
+                            print("Your prescription has been downloaded successfully\n")
+                    except:
+                        #  unless directory already exists
+                        # save to existing Prescription folder as a .csv
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                                  newline='') as f:
+                            f.write("Your prescriptions are as follows:\n"
+                                    "\n")
+                            f.write("\n")
+                            f.write(df4.to_string(header=index_8, index=True))
+                            f.close()
+                            print(" ")
+                            util.loader('Downloading')
+                            print("\n")
+                            print("Your prescription has been downloaded successfully\n")
+
             # options
             if presc_opts in [0, 1, 2]:
                 if presc_opts == 0:
-                    # save to Prescription folder as a .csv
-                    with open('../../Prescriptions/myprescriptions.csv', 'w', newline='') as f:
-                        thewriter = csv.writer(f)
-                        thewriter.writerow(index_8)
-                        for i in output:
-                            thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
-                        f.close()
-                        print("Your prescription has been downloaded successfully")
+                    print_prescription("csv")
+                    util.clear()
                 elif presc_opts == 1:
-                    presc_number = 1
-                    # save to Prescription folder as a .txt
-                    with open('../../Prescriptions/myprescriptions.txt', 'w', newline='') as f:
-                        f.write("Your prescriptions are as follows:\n"
-                                "\n")
-                        f.write(str(index_8))
-                        f.write("\n")
-                        for i in output:
-                            f.write("Prescription " + str(presc_number) + ": " + str(i))
-                            f.write("\n")
-                            presc_number += 1
-                        f.close()
-                        print("Your prescription has been downloaded successfully")
+                    print_prescription("txt")
+                    util.clear()
                 elif presc_opts == 2:
                     self.patient_home()
         except ValueError:
+            print(" ")
+            util.loader('Loading')
+            print(" ")
             # no prescription in the DB so return ---
-            print("Sorry - you currently do not have any prescriptions from our GP's to display")
+            print("\nSorry - you currently do not have any prescriptions from our GP's to display\n")
 
     def display_opening_hours(self, selected):
         # get datetime object of the first and last appointments on that day = Opening hours
@@ -468,7 +771,7 @@ class Patient:
         print(colored('Opening hours: ' +
                       selected + ' ', 'green', attrs=['bold']))
         print(tabulate(df2, headers='keys',
-                       tablefmt='fancy_grid', showindex=False))
+                       tablefmt='grid', showindex=False))
         return output[0]
 
     # def select_options(self, options):
@@ -488,5 +791,5 @@ class Patient:
     #     return selected
 
 
-if __name__ == "__main__":
-    Patient(4).patient_home()
+# if __name__ == "__main__":
+#     Patient(4).patient_home()

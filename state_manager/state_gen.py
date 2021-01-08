@@ -1,5 +1,6 @@
 from transitions import State, Machine
 from collections import deque
+import logging
 
 
 class StateGenerator(Machine):
@@ -59,8 +60,7 @@ class StateGenerator(Machine):
             return self.state_dict[self.state_object.state]
         except KeyError as err:
             print("Oops, state " + str(err) + " not defined yet.")
-
-    #         TODO: add logging for errors like these.
+            logging.exception(f"exception occurred when getting state options: {err}")
 
     def __add_auto_transitions(self):
         """
@@ -86,6 +86,7 @@ class StateGenerator(Machine):
                 return True
         except AttributeError as err:
             print(str(err) + ": state not found.")
+            logging.exception(f"exception occurred when changing state: {err}")
 
     def _store_state(self, state_trigger_method):
         """Stack implementation to store state methods called

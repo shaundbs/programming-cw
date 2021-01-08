@@ -10,7 +10,7 @@ from .admin_email_generator import Emails
 
 
 def clear():
-    _ = system('clear')
+    _ = system('cls||clear')
 
 
 def confirm_patient():
@@ -23,12 +23,12 @@ def confirm_patient():
         connection = sqlite3.connect('database/ehealth.db')
         cursor = connection.cursor()
 
-
-    except:
+    except Error as e:
         print("Unable to connect to database!")
 
     # Query database for patients in need of validation
-    query = "SELECT userID, firstName, lastName, email, signUpDate FROM Users WHERE is_registered = 0 and accountType = 'patient' ORDER BY userID DESC"
+    query = """SELECT userID, firstName, lastName, email, signUpDate FROM Users WHERE is_registered = 0
+             and accountType = 'patient' ORDER BY userID DESC"""
     cursor.execute(query)
     records = cursor.fetchall()
 
@@ -42,7 +42,12 @@ def confirm_patient():
     df = DataFrame(records)
     index = ["ID", "First Name", "Last Name", "Email", "Date Signed Up"]
     df.columns = index
+<<<<<<< HEAD
+    print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
+=======
+    clear()
     print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
+>>>>>>> 0f4a665662f85689782d596b78f9cf182dd07949
 
     global validation_required
     global user_ids
@@ -68,7 +73,6 @@ def approve_all():
     connection = sqlite3.connect('database/ehealth.db')
     cursor = connection.cursor()
 
-
     for i in range(len(validation_required)):
         cursor = connection.cursor()
         update_query = "UPDATE Users SET is_registered = ?, is_active = ?  WHERE userId = ?"
@@ -91,7 +95,6 @@ def delete_all():
     connection = sqlite3.connect('database/ehealth.db')
     cursor = connection.cursor()
 
-
     for i in range(len(validation_required)):
         delete_query = "DELETE from Users WHERE userId = ?"
         delete_entry = user_ids[i]
@@ -106,6 +109,7 @@ def delete_all():
     print(
         f"Number of patients deleted: {len(patients_deleted)}")
 
+
 def validate():
     patients_validated = []
     patients_deleted = []
@@ -114,9 +118,11 @@ def validate():
     cursor = connection.cursor()
 
     # Loop through each patient and give user option to validate, delete or quit the program
+    clear()
     for i in range(len(validation_required)):
         print(f"\nPatient ID: {user_ids[i]}\nPatient Name: {fullname_list[i][0]} {fullname_list[i][1]}")
-        action1 = input("Press enter to skip or choose one of the options below:\n1.Approve\n2.Delete\n3.Quit\nSelect option: ")
+        action1 = input("""Press enter to skip or choose one of the options below:
+        \n1.Approve\n2.Delete\n3.Quit\nSelect option: """)
         if action1 == "1":
             cursor = connection.cursor()
             update_query = "UPDATE Users SET is_registered = ?, is_active = ?  WHERE userId = ?"
@@ -132,8 +138,6 @@ def validate():
             lastName = fullname_list[i][1]
 
             Emails.validation_email(email, firstName, lastName, 'patient')
-
-
 
         elif action1 == "2":
             delete_query = "DELETE from Users WHERE userId = ?"

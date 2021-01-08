@@ -31,10 +31,13 @@ class Panel:
             p_word = ui.ask_password('Please input your password:')
             a = (email,)
             self.db.exec_one(
-                "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
+                "SELECT password, userId, accountType, is_registered, is_active FROM Users WHERE email = ?", a)
             record = self.db.c.fetchone()
 
             if record and bcrypt.checkpw(p_word.encode('utf-8'), record[0]):
+                if record[-1] == 0:
+                    ui.info('Sorry, your account is being deactivated for now.')
+                    break
                 if record[2] == 'patient':
                     if record[3] == 1:
                         self.userType = 'patient'
@@ -53,7 +56,7 @@ class Panel:
                     ui.info('Sorry, we could not find your account in the system. Please double check your input.')
                 else:
                     ui.info('Sorry, your password is not correct.')
-                retry_login = ui.ask_yes_no("Do you want to have another try?", default=False)
+                retry_login = ui.ask_yes_no("Would you like to try again?", default=False)
                 if not retry_login:
                     ui.info('You have exited from the system')
                     break
@@ -81,13 +84,11 @@ if __name__ == '__main__':
             newPanel.login()
             if newPanel.userType:
                 newPanel.enter_system()
-                toExit = ui.ask_yes_no("Do you want to exit the system?", default=False)
-                if toExit:
-                    ui.info('You have exited from the system.')
-                    break
         else:
             toRegister = ui.ask_yes_no("Do you want to register a new account?", default=False)
             if toRegister:
                 Patient.register()
-            else:
-                break
+        toExit = ui.ask_yes_no("Do you want to exit the system?", default=False)
+        if toExit:
+            ui.info('You have exited from the system.')
+            break

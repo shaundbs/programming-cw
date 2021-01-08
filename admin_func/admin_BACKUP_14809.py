@@ -19,24 +19,37 @@ from state_manager import StateGenerator
 states = {
     # admin menu
     "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin",
+<<<<<<< HEAD
+                      "Track performance", "Log out"],
+    "Return to menu": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin",
+                       "Track performance", "Log out"],
+=======
                       "View reports", "Log out"],
     "Return to menu": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin",
                        "View reports", "Log out"],
+>>>>>>> develop
     "Log out": [""],
-    "Manage Patient": ["Search by Date of Birth", "Search by Last Name", "Back"],
-    "Search by Date of Birth": ["Manage Patient Account"],
-    "Search by Last Name": ["Manage Patient Account"],
+    "Manage Patient": ["Search by date of birth", "Search by last name", "Back"],
+    "Search by Date of Birth": ["Manage patient account"],
+    "Search by Last Name": ["Manage patient account"],
     "Assign new admin": ["Back"],
 
     # data dashboard menu
+<<<<<<< HEAD
+    "Track performance": ["GP metrics", "Patient metrics", "Prescription metrics", "Back"],
+    "GP metrics": ["Back"],
+    "patient metrics": ["Back"],
+    "Prescription metrics": ["Back"],
+=======
     "View reports": ["GP report", "Patient report", "Specialist report", "Back"],
     "GP report": ["Back"],
     "Patient report": ["Back"],
     "Specialist report": ["Back"],
+>>>>>>> develop
 
     # Manage GP menu
-    "Manage GP": ["Edit GP account Information", "Remove GP account", "Deactivate GP account", "Reactivate GP account",
-                  "Back"],
+    "Manage GP": ["Edit GP account information", "Remove GP account", "Deactivate GP account", "Reactivate GP account",
+                  "View GP calendar", "Back"],
 
     # Edit GP menu
     "Edit GP account information": ["Change GP name", "Change GP registered email address", "Reset GP password",
@@ -63,6 +76,16 @@ states = {
     "Delete all patients": ["Return to menu"],
 
     # Manage Patient menu
+<<<<<<< HEAD
+    "Manage patient account": ["Edit patient details", "Add medical history", "Delete medical history",
+                               "Deactivate patient account", "Reactivate patient account", "Back"],
+    "Edit patient details": ["Change patient name", "Change date of birth", "Change patient email address", "Back"],
+    "Add medical history": ["Add to the medical History", "Back"],
+    "Delete medical history": ["Delete medical history", "Back"],
+    "Deactivate patient account": ["Deactivate the patients account", "Back"],
+    "Reactivate patient account": ["Reactivate the patients account", "Back"],
+    "View GP calendar": ["Back"],
+=======
     "Manage Patient Account": ["Edit Patient Details", "Add Medical History", "Delete Medical History",
                                "Deactivate Patient Account", "Reactivate Patient Account","Download Patient Record",
                                "Back"],
@@ -72,6 +95,7 @@ states = {
     "Deactivate Patient Account": ["Deactivate the Patients account", "Back"],
     "Reactivate Patient Account": ["Reactivate the Patients account", "Back"],
     "Download Patient Record": ["Download the Patient Record", "Back"],
+>>>>>>> develop
 }
 
 
@@ -172,6 +196,8 @@ class Admin:
                 self.to_deactivate_gp_account(gp_id)
             elif selected == "Reactivate GP account":
                 self.to_reactivate_gp_account(gp_id)
+            elif selected == "View GP calendar":
+                self.to_view_gp_calendar(gp_id)
             else:
                 self.handle_state_selection("Manage GP")
         elif gp_id == "Back":
@@ -207,6 +233,13 @@ class Admin:
     def change_gp_name(self, gp_id, chosen_gp_table):
         Admin.clear()
         ui.info_section(ui.blue, "Change GP's name?")
+<<<<<<< HEAD
+        change_name_confirm = ui.ask_yes_no("Are you sure you want to change the name of this GP's account?",
+                                            default=False)
+        if change_name_confirm:
+            new_fName = ui.ask_string("Please enter the GP's new first name: ").capitalize()
+            new_lName = ui.ask_string("Please enter the GP's new last name: ").capitalize()
+=======
 
         while True:
             new_firstname = ui.ask_string("Please enter the GP's new first name: ").capitalize()
@@ -226,6 +259,7 @@ class Admin:
         if not name_changed_confirm:
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
         else:
+>>>>>>> develop
             self.db = db.Database()
             self.db.exec_one("""UPDATE Users SET firstname=?,LastName=? WHERE userID=?""",
                              [new_firstname, new_lastname, gp_id])
@@ -239,12 +273,18 @@ class Admin:
     def change_gp_registered_email_address(self, gp_id, chosen_gp_table):
         Admin.clear()
         ui.info_section(ui.blue, "Change GP's email ?")
+<<<<<<< HEAD
+        change_email_confirm = ui.ask_yes_no("Are you sure you want to change the email for this GP's account?",
+                                             default=False)
+        if change_email_confirm:
+=======
 
         change_email = True
         self.db = db.Database()
         email_list = self.db.email_list()
         while change_email:
             regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
+>>>>>>> develop
             new_email = ui.ask_string("Please enter the GP's new email: ")
             if not re.search(regex, new_email):
                 print("Invalid Email. Please try again.")
@@ -274,7 +314,19 @@ class Admin:
         reset_password_confirm = ui.ask_yes_no("Are you sure you want to reset the password for this account?",
                                                default=False)
         if reset_password_confirm:
+<<<<<<< HEAD
+            new_password = ui.ask_password("Please enter a new password: ")
+            # TODO: input validation - e.g. ask admin to input new password
+
+            # encode password
+            new_password = new_password.encode('UTF-8')
+            # hash password
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(new_password, salt)
+            # update password in db
+=======
             # retrieve GP's current password
+>>>>>>> develop
             self.db = db.Database()
             old_password_query = f"SELECT password from Users WHERE userID = {gp_id}"
             old_password = self.db.fetch_data(old_password_query)
@@ -320,9 +372,11 @@ class Admin:
         if delete_gp_confirm:
             self.db = db.Database()
             delete_gp_query = f"DELETE FROM Users WHERE userID= {gp_id}"
+            reject_gp_appointments_query = f"UPDATE Appointment SET is_rejected='1' WHERE gp_id={gp_id}"
             self.db.exec(delete_gp_query)
+            self.db.exec(reject_gp_appointments_query)
             self.db.close_db()
-            ui.info_2(ui.standout, f"This account has been deleted.")
+            ui.info_2(ui.standout, f"This account has been deleted and all upcoming appointments rejected.")
             self.state_gen.change_state("Manage GP")
         else:
             self.handle_state_selection("Back")
@@ -354,6 +408,11 @@ class Admin:
             self.state_gen.change_state("Manage GP")
         else:
             self.handle_state_selection("Back")
+
+    def view_gp_calendar(self, gp_id):
+        Admin.clear()
+        ui.info_section(ui.blue, 'View GP calendar')
+
 
     def register_new_gp(self):
         registerGP()
@@ -401,6 +460,27 @@ class Admin:
 
     # manage patient functionality
     @staticmethod
+<<<<<<< HEAD
+    def SeePatientRecord(df):
+        x = 1
+        while x == 1:
+            ID = int(input("Enter an ID Number from the table above to see a Patients Medical History: "))
+            col_one_list = df['ID'].tolist()
+            if ID not in col_one_list:
+                print("Invalid ID input, Please select an ID from the table below")
+                x = 1
+                # Return to original Menu
+            else:
+                x += 1
+
+        Index1 = ["UserID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
+                  "Signed UP"]
+        Index2 = ["MedicalHistoryID", "UserID", "illness", "time_afflicted", "description", "prescribed_medication"]
+        db1 = Database()
+        db1.exec_one(
+            "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE userID = ?",
+            (ID,))
+=======
     def seepatientrecord(df):
         input_isvalid = True
         while input_isvalid:
@@ -427,14 +507,20 @@ class Admin:
             "SELECT userID, firstname, LastName, date_of_birth, email, accountType, is_registered, is_active, "
             "signUpDate FROM Users WHERE userID = ?",
             (id,))
+>>>>>>> develop
         result = db1.c.fetchall()
         df1 = DataFrame(result)
         df1.columns = index1
         db2 = Database()
         db2.exec_one(
+<<<<<<< HEAD
+            "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM MedicalHistory WHERE userID = ?",
+            (ID,))
+=======
             "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
             "MedicalHistory WHERE userID = ?",
             (id,))
+>>>>>>> develop
         result = db2.c.fetchall()
         row = len(result)
         print(row)
@@ -456,8 +542,13 @@ class Admin:
 
         else:
             df2 = DataFrame(result)
+<<<<<<< HEAD
+            df2.columns = Index2
+            return (ID, df1, df2)
+=======
             df2.columns = index2
             return id, df1, df2
+>>>>>>> develop
 
     def display_patient_record(self):
         Admin.clear()
@@ -514,14 +605,23 @@ class Admin:
             self.handle_state_selection("Manage Patient")
 
         if selected == "Search by Date of Birth":
+<<<<<<< HEAD
+            DoB = input("Enter the Date of Birth  (Format: YYYY-MM-DD EXAMPLE: 1996-10-16): ")
+=======
             dob = input("Enter the Date of Birth  (Format: YYYY-MM-DD EXAMPLE: 1996-10-16): ")
+>>>>>>> develop
             db = Database()
             index = ["ID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                      "Signed UP"]
             db.exec_one(
+<<<<<<< HEAD
+                "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE date_of_birth = ? and accountType=? ",
+                (DoB, 'patient'))
+=======
                 "SELECT userID, firstname, LastName, date_of_birth, email, accountType, is_registered, is_active, "
                 "signUpDate  FROM Users WHERE date_of_birth = ? and accountType=? ",
                 (dob, 'patient'))
+>>>>>>> develop
             result = db.c.fetchall()
             row = len(result)
             if row == 0:
@@ -532,6 +632,17 @@ class Admin:
 
             else:
                 df = DataFrame(result)
+<<<<<<< HEAD
+                df.columns = Index
+                print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
+                SeePatientRecord = self.SeePatientRecord(df)
+                self.ID = SeePatientRecord[0]
+                self.DF1 = SeePatientRecord[1]
+                self.DF2 = SeePatientRecord[2]
+                self.to_manage_patient_account()
+        elif selected == "Search by Last Name":
+            Name = input("Enter the Last Name of the Patient: ")
+=======
                 df.columns = index
                 print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
                 seepatientrecord = self.seepatientrecord(df)
@@ -542,13 +653,19 @@ class Admin:
         elif selected == "Search by Last Name":
             name = input("Enter the Last Name of the Patient: ")
             name = name.lower()
+>>>>>>> develop
             db = Database()
             index = ["ID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
                      "Signed UP"]
             db.exec_one(
+<<<<<<< HEAD
+                "SELECT userID, FirstName, LastName, date_of_birth, email, accountType, is_registered, is_active, signUpDate  FROM Users WHERE LastName = ? and accountType=? ",
+                (Name, 'patient'))
+=======
                 "SELECT userID, firstname, LastName, date_of_birth, email, accountType, is_registered, is_active, "
                 "signUpDate  FROM Users WHERE lower(LastName) = ? and accountType=? ",
                 (name, 'patient'))
+>>>>>>> develop
             result = db.c.fetchall()
             row = len(result)
             if row == 0:
@@ -558,12 +675,21 @@ class Admin:
                 self.to_manage_patient()
             else:
                 df = DataFrame(result)
+<<<<<<< HEAD
+                df.columns = Index
+                print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
+                SeePatientRecord = Admin.SeePatientRecord(df)
+                self.ID = SeePatientRecord[0]
+                self.DF1 = SeePatientRecord[1]
+                self.DF2 = SeePatientRecord[2]
+=======
                 df.columns = index
                 print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
                 seepatientrecord = Admin.seepatientrecord(df)
                 self.ID = seepatientrecord[0]
                 self.DF1 = seepatientrecord[1]
                 self.DF2 = seepatientrecord[2]
+>>>>>>> develop
                 self.to_manage_patient_account()
         elif selected == "Back":
             self.handle_state_selection("Admin Options")
@@ -582,8 +708,11 @@ class Admin:
             self.to_deactivate_patient_account()
         elif selected == "Reactivate Patient Account":
             self.to_reactivate_patient_account()
+<<<<<<< HEAD
+=======
         elif selected == "Download Patient Record":
             self.to_download_patient_record()
+>>>>>>> develop
         elif selected == "Back":
             self.handle_state_selection("Admin Options")
 
@@ -593,6 +722,13 @@ class Admin:
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
 
         if selected == "Change Patient name":
+<<<<<<< HEAD
+            FirstName = input("Enter the new First Name: ")
+            LastName = input("Enter the new Last Name: ")
+            db = Database()
+            db.exec_one("""UPDATE Users SET FirstName=?,LastName=?  WHERE userID=?""", (FirstName, LastName, self.ID,))
+            print("Successfully Updated Patient Name,Wait 2 Seconds")
+=======
             while True:
                 FirstName = ui.ask_string("Please enter the Patient's new first name: ").capitalize()
                 if FirstName.isalpha():
@@ -609,10 +745,17 @@ class Admin:
             db.exec_one("""UPDATE Users SET firstname=?,LastName=?  WHERE userID=?""", (FirstName, LastName, self.ID,))
             ui.info_2(ui.standout, f"Successfully Updated Patient Name. "
                                    f"Please wait whilst you are redirected.")
+>>>>>>> develop
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
         elif selected == "Change Date of Birth":
+<<<<<<< HEAD
+            DoB = util.get_user_date()
+            db = Database()
+            db.exec_one("""UPDATE Users SET date_of_birth=?  WHERE userID=?""", (DoB, self.ID,))
+            print("Successfully Updated Date of Birth, Wait 2 Seconds")
+=======
             Check_Date_of_birth = True
             while Check_Date_of_birth:
                 DoB = util.get_user_date()
@@ -626,6 +769,7 @@ class Admin:
             db.exec_one("""UPDATE Users SET date_of_birth=?  WHERE userID=?""", (DoB, self.ID,))
             ui.info_2(ui.standout, f"Successfully Updated Date of Birth. "
                                    f"Please wait whilst you are redirected.")
+>>>>>>> develop
             sleep(2)
             Admin.clear()
             self.edit_patient_details()
@@ -659,6 +803,26 @@ class Admin:
 
             db1 = Database()
             db1.exec_one(
+<<<<<<< HEAD
+                "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
+                "MedicalHistory WHERE userID = ?",
+                (self.ID,))
+            result = db1.c.fetchall()
+            row = len(result)
+            Ref = result[0]['illness']
+            illness = input("Illness: ")
+            time_afflicted = input("Time Afflicted: ")
+            description = input("Description: ")
+            prescribed_medication = input("Prescribed Medication:")
+            db1 = Database()
+
+            if row == 1 and Ref == "Empty":
+                MedNr = result[0]['Medical_historyNo']
+
+                db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
+                                prescribed_medication=? WHERE Medical_historyNo=?""",
+                             (illness, time_afflicted, description, prescribed_medication, MedNr,))
+=======
                 "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication "
                 "FROM MedicalHistory WHERE userID = ?",
                 (self.ID,))
@@ -691,6 +855,7 @@ class Admin:
                 ui.info_2(ui.standout, f"Medical History was added to the Patients record."
                                        f"Please wait whilst you are redirected.")
                 sleep(2)
+>>>>>>> develop
                 self.add_medical_history()
             else:
 
@@ -713,8 +878,13 @@ class Admin:
 
             db1 = Database()
             db1.exec_one(
+<<<<<<< HEAD
+                "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
+                "MedicalHistory WHERE userID = ?",
+=======
                 "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication "
                 "FROM MedicalHistory WHERE userID = ?",
+>>>>>>> develop
                 (self.ID,))
             result = db1.c.fetchall()
             row = len(result)
@@ -725,16 +895,25 @@ class Admin:
             if row == 1:
 
                 while x == 1:
+<<<<<<< HEAD
+                    Nr = int(input('Enter the MedicalHistoryNr you would like to delete (see above): '))
+                    if Nr in col_one_list:
+=======
                     nr = int(input('Enter the MedicalHistoryNr you would like to delete (see above): '))
                     if nr in col_one_list:
+>>>>>>> develop
 
                         db1 = Database()
                         db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
                                         prescribed_medication=? WHERE Medical_historyNo=?""",
+<<<<<<< HEAD
+                                     ("Empty", "Empty", "Empty", "Empty", Nr,))
+=======
                                      ("Empty", "Empty", "Empty", "Empty", nr,))
                         ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
                                                f"Please wait whilst you are redirected.")
                         sleep(2)
+>>>>>>> develop
                         x = 2
                     else:
                         print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
@@ -746,10 +925,14 @@ class Admin:
                     nr = int(input('Enter the MedicalHistoryNr you would like to delete (see above): '))
                     if nr in col_one_list:
                         db1 = Database()
+<<<<<<< HEAD
+                        db1.exec_one("DELETE FROM MedicalHistory WHERE Medical_historyNo=?", (Nr,))
+=======
                         db1.exec_one("DELETE FROM MedicalHistory WHERE Medical_historyNo=?", (nr,))
                         ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
                                                f"Please wait whilst you are redirected.")
                         sleep(2)
+>>>>>>> develop
                         x = 2
                     else:
                         print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
@@ -792,7 +975,11 @@ class Admin:
     def view_reports(self):
         Admin.clear()
         ui.info_section(ui.blue, "Performance metrics")
+<<<<<<< HEAD
+        selected = util.user_select("Please choose one of the trackable items below.",
+=======
         selected = util.user_select("Please choose the trackable metric you would like to view below.",
+>>>>>>> develop
                                     self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
@@ -1080,8 +1267,13 @@ class Admin:
         assign_admin_confirm = ui.ask_yes_no("Please confirm if you want to assign a new Admin account?",
                                              default=False)
         if assign_admin_confirm:
+<<<<<<< HEAD
+            new_fName = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
+            new_lName = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
+=======
             new_fname = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
             new_lname = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
+>>>>>>> develop
             email_repetition = True
             while email_repetition:
                 regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
@@ -1098,15 +1290,25 @@ class Admin:
             salt = bcrypt.gensalt()
             hashed_password = bcrypt.hashpw(new_password, salt)
             curr_date = datetime.datetime.now()
+<<<<<<< HEAD
+            format_date = curr_date.strftime("%m-%d-%Y %H:%M")
+=======
             format_date = curr_date.strftime("%m/%d/%Y %H:%M:%S")
+>>>>>>> develop
             is_registered = 1
             is_active = 1
 
             self.db = db.Database()
             self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password,signUpDate, accountType, 
+<<<<<<< HEAD
+                                is_registered, is_active)
+                                VALUES(?,?,?,?,?,?,?,?)""",
+                             [new_fName, new_lName, new_email, hashed_password, format_date, "admin", is_registered,
+=======
             is_registered, is_active)
                                 VALUES(?,?,?,?,?,?,?,?)""",
                              [new_fname, new_lname, new_email, hashed_password, format_date, "admin", is_registered,
+>>>>>>> develop
                               is_active])
             self.db.close_db()
             ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.")
@@ -1120,4 +1322,7 @@ class Admin:
 # for testing admin functionality
 if __name__ == "__main__":
     Admin(2)
+<<<<<<< HEAD
+=======
 
+>>>>>>> develop
