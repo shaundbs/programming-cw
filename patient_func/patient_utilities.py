@@ -5,7 +5,7 @@ import sys
 import os
 
 
-def loader():
+def loader(message):
     done = False
     #animation
 
@@ -13,7 +13,7 @@ def loader():
         for c in itertools.cycle(['|', '/', '-', '\\']):
             if done:
                 break
-            sys.stdout.write('\rDownloading... ' + c)
+            sys.stdout.write('\r' + message + '... ' + c)
             sys.stdout.flush()
             time.sleep(0.1)
 

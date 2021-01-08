@@ -176,11 +176,13 @@ class Patient:
             for i in result:
                 self.referralsList.append(list(i))
             output = []
+            util.loader('Loading')
+            print("\n")
             for i in self.referralsList:
                 output.append("Your are referred to our specialist Dr " + str(i[1]) + " " + str(
                     i[2]) + " at Department " + str(i[4]) + " of Hopsital " + str(i[3]) + ".")
             if len(output) == 0:
-                print("Sorry, you have no referrals at the moment.")
+                print("Sorry, you have no referrals at the moment.\n")
                 break
             output.append("Back.")
             option = ui.ask_choice("Choose a referral:", choices=output, sort=False)
@@ -199,9 +201,11 @@ class Patient:
             result = self.db.c.fetchall()
             for i in result:
                 self.appointmentList.append(i)
+            print(" ")
+            util.loader('Loading')
+            print("\n")
 
             # Print appointments and options.
-            print("")
             apt = []
             for i in self.appointmentList:
                 if i[-1] == 1:
@@ -319,6 +323,7 @@ class Patient:
                                         # if all conditions are met list out appts
                                         print('The date {} is valid. Listing appointments... \n'.format(
                                             select_date))
+                                        util.loader('Loading')
                                         self.select_slots(select_date)
                                     elif fm_selected < datetime.datetime.now().date():
                                         print("Sorry, we are unable to book appointments for dates in the past")
@@ -537,7 +542,7 @@ class Patient:
                 available_session[i[0]] = [[i[4], i[1]]]
 
         # Prompt user to select slots.
-        print("Please select an appointment time:")
+        print("\n\nPlease select an appointment time:")
         sessions = ["09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00",
                     "13:00-14:00", "14:00-15:00", "15:00-16:00", "16:00-17:00"]
         num = 0
@@ -551,6 +556,7 @@ class Patient:
         df1 = DataFrame(result_session)
         df1.columns = index_1
         df1.index += 1
+        print("\n")
         self.display_opening_hours(select_date)
         print(colored('Available slots on the ' + select_date + ' ', 'green',
                       attrs=['bold']))
@@ -631,6 +637,9 @@ class Patient:
             df4.columns = index_8
             df4.index += 1
             pd.DataFrame(df4)
+            print(" ")
+            util.loader('Loading')
+            print("\n")
             # print prescriptions out as one table
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
@@ -659,7 +668,7 @@ class Patient:
                             for i in output:
                                 thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
                             f.close()
-                            util.loader()
+                            util.loader('Downloading')
                             print("\n")
                             print("Your prescription has been downloaded successfully\n")
                     except:
@@ -672,7 +681,7 @@ class Patient:
                             for i in output:
                                 thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
                             f.close()
-                            util.loader()
+                            util.loader('Downloading')
                             print("\n")
                             print("Your prescription has been downloaded successfully\n")
                 elif data_type == "txt":
@@ -691,7 +700,7 @@ class Patient:
                             f.write("\n")
                             f.write(df4.to_string(header=index_8, index=True))
                             f.close()
-                            util.loader()
+                            util.loader('Downloading')
                             print("\n")
                             print("Your prescription has been downloaded successfully\n")
                     except:
@@ -704,7 +713,7 @@ class Patient:
                             f.write("\n")
                             f.write(df4.to_string(header=index_8, index=True))
                             f.close()
-                            util.loader()
+                            util.loader('Downloading')
                             print("\n")
                             print("Your prescription has been downloaded successfully\n")
 
