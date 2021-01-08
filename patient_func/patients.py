@@ -20,7 +20,7 @@ import os
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 import threading
-import patient_utilities as util
+from . import patient_utilities as util
 
 
 class Patient:
