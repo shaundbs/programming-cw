@@ -629,8 +629,11 @@ class Patient:
         try:
             self.db.exec(
                 "SELECT p.medicine_name, p.treatment_description, p.pres_frequency_in_days, p.startDate, p.expiryDate, p.prescription_id, p.appointment_id FROM Prescription AS P "
-                "LEFT JOIN Users as U "
-                "WHERE u.userId = '""" + str(self.patient_id) + """'""")
+                "LEFT JOIN Appointment as a "
+                "ON a.appointment_id = p.appointment_id "
+                "LEFT JOIN Users as u "
+                "ON a.patient_id = u.userId "
+                "WHERE u.userId = '""" + str(18) + """'""")
             output = self.db.c.fetchall()
             index_8 = ["Medicine Name", "Treatment Desc", "Frequency of intake (days)", "Start Date", "Expiry Date",
                        "Prescription ID", "Appointment ID"]
