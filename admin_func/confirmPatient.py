@@ -42,7 +42,7 @@ def confirm_patient():
     df = DataFrame(records)
     index = ["ID", "First Name", "Last Name", "Email", "Date Signed Up"]
     df.columns = index
-    print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
+    print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
 
     global validation_required
     global user_ids

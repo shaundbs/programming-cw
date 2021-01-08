@@ -131,7 +131,7 @@ class Admin:
         gp_dataframe_header = ['ID', 'First Name', 'Last Name', 'email', 'Active?']
         gp_dataframe = DataFrame(gp_acct_result)
         gp_dataframe.columns = gp_dataframe_header
-        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='grid', showindex=False)
+        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='pretty', showindex=False)
         print(gp_table + "\n")
 
         # allow admin user to choose desired gp account
@@ -761,9 +761,23 @@ class Admin:
         ui.info_section(ui.blue, "GP metrics")
         # TODO:
         # view all GPs
-        # number of appointments booked in past week, in past month, in past year
-        # Number of holiday days taken
-        # number of specialists in each departments
+            # select count(userid) as no_gps from Users where trim(accountType) = 'gp'
+        # current active GPs:
+            # select firstName || ' ' || lastName as gp_name from Users where trim(accountType) = 'gp' and is_active = 1
+        # number of specialists per department
+            # select count(specialist_id) as no_available_specialists, name as department_name from Department d left join Specialists s using(department_id) group by name
+        # number of specialists per hospital
+            # specialists per hospital - select count(specialist_id) as no_available_specialists, hospital from Department d left join Specialists s using(department_id) where hospital is not null group by hospital
+        # number of confirmed appointments booked in past year
+            # select sum(is_confirmed) as no_confirmed_appts, sum(is_rejected) as no_rejected_appts, count(appointment_id) as total_appts_requested, sum(is_confirmed)/count(appointment_id) as confirmation_rate from Appointment a left join slots s using (slot_id) where date(s.starttime) between date('now', '-1 year') and date('now')
+        # Number of confirmed appointments per GP
+            # select sum(is_confirmed) as no_confirmed_appts, sum(is_rejected) as no_rejected_appts, count(appointment_id) as total_appts_requested, sum(is_confirmed)/count(appointment_id) as confirmation_rate, u.firstName || ' ' || u.lastName as doctor_name from Appointment a left join slots s using (slot_id) left join Users u on u.userid = a.gp_id where date(s.starttime) between date('now', '-1 year') and date('now') group by doctor_name
+        # holiday days taken per GP
+            # select count(distinct gp_id) as no_gps_currently_off from gp_time_off where 'now' between starttime and endTime
+
+    # select
+    # sum(strftime('%d', endtime) - strftime('%d', starttime)) as no_days, gp_id, firstName | | '' | | lastName as gp_name
+    # from gp_time_off g left join Users u on u.userId = g.gp_id where startTime between date('now', '-1 year') and date('now') group by gp_id, gp_name
 
     def patient_metrics(self):
         Admin.clear()
@@ -772,8 +786,8 @@ class Admin:
         # view number of appointments
         # view number of pending registrations
         # view number of cancelled appointments
-        # view number of referrals
-        # view number of prescriptions
+        # prescription and referral rates for appointment past year
+        # select count(a.appointment_id) as total_appointments, sum(case when a.referred_specialist_id is not null then 1 else 0 end) / count(a.appointment_id) as referral_rate, count(distinct p.appointment_id) as appts_with_prescription, count(distinct p.appointment_id) / count(a.appointment_id) as perc_appts_with_prescription from Appointment a left join Prescription p using(appointment_id) left join slots s using(slot_id) where is_completed = 1 and s.startTime between date('now', '-1 year') and date('now')
 
     def prescription_metrics(self):
         Admin.clear()
