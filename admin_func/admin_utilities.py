@@ -41,3 +41,46 @@ def get_user_date():
             print("No date entered")
 
 
+def get_multi_line_input(user_prompt):
+    """
+    Gets multi line input from user.
+    :param user_prompt: Str to prompt user with
+    :return:
+    """
+    # loop input fields until user enters q to quit/exit
+    ui.info(user_prompt)
+    ui.info_2("This is a multi-lined input. Use [Enter] to start a new line.")
+    ui.info_2(ui.bold, "Enter 'q', 'quit' or 'exit' on a new line to finish the entry.")
+    exit_inputs = ['q', 'quit', 'exit']
+
+    inputs = []
+    while True:
+        new_value = input()
+        if new_value in exit_inputs:
+            break
+        else:
+            inputs.append(new_value)
+
+    # if any input field over x characters, we will split it to display correctly in the terminal.
+    formatted_inputs = []
+    for input_text in inputs:
+        # print(input_text)
+        # search for the first space above x characters and split.
+        current_index = 0
+        count_char = 0
+        last_cut = 0
+        for char in input_text:
+            # print(char, current_index, count_char, last_cut)
+            if len(input_text) == current_index + 1:  # if last element
+                formatted = input_text[last_cut:]
+                formatted_inputs.append(formatted)
+            elif char == ' ' and count_char > 70:
+                formatted = input_text[last_cut:count_char + 1]
+                formatted_inputs.append(formatted)
+                last_cut = count_char + 1
+                count_char = 0
+            count_char += 1
+            current_index += 1
+    return "\n".join(formatted_inputs)
+
+
