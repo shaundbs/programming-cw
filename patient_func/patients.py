@@ -577,7 +577,7 @@ class Patient:
 
                 if booked_slot == (len(result) + 1):
                     break
-                elif booked_slot in range(8):
+                elif booked_slot in range(9):
                     # Assign GP6 to this appointment temporarily.
                     # selected_session = available_session[booked_slot - 1][:2]
                     # ask the patient to input any symptoms they may have or default value is 'none'
