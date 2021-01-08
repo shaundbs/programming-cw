@@ -231,6 +231,7 @@ class Gp:
         appointments = self.db.fetch_data(clash_query)
         start_stamp = datetime.strptime(start_time, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S')
         end_stamp = (datetime.strptime(end_time, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+        print(end_stamp)
 
         time_off_query = f"INSERT INTO gp_time_off (gp_id, startTime, endTime)" \
                          f"VALUES ({self.user_id}, '{start_stamp}', '{end_stamp}')"
