@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timedelta
 import os
 from sqlite3 import OperationalError
+import sys
 
 import cli_ui as ui
 
@@ -71,8 +72,10 @@ class Gp:
         print("Hi Dr", self.firstname, self.lastname)
 
     def logout(self):
-        # remove state tracking from the object. exiting out of class.
+        # remove state tracking from the object. exiting out of app.
         del self.state_gen
+        ui.info("Logging out and exiting application.")
+        sys.exit()
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
     def handle_state_selection(self, selected):
@@ -84,6 +87,7 @@ class Gp:
     # FUNCTIONS FOR EACH STATE
 
     def main_options(self):
+        util.sys_clear()
         self.print_welcome()  # say hi to the Dr.
         # reset state variable if back to main options.
         self.curr_appt_date = "today"
@@ -104,6 +108,7 @@ class Gp:
     # CALENDAR HANDLING
 
     def manage_calendar(self):
+        util.sys_clear()
         print("Welcome to your calendar")
         self.curr_appt_month = "current_month"
 
@@ -273,6 +278,7 @@ class Gp:
     # CONFIRM APPOINTMENTS
 
     def confirm_appointments(self):
+        util.sys_clear()
         ui.info_section(ui.blue, "Confirm Appointments")
         # show requested appt booking for GP
         query = f"SELECT APPOINTMENT_ID,  u.firstName || ' ' || u.lastName as 'patient name',  strftime('%d/%m/%Y', " \
@@ -368,6 +374,7 @@ class Gp:
 
     # View today's or another day's appointments and initiate consultations.
     def view_my_appointments(self):
+        util.sys_clear()
 
         # state variables
         self.curr_appt_id = None  # reset current appointment if previously declared
@@ -464,6 +471,7 @@ class Gp:
             self.handle_state_selection("back")
 
     def show_appointment_details(self):
+        util.sys_clear()
 
         appt_id = self.curr_appt_id  # grab state variable of current appointment
 
@@ -568,8 +576,8 @@ class Gp:
         too_early = too_early[0]["is_after_now"]
 
         if too_early == 1:
-            ui.info("Sorry, prescriptions cannot be written for appointments in the future. \nPrescriptions may be "
-                    "written for appointments today, or amended for appointments in the past.")
+            ui.warning("Sorry, prescriptions cannot be written for appointments in the future. \nPrescriptions may be "
+                       "written for appointments today, or amended for appointments in the past.")
             ui.info("Returning to previous screen")
             util.loading(load_time=4)
             self.handle_state_selection("back")
@@ -648,6 +656,7 @@ class Gp:
             self.to_show_appointment_details()
 
     def add_referral(self):
+        util.sys_clear()
         appt_id = self.curr_appt_id  # get current state appointment id
 
         ui.info_section("Refer this patient to a specialist")
@@ -713,6 +722,7 @@ class Gp:
         self.to_show_appointment_details()
 
     def finalise_appointment(self):
+        util.sys_clear()
         appt_id = self.curr_appt_id
 
         # appointment status summary - clinical notes written? prescription? referral?
@@ -810,6 +820,7 @@ class Gp:
             self.handle_state_selection(selected)
 
     def view_patient_medical_history(self):
+        util.sys_clear()
         # check how many records are available
         appt_id = self.curr_appt_id
         # use appt_id to get patient_id
@@ -883,6 +894,8 @@ class Gp:
         # get results.
         ui.info(f"Fetching {limit_number} results in order of appointment date")
         util.loading()
+        util.sys_clear()
+        ui.info_section(ui.blue, "Viewing patient medical records by recency")
         for i in range(limit_number):
             # get each appointment up to index - results already ordered.
             desired_index = len(self.prev_appt_records) - limit_number + i  # results are in time asc, we want to print
