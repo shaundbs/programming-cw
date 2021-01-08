@@ -23,7 +23,7 @@ def user_select(prompt: str, choices: list):
         #     selected = choice
         # except Exception as err:
         # log error
-        logging.info("Exception occurred while trying to use cursors for user input.")
+        # logging.info("Exception occurred while trying to use cursors for user input.")
         try:
             selected = ui.ask_choice(prompt, choices=choices, sort=False)
         except AttributeError:
@@ -85,7 +85,7 @@ def db_update(record_list, table_name, pk_column_name, **new_column_values):
     if err is None:
         return True
     else:
-        # TODO: log the error
+        logging.error(f"Error occurred during gp db_update: \n{err}")
         return False
 
 
@@ -229,7 +229,6 @@ def print_appointment_summary(appt_id):
                             f"a.patient_id left join slots s on s.slot_id = a.slot_id WHERE appointment_id= " \
                             f"{appt_id} "
     appt_details = conn.fetch_data(get_apt_details_query)
-    # todo: add check that there is only one record returned. if not == problem
 
     # Prescription
     prescription_query = f"select * from Prescription where appointment_id = {appt_id}"
@@ -297,7 +296,6 @@ def email_appt_summary(appt_id):
                             f"a.slot_id WHERE appointment_id= " \
                             f"{appt_id} "
     appt_details = conn.fetch_data(get_apt_details_query)
-    # todo: add check that there is only one record returned. if not == problem
 
     # Prescription
     prescription_query = f"select * from Prescription where appointment_id = {appt_id}"
