@@ -128,7 +128,7 @@ class Patient:
 
     def patient_home(self):
         self.print_welcome()
-        prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
+        prv = ["Request appointment", "View appointments", "View referrals", "View prescriptions", "Log out"]
         # if user has an appointment to receive vaccine
         if self.covid_appt_count() >= 1:
             # have they received it yet or not - if so clear notification
@@ -229,8 +229,11 @@ class Patient:
             if option < len(apt) - 1:
                 # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
                 appointmentData = self.appointmentList[option]
+                print('\nAppointment Date: '+appointmentData[3][:10])
+                print('Time Slot: '+appointmentData[3][-8:-3]+" - "+appointmentData[4][-8:-3])
+                print('GP: Dr ' + appointmentData[1] + " "+ appointmentData[2])
                 if appointmentData[-1] == 1:
-                    print("\nThis appointment is completed.")
+                    print("This appointment is completed.")
                     aptid = (appointmentData[0],)
                     self.db.exec_one("SELECT clinical_notes FROM Appointment WHERE appointment_id = ?", aptid)
                     result = self.db.c.fetchone()
@@ -244,7 +247,7 @@ class Patient:
                         if option:
                             break
                 elif (appointmentData[-3] + appointmentData[-2]) == 0:
-                    print("\nThis appointment is not approved yet.")
+                    print("This appointment is not approved yet.")
                     apt = ["Cancel this appointment.", "Back."]
                     option = ui.ask_choice("Choose an option", choices=apt, sort=False)
                     option = list.index(apt, option)
@@ -253,9 +256,9 @@ class Patient:
                     continue
                 elif appointmentData[-3] == 0 or appointmentData[-2] == 0:
                     if appointmentData[-3] == 0:
-                        print("\nThis appointment is rejected.\n")
+                        print("This appointment is rejected.\n")
                     elif appointmentData[-1] == 0:
-                        print("\nThis appointment is confirmed.\n")
+                        print("This appointment is confirmed.\n")
                     apt = ["Reschedule this appointment.",
                            "Cancel this appointment.", "Back."]
                     option = ui.ask_choice("Choose an option", choices=apt, sort=False)
@@ -400,7 +403,7 @@ class Patient:
                 datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
                 < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
             vulnerable_individual = True
-            print(colored('*New Notification*\n', 'red',
+            print(colored('*New Notification*', 'red',
                           attrs=['bold']))
             print("You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
                   "first dose of the " + chosen_vac + " vaccination.\nThis classification has been made based on your "
@@ -428,7 +431,7 @@ class Patient:
                 datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
                 < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
             high_risk_top_waitinglist = True
-            print(colored('*New Notification*\n', 'red',
+            print(colored('*New Notification*', 'red',
                           attrs=['bold']))
             print(
                 "-- You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
@@ -450,7 +453,7 @@ class Patient:
         if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() > datetime.datetime.now().date() - \
                 datetime.timedelta(60 * 365):
             low_risk_patient = True
-            print(colored('*New Notification*\n', 'red',
+            print(colored('*New Notification*', 'red',
                           attrs=['bold']))
             print("In accordance with our system, you have been classified as a low-risk patient to COVID-19.\n"
                   "However, you will receive an invite to have a vaccination in due course but we are currently "
@@ -485,13 +488,13 @@ class Patient:
         end_time = tup[1]
         vaccination_time = end_time[:10]
         if datetime.datetime.strptime(vaccination_time, '%Y-%m-%d').date() < datetime.datetime.now().date():
-            print(colored('*New Notification*\n', 'red',
+            print(colored('*New Notification*', 'red',
                           attrs=['bold']))
             print("-- Congratulations! You have now received you first dose of the "
                   "COVID-19 vaccine.\n-- We will contact you again in 3 months time to receive your second dose.\n")
             immunised = True
         else:
-            print(colored('*New Notification*\n', 'red',
+            print(colored('*New Notification*', 'red',
                           attrs=['bold']))
             print("-- You have an upcoming appointment to receive a COVID-19 vaccination.\n-- Please check your "
                   "'View appointments' tab for further details. \n")
@@ -577,7 +580,7 @@ class Patient:
 
                 if booked_slot == (len(result) + 1):
                     break
-                elif booked_slot in range(8):
+                elif booked_slot in range(9):
                     # Assign GP6 to this appointment temporarily.
                     # selected_session = available_session[booked_slot - 1][:2]
                     # ask the patient to input any symptoms they may have or default value is 'none'
@@ -595,20 +598,21 @@ class Patient:
                     option = ui.ask_choice("Choose an option", choices=["Yes", "No"], sort=False)
                     option = list.index(["Yes", "No"], option)
                     if option == 0:
+                        print("- Appointment Date: " + select_date)
+                        print("- Time Slot: " + session[booked_slot-1])
+                        print("- GP: Dr " + gp_name[0] + " " + gp_name[1])
                         if self.tobecanceled > 0:
                             self.db.reschedule(a, self.tobecanceled)
                             self.tobecanceled = -1
                             print(
-                                "SUCCESS - \nYou have successfully reshceduled an appointments with Dr " + str(
-                                    gp_name[0]) + " " + str(
-                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                                "Great! \nYou have successfully rescheduled this appointment. "
+                                "\nYou will be alerted once your appointment is confirmed.")
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
                             print(
-                                "SUCCESS - \nYou have successfully requested an appointments with Dr " + str(
-                                    gp_name[0]) + " " + str(
-                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                                "Great! \nYou have successfully requested this appointment. "
+                                "\nYou will be alerted once your appointment is confirmed.")
                     self.patient_home()
             except ValueError:
                 print("Please select a valid option.")
@@ -629,8 +633,11 @@ class Patient:
         try:
             self.db.exec(
                 "SELECT p.medicine_name, p.treatment_description, p.pres_frequency_in_days, p.startDate, p.expiryDate, p.prescription_id, p.appointment_id FROM Prescription AS P "
-                "LEFT JOIN Users as U "
-                "WHERE u.userId = '""" + str(self.patient_id) + """'""")
+                "LEFT JOIN Appointment as a "
+                "ON a.appointment_id = p.appointment_id "
+                "LEFT JOIN Users as u "
+                "ON a.patient_id = u.userId "
+                "WHERE u.userId = '""" + str(18) + """'""")
             output = self.db.c.fetchall()
             index_8 = ["Medicine Name", "Treatment Desc", "Frequency of intake (days)", "Start Date", "Expiry Date",
                        "Prescription ID", "Appointment ID"]
@@ -731,8 +738,11 @@ class Patient:
                 elif presc_opts == 2:
                     self.patient_home()
         except ValueError:
+            print(" ")
+            util.loader('Loading')
+            print(" ")
             # no prescription in the DB so return ---
-            print("Sorry - you currently do not have any prescriptions from our GP's to display")
+            print("\nSorry - you currently do not have any prescriptions from our GP's to display\n")
 
     def display_opening_hours(self, selected):
         # get datetime object of the first and last appointments on that day = Opening hours
