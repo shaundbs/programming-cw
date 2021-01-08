@@ -127,6 +127,10 @@ class Gp:
                                  choices=self.state_gen.get_state_options())
         if selected == "view day schedule":
             self.curr_appt_date = util.get_user_date()
+            while datetime.strptime(self.curr_appt_date, '%Y-%m-%d').weekday() > 4:
+                ui.info("There are no appointments at weekends, please select a weekday")
+                self.curr_appt_date = util.get_user_date()
+
         elif selected == "view another month":
             self.curr_appt_month = util.get_user_month()
             self.to_view_calendar()
