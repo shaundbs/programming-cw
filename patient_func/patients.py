@@ -176,6 +176,7 @@ class Patient:
             for i in result:
                 self.referralsList.append(list(i))
             output = []
+            print(" ")
             util.loader('Loading')
             print("\n")
             for i in self.referralsList:
