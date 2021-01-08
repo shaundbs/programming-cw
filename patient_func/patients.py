@@ -403,7 +403,7 @@ class Patient:
         date_of_birth = x[0]
         sign_up = x[1]
         sign_up_date = sign_up[:10]
-        vaccinations = ["Pfizer-BioNTech", "Oxford University/AstraZeneca"]
+        vaccinations = ["Pfizer-BioNTech", "Oxford University/AstraZeneca", "Moderna mRNA-1273"]
         chosen_vac = random.choice(vaccinations)
         if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() < datetime.datetime.now().date() - \
                 datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
