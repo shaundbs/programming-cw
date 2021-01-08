@@ -112,6 +112,7 @@ class Patient:
                     task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"),
                                             daemon=True)
                     task.start()
+                    util.clear()
                     break
             elif not isValidDate:
                 print("Sorry this input is not accepted. Please re-enter your DoB in YYYY-MM-DD format")
@@ -298,6 +299,7 @@ class Patient:
                             )
                             dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
                             last_booking_date = date_generator.date_sort(dn)
+                            util.clear()
                             try:
                                 # check if the date is in YYYY-MM-DD format
                                 year, month, day = select_date.split('-')
@@ -602,6 +604,7 @@ class Patient:
                                 "SUCCESS - \nYou have successfully reshceduled an appointments with Dr " + str(
                                     gp_name[0]) + " " + str(
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                            util.clear()
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
@@ -609,6 +612,7 @@ class Patient:
                                 "SUCCESS - \nYou have successfully requested an appointments with Dr " + str(
                                     gp_name[0]) + " " + str(
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                            util.clear()
                     self.patient_home()
             except ValueError:
                 print("Please select a valid option.")
@@ -729,8 +733,10 @@ class Patient:
             if presc_opts in [0, 1, 2]:
                 if presc_opts == 0:
                     print_prescription("csv")
+                    util.clear()
                 elif presc_opts == 1:
                     print_prescription("txt")
+                    util.clear()
                 elif presc_opts == 2:
                     self.patient_home()
         except ValueError:
