@@ -878,18 +878,19 @@ class Gp:
                 csv_file = os.path.join(save_path, csv_filename)
                 print(csv_file)
 
-                full_records_query = "select u.firstName || ' ' || u.lastname as patient_name, u.date_of_birth as " \
-                                     "patient_dob, u2.firstName || ' ' || u2.lastname as doctor_seen, starttime as " \
-                                     "appt_time, reason, clinical_notes, medicine_name, treatment_description, " \
-                                     "pres_frequency_in_days, startDate as prescription_startDate, expiryDate as " \
-                                     "prescription_expiryDate, " \
-                                     "sp.firstName || ' '|| sp.lastName as referred_specialist, hospital as " \
-                                     "referred_hospital, d.name as referred_dept_name from Appointment a left join " \
-                                     "Slots s using (slot_id) left join Prescription p on p.appointment_id = " \
-                                     "a.appointment_id left join Specialists sp on sp.specialist_id = " \
-                                     "a.referred_specialist_id left join users u on a.patient_id = u.userId left join " \
-                                     "Users u2 on a.gp_id = u2.userId left join Department d on d.department_id = " \
-                                     "sp.department_id where patient_id = 4 and s.endTime <'now' "
+                full_records_query = f"select u.firstName || ' ' || u.lastname as patient_name, u.date_of_birth as " \
+                                     f"patient_dob, u2.firstName || ' ' || u2.lastname as doctor_seen, starttime as " \
+                                     f"appt_time, reason, clinical_notes, medicine_name, treatment_description, " \
+                                     f"pres_frequency_in_days, startDate as prescription_startDate, expiryDate as " \
+                                     f"prescription_expiryDate, " \
+                                     f"sp.firstName || ' '|| sp.lastName as referred_specialist, hospital as " \
+                                     f"referred_hospital, d.name as referred_dept_name from Appointment a left join " \
+                                     f"Slots s using (slot_id) left join Prescription p on p.appointment_id = " \
+                                     f"a.appointment_id left join Specialists sp on sp.specialist_id = " \
+                                     f"a.referred_specialist_id left join users u on a.patient_id = u.userId left join " \
+                                     f"Users u2 on a.gp_id = u2.userId left join Department d on d.department_id = " \
+                                     f"sp.department_id where patient_id = {self.patient_id} and date(s.endTime) " \
+                                     f"<date('now') and is_completed = 1 order by slot_id asc"
                 full_records = self.db.fetch_data(full_records_query)
                 ui.info_count(1, 3, "Creating CSV file")
                 ui.info_count(2, 3, "Inserting medical record data")
