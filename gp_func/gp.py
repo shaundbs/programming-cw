@@ -3,6 +3,7 @@ import csv
 import logging
 from datetime import datetime, timedelta
 import os
+from sqlite3 import OperationalError
 
 import cli_ui as ui
 
@@ -68,7 +69,6 @@ class Gp:
     def print_welcome(self):
         ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
         print("Hi Dr", self.firstname, self.lastname)
-        # todo add instructions
 
     def logout(self):
         # remove state tracking from the object. exiting out of class.
@@ -261,8 +261,6 @@ class Gp:
     # CONFIRM APPOINTMENTS
 
     def confirm_appointments(self):
-        # todo - confirm appts bug - after going to confirm appts, then going back back, logout returns to confirm
-        #  appts.
         ui.info_section(ui.blue, "Confirm Appointments")
         # show requested appt booking for GP
         query = f"SELECT APPOINTMENT_ID,  u.firstName || ' ' || u.lastName as 'patient name',  strftime('%d/%m/%Y', " \
@@ -358,7 +356,6 @@ class Gp:
 
     # View today's or another day's appointments and initiate consultations.
     def view_my_appointments(self):
-        # TODO - add details on how to use. I.e. show appt details to begin a consultation.
 
         # state variables
         self.curr_appt_id = None  # reset current appointment if previously declared
@@ -368,6 +365,13 @@ class Gp:
         appt_date = self.curr_appt_date
 
         ui.info_section(ui.blue, "View your appointments")
+        # instructions
+        ui.info(ui.faint, "Info:"
+                          "\nDefault view will show your appointments for today."
+                          "\nIf you have any appointments, select one to view the appointment details: add "
+                          "prescriptions, referrals, clinical notes, view a patients previous appointment history "
+                          "etc.\n")
+
         ui.info(f"showing appointments for {str(appt_date)}")
         if appt_date == "today":
             date = "date('now')"
@@ -376,13 +380,26 @@ class Gp:
         # get appointments for the GP user
         get_appts_sql_query = "SELECT appointment_id,  u.firstName || ' ' || u.lastName as 'patient name',  strftime(" \
                               f"'%d/%m/%Y', " \
-                              f"s.starttime) as date, strftime('%H:%M', s.starttime)  as 'appointment time' FROM APPOINTMENT  a " \
+                              f"s.starttime) as date, strftime('%H:%M', s.starttime)  as 'appointment time' FROM " \
+                              f"APPOINTMENT  a " \
                               f"left join Users u " \
-                              f" on u.userId = a.patient_id left join slots s on s.slot_id = a.slot_id WHERE IS_CONFIRMED= 1 and  " \
+                              f" on u.userId = a.patient_id left join slots s on s.slot_id = a.slot_id WHERE " \
+                              f"IS_CONFIRMED= 1 and  " \
                               f"GP_ID = {self.user_id}  and date(s.starttime) = {date} order by s.starttime "
 
         res = self.db.fetch_data(get_appts_sql_query)
-        ui.info_2(ui.standout, f"{appt_date} - you have {len(res)} appointment(s)")
+
+        # if date is in past the had, else have
+        try:
+            if datetime.strptime(appt_date, '%Y-%m-%d').date() < datetime.today().date():
+                tense = "had"
+            else:
+                tense = "have"
+        except ValueError:
+            # if date is 'today'
+            tense = "have"
+        ui.info_2(ui.standout, f"{appt_date} - you {tense} {len(res)} appointment(s)")
+
         # show appts table
         if res:
             table_data = util.output_sql_rows(res, ["date", "appointment time", "patient name"])
@@ -489,19 +506,31 @@ class Gp:
         notes = util.get_multi_line_input("Please write your clinical notes here:")
 
         if rewrite_or_append == "append to current notes":  # if append need to append.
-            # TODO HANDLING IN CASE ERRORS ON JOIN?
             notes = "\n".join([clinical_notes[0]["clinical_notes"], notes])
             ui.info_1("We've appended your new notes to the previous notes:")
         else:
             ui.info_1("Your clinical notes:")
+
+        # replace any invalid double quotation marks with single.
+        notes = notes.replace('"', '\'')
 
         ui.info(ui.indent(notes, 6))
         if ui.ask_yes_no(
                 "Are you happy to add the clinical notes to the appointment? Select 'No' to discard changes or 'Yes' "
                 "to save."):
             # update db
-            success = util.db_update(clinical_notes, "Appointment", "appointment_id",
-                                     **{"clinical_notes": f'"{notes}"'})
+            try:
+                success = util.db_update(clinical_notes, "Appointment", "appointment_id",
+                                         **{"clinical_notes": f'"{notes}"'})
+            except OperationalError:
+                logging.exception(
+                    f"Exception occurred when updating clinical notes in DB. notes value entered = {notes}")
+                ui.error("an error occurred while updating the database. Change not saved. Please try again later.")
+                ui.info("Returning to appointment details")
+                util.loading()
+                # Return to Appointment details
+                self.to_show_appointment_details()
+
             # todo - this may break if a user users double quotation marks... - could use """ triple quotations in the get multi input fn?
             if success:
                 ui.info(ui.green, "Clinical notes successfully saved.")
@@ -878,18 +907,19 @@ class Gp:
                 csv_file = os.path.join(save_path, csv_filename)
                 print(csv_file)
 
-                full_records_query = "select u.firstName || ' ' || u.lastname as patient_name, u.date_of_birth as " \
-                                     "patient_dob, u2.firstName || ' ' || u2.lastname as doctor_seen, starttime as " \
-                                     "appt_time, reason, clinical_notes, medicine_name, treatment_description, " \
-                                     "pres_frequency_in_days, startDate as prescription_startDate, expiryDate as " \
-                                     "prescription_expiryDate, " \
-                                     "sp.firstName || ' '|| sp.lastName as referred_specialist, hospital as " \
-                                     "referred_hospital, d.name as referred_dept_name from Appointment a left join " \
-                                     "Slots s using (slot_id) left join Prescription p on p.appointment_id = " \
-                                     "a.appointment_id left join Specialists sp on sp.specialist_id = " \
-                                     "a.referred_specialist_id left join users u on a.patient_id = u.userId left join " \
-                                     "Users u2 on a.gp_id = u2.userId left join Department d on d.department_id = " \
-                                     "sp.department_id where patient_id = 4 and s.endTime <'now' "
+                full_records_query = f"select u.firstName || ' ' || u.lastname as patient_name, u.date_of_birth as " \
+                                     f"patient_dob, u2.firstName || ' ' || u2.lastname as doctor_seen, starttime as " \
+                                     f"appt_time, reason, clinical_notes, medicine_name, treatment_description, " \
+                                     f"pres_frequency_in_days, startDate as prescription_startDate, expiryDate as " \
+                                     f"prescription_expiryDate, " \
+                                     f"sp.firstName || ' '|| sp.lastName as referred_specialist, hospital as " \
+                                     f"referred_hospital, d.name as referred_dept_name from Appointment a left join " \
+                                     f"Slots s using (slot_id) left join Prescription p on p.appointment_id = " \
+                                     f"a.appointment_id left join Specialists sp on sp.specialist_id = " \
+                                     f"a.referred_specialist_id left join users u on a.patient_id = u.userId left join " \
+                                     f"Users u2 on a.gp_id = u2.userId left join Department d on d.department_id = " \
+                                     f"sp.department_id where patient_id = {self.patient_id} and date(s.endTime) " \
+                                     f"<date('now') and is_completed = 1 order by slot_id asc"
                 full_records = self.db.fetch_data(full_records_query)
                 ui.info_count(1, 3, "Creating CSV file")
                 ui.info_count(2, 3, "Inserting medical record data")
