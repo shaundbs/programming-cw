@@ -111,10 +111,37 @@ class Patient:
                 print("Sorry this input is not accepted. Please re-enter your DoB in YYYY-MM-DD format")
                 continue
 
-
+    def print_welcome(self):
+        self.db.exec("""SELECT firstName, lastName FROM Users WHERE userId = '""" + str(self.patient_id) + """'""")
+        output = self.db.c.fetchall()
+        y = output[0]
+        fName = y[0]
+        lName = y[1]
+        ui.info_section(ui.blue, '\nWelcome to the Patient Dashboard')
+        print("Hi, " + fName + " " + lName + "\n")
 
     def patient_home(self):
+        self.print_welcome()
         prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
+        # if user has an appointment to receive vaccine
+        if self.covid_appt_count() >= 1:
+            # have they received it yet or not - if so clear notification
+            self.dismiss_covid_notification()
+        else:
+            # if user has no appointments - find out if they are high risk based on age and qualify for vaccine
+            if self.high_risk_top_waitinglist_notification():
+                print(" ")
+            # if age < 60 == low-risk patient
+            elif self.low_risk_notification():
+                print(" ")
+            # if high-risk but registered with us >30 days
+            elif not self.high_risk_top_waitinglist_notification():
+                print(colored('*New Notification*\n', 'red',
+                              attrs=['bold']))
+                print("-- You have been identified as a high risk patient to COVID-19 and have been placed on our "
+                      "waiting list.\n-- This classification has been made based on your age making you more "
+                      "susceptible to the virus. You will be invited to receive a vaccination with us "
+                      "in due course.\n")
 
         while True:
             option = ui.ask_choice("Choose an option:", choices=prv, sort=False)
@@ -329,6 +356,118 @@ class Patient:
         x = result[0]
         weekly_appointment_count = x[0]
         return weekly_appointment_count
+
+    def receive_covid_notification(self):
+        # queries the DB to see if a patient already has an appt between for a week they have selected
+        self.db.exec("""SELECT date_of_birth, signUpDate FROM Users
+                           WHERE userId = '""" + str(self.patient_id) + """'""")
+        result = self.db.c.fetchall()
+        x = result[0]
+        date_of_birth = x[0]
+        sign_up = x[1]
+        sign_up_date = sign_up[:10]
+        vaccinations = ["Pfizer-BioNTech", "Oxford University/AstraZeneca"]
+        chosen_vac = random.choice(vaccinations)
+        if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() < datetime.datetime.now().date() - \
+                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date()\
+                < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
+            vulnerable_individual = True
+            print(colored('*New Notification*\n', 'red',
+                          attrs=['bold']))
+            print("You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
+                  "first dose of the " + chosen_vac + " vaccination.\nThis classification has been made based on your "
+                  "age and you have been on the waiting list for over 30 days (30 days since the date that you "
+                  "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
+                  " or 'COVID-19 Immunisation' so that you may be protected.\n - we look forward to hearing from you.\n")
+        else:
+            vulnerable_individual = False
+            print("You have not been identified as a high risk patient to COVID-19. However you will be invited to "
+                  "receive a vaccination in due course. Please stay at home and protect the NHS :)\n")
+        return vulnerable_individual
+
+    def high_risk_top_waitinglist_notification(self):
+        # queries the DB to see if a patient already has an appt between for a week they have selected
+        self.db.exec("""SELECT date_of_birth, signUpDate FROM Users
+                            WHERE userId = '""" + str(self.patient_id) + """'""")
+        result = self.db.c.fetchall()
+        x = result[0]
+        date_of_birth = x[0]
+        sign_up = x[1]
+        sign_up_date = sign_up[:10]
+        vaccinations = ["Pfizer-BioNTech", "Oxford University/AstraZeneca"]
+        chosen_vac = random.choice(vaccinations)
+        if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() < datetime.datetime.now().date() - \
+                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
+                < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
+            high_risk_top_waitinglist = True
+            print(colored('*New Notification*\n', 'red',
+                          attrs=['bold']))
+            print("-- You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
+                  "first dose of the " + chosen_vac + " vaccination.\n-- This classification has been made based on your "
+                  "age and you have been on the waiting list for over 30 days (30 days since the date that you "
+                  "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
+                  " or 'COVID-19 Immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
+        else:
+            high_risk_top_waitinglist = False
+        return high_risk_top_waitinglist
+
+    def low_risk_notification(self):
+        # queries the DB to see if a patient already has an appt between for a week they have selected
+        self.db.exec("""SELECT date_of_birth, signUpDate FROM Users
+                             WHERE userId = '""" + str(self.patient_id) + """'""")
+        result = self.db.c.fetchall()
+        x = result[0]
+        date_of_birth = x[0]
+        if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() > datetime.datetime.now().date() - \
+                datetime.timedelta(60 * 365):
+            low_risk_patient = True
+            print(colored('*New Notification*\n', 'red',
+                          attrs=['bold']))
+            print("In accordance with our system, you have been classified as a low-risk patient to COVID-19.\n"
+                  "However, you will receive an invite to have a vaccination in due course but we are currently "
+                  "prioritising the vulnerable groups.\nPlease stay at home and protect the NHS! :)")
+        else:
+            low_risk_patient = False
+        return low_risk_patient
+
+    def covid_appt_count(self):
+        # queries the DB to see number of COVID_19 related appts
+        self.db.exec("""SELECT count(a.appointment_id) FROM Appointment AS a
+                        LEFT JOIN slots s
+                        ON a.slot_id = s.slot_id
+                        WHERE a.patient_id = '""" + str(self.patient_id) + """'
+                        and
+                        a.reason = 'COVID-19 immunisation' or a.reason = 'COVID-19 vaccination'""")
+        result = self.db.c.fetchall()
+        tup = result[0]
+        counter = tup[0]
+        return counter
+
+    def dismiss_covid_notification(self):
+        # queries the DB to see if a patient already has an appt between for a week they have selected
+        self.db.exec("""SELECT a.reason, s.endTime FROM Appointment AS a
+        LEFT JOIN slots s
+        ON a.slot_id = s.slot_id
+        WHERE a.patient_id = '""" + str(self.patient_id) + """'
+        and 
+        a.reason = 'COVID-19 immunisation' or a.reason = 'COVID-19 vaccination'""")
+        result = self.db.c.fetchall()
+        tup = result[0]
+        end_time = tup[1]
+        vaccination_time = end_time[:10]
+        if datetime.datetime.strptime(vaccination_time, '%Y-%m-%d').date() < datetime.datetime.now().date():
+            print(colored('*New Notification*\n', 'red',
+                          attrs=['bold']))
+            print("-- Congratulations! You have now received you first dose of the "
+                  "COVID-19 vaccine.\n-- We will contact you again in 3 months time to receive your second dose.\n")
+            immunised = True
+        else:
+            print(colored('*New Notification*\n', 'red',
+                          attrs=['bold']))
+            print("-- You have an upcoming appointment to receive a COVID-19 vaccination.\n-- Please check your "
+                  "'View appointments' tab for further details. \n")
+            immunised = False
+        return immunised
 
     def weekday_bookings_only(self, chosen_date):
         # restrict bookings to weekdays only using this function
@@ -582,4 +721,4 @@ class Patient:
 
 
 # if __name__ == "__main__":
-    # Patient(4).patient_home()
+#     Patient(4).patient_home()
