@@ -135,13 +135,17 @@ class Gp:
                 display_month = display_month.replace(" %s " % appt["day"], "[%s]" % appt["day"])
 
         ui.info(display_month)
-        ui.info("[Days] that you have appointments")
+        ui.info("Days that you have appointments are highlighted in brackets []")
 
         # user_choices = ["view day", "view another month", "back"]
-        selected = ui.ask_choice("View a day to schedule time off and view appointments or view another month",
+        selected = ui.ask_choice("What would you like to do next?",
                                  choices=self.state_gen.get_state_options())
         if selected == "view day schedule":
             self.curr_appt_date = util.get_user_date()
+            while datetime.strptime(self.curr_appt_date, '%Y-%m-%d').weekday() > 4:
+                ui.info("There are no appointments at weekends, please select a weekday")
+                self.curr_appt_date = util.get_user_date()
+
         elif selected == "view another month":
             self.curr_appt_month = util.get_user_month()
             self.to_view_calendar()
@@ -227,13 +231,21 @@ class Gp:
         appointments = self.db.fetch_data(clash_query)
         start_stamp = datetime.strptime(start_time, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S')
         end_stamp = (datetime.strptime(end_time, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+        print(end_stamp)
 
         time_off_query = f"INSERT INTO gp_time_off (gp_id, startTime, endTime)" \
                          f"VALUES ({self.user_id}, '{start_stamp}', '{end_stamp}')"
 
         if not appointments:
-            print("No clashes, time-off successfully booked")
-            self.db.exec(time_off_query)
+
+            yes = ui.ask_yes_no(f"These dates are available. Are you sure you would like to book time off"
+                                f" between the following dates?:\n {start_time} - {end_time}")
+            if yes:
+                self.db.exec(time_off_query)
+                print("Time-off successfully booked")
+            else:
+                print("Booking cancelled")
+
             # TODO ERROR HANDLING
 
         elif appointments:
