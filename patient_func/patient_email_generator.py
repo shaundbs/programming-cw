@@ -6,6 +6,7 @@ from email.mime.image import MIMEImage
 
 
 class Emails:
+    @staticmethod
     def registration_email(recipient, firstName, lastName, accountType):
 
         sender_email = "gowerstsurgery.adm@gmail.com"
