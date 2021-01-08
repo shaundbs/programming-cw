@@ -19,8 +19,7 @@ def registerGP():
     clear()
     print("Registration form for new GPs \n")
 
-
-    #First name validation
+    # First name validation
     first_ver = True
     global firstName
     while first_ver:
@@ -29,7 +28,6 @@ def registerGP():
         if firstName == '9':
             Admin().admin_options()
 
-
         elif firstName.isalpha():
             firstName = firstName.title()
             first_ver = False
@@ -37,7 +35,7 @@ def registerGP():
             print("Invalid input")
             first_ver = True
 
-    #Second name validation
+    # Second name validation
     last_ver = True
     global lastName
     while last_ver:
@@ -50,7 +48,7 @@ def registerGP():
             print("Invalid input")
             last_ver = True
 
-    #Email validation
+    # Email validation
     email_list = Database().email_list()
     email_repetition = True
 
@@ -68,7 +66,7 @@ def registerGP():
         else:
             print("This email address has already been registered. Please try again.")
 
-    #Set password
+    # Set password
     pass_val = True
     global pWord
     while pass_val:
@@ -85,10 +83,7 @@ def registerGP():
     print(f"Name: Dr {firstName} {lastName}\nEmail: {email}\nPassword: {pWord}\n")
 
 
-
 def confirmation():
-
-
 
     curr_date = datetime.datetime.now()
     format_date = curr_date.strftime("%m-%d-%Y %H:%M")
@@ -100,7 +95,8 @@ def confirmation():
     a = [(firstName, lastName, email, hashed, 'gp','1','1',format_date), ]
     try:
         Database().exec_many(
-            "INSERT INTO Users(firstName,lastName,email,password,accountType,is_registered,is_active,signUpDate) Values (?,?,?,?,?,?,?,?)", a)
+            """INSERT INTO Users(firstName,lastName,email,password,accountType,is_registered,is_active,signUpDate)
+             Values (?,?,?,?,?,?,?,?)""", a)
     except:
         clear()
         print("Registration unsuccessful")
@@ -128,7 +124,6 @@ def confirmation():
         # Display summary of account details
         print("Registration successful!\n")
 
-
         # Email new user with the relevant details
         try:
             print("Sending confirmation email...")
@@ -136,8 +131,6 @@ def confirmation():
             print("\nEmail has been sent with record of the account details\n")
         except Error as err:
             print("Sorry, unable to send email...")
-
-
 
 
 if __name__ == "__main__":
