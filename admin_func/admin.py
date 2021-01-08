@@ -50,6 +50,8 @@ states = {
     "Deactivate GP account": ["Back"],
     "Reactivate GP account": ["Back"],
 
+
+
     # Register GP
     "Register new GP": ["Confirm details", "Back"],
     "Confirm details": ["Register another GP", "Return to menu"],
@@ -63,13 +65,14 @@ states = {
 
     # Manage Patient menu
     "Manage Patient Account": ["Edit Patient Details", "Add Medical History", "Delete Medical History",
-                               "Deactivate Patient Account", "Reactivate Patient Account", "Back"],
+                               "Deactivate Patient Account", "Reactivate Patient Account","Download Patient Record",
+                               "Back"],
     "Edit Patient Details": ["Change Patient name", "Change Date of Birth", "Change Patient email address", "Back"],
     "Add Medical History": ["Add to the Medical History", "Back"],
     "Delete Medical History": ["Delete Medical History", "Back"],
     "Deactivate Patient Account": ["Deactivate the Patients account", "Back"],
     "Reactivate Patient Account": ["Reactivate the Patients account", "Back"],
-
+    "Download Patient Record": ["Download the Patient Record", "Back"],
 }
 
 
@@ -582,6 +585,8 @@ class Admin:
             self.to_deactivate_patient_account()
         elif selected == "Reactivate Patient Account":
             self.to_reactivate_patient_account()
+        elif selected == "Download Patient Record":
+            self.to_download_patient_record()
         elif selected == "Back":
             self.handle_state_selection("Admin Options")
 
@@ -663,10 +668,21 @@ class Admin:
             result = db1.c.fetchall()
             row = len(result)
             ref = result[0]['illness']
-            illness = input("Illness: ")
-            time_afflicted = input("Time Afflicted: ")
-            description = input("Description: ")
-            prescribed_medication = input("Prescribed Medication:")
+
+            while True:
+                illness= input("Illness (Character limit:30): ")
+                if len(illness) > 30:
+                    print("Error! Only 30 characters allowed!")
+                else:
+                    break
+            while True:
+                time_afflicted= input("time afflicted (Character limit:30): ")
+                if len(time_afflicted) > 30:
+                    print("Error! Only 20 characters allowed!")
+                else:
+                    break
+            description = util.get_multi_line_input("Description (Start a new line after roughly 40 characters):")
+            prescribed_medication = util.get_multi_line_input("Prescribed Medication (Start a new line after roughly 40 characters):")
             db1 = Database()
 
             if row == 1 and ref == "Empty":
@@ -807,6 +823,57 @@ class Admin:
         ui.info_section(ui.blue, "Prescription metrics")
         # TODO:
 
+
+
+    def download_patient_record(self):
+        self.display_patient_persrecord()
+
+
+
+        ui.info_section(ui.blue, 'Download Patient Record')
+        selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
+
+        if selected == "Download the Patient Record":
+            db1 = Database()
+            db1.exec_one(
+                "SELECT userID, firstname, LastName, date_of_birth, email, accountType, is_registered, is_active, "
+                "signUpDate  FROM Users WHERE userID = ?",
+                (self.ID,))
+            result = db1.c.fetchall()
+            index1 = ["UserID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
+                      "Signed UP"]
+            df1 = DataFrame(result)
+            df1.columns = index1
+
+            db2 = Database()
+            db2.exec_one(
+                "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
+                "MedicalHistory WHERE userID = ?",
+                (self.ID,))
+            result = db2.c.fetchall()
+            index2 = ["MedicalHistoryID", "UserID", "illness", "time_afflicted", "description", "prescribed_medication"]
+            df2 = DataFrame(result)
+            df2.columns = index2
+            curr_date = datetime.datetime.now()
+            format_date = curr_date.strftime("%m_%d_%Y_%H_%M_%S_")
+
+            outname = format_date+"Patient_record.csv"
+            outdir = './Download'
+            if not os.path.exists(outdir):
+                os.mkdir(outdir)
+            fullname = os.path.join(outdir, outname)
+            result = df1.append(df2, sort=False)
+            result.to_csv(fullname,index=False)
+            path =outdir + "/"+outname
+
+            print(path)
+            ui.info_2(ui.standout, f"Patients Record was downloaded and saved in the path above."
+                                   f"Please wait whilst you are redirected.")
+            sleep(3)
+            self.download_patient_record()
+        elif selected == "Back":
+            self.handle_state_selection("Manage Patient Account")
+
     def assign_new_admin(self):
         Admin.clear()
         ui.info_section(ui.blue, "Assign a new Admin user")
@@ -853,3 +920,4 @@ class Admin:
 # for testing admin functionality
 if __name__ == "__main__":
     Admin(2)
+
