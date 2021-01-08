@@ -6,15 +6,14 @@ import bcrypt
 from .admin_database import Database
 from .admin_email_generator import Emails
 
-def clear():
-    _ = system('clear')
 
+def clear():
+    _ = system('cls||clear')
 
 
 def registerGP():
     """Allows user logged in with admin privileges to register
     a new account for a GP"""
-
 
     clear()
     print("Registration form for new GPs \n")
