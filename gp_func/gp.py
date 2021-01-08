@@ -388,7 +388,18 @@ class Gp:
                               f"GP_ID = {self.user_id}  and date(s.starttime) = {date} order by s.starttime "
 
         res = self.db.fetch_data(get_appts_sql_query)
-        ui.info_2(ui.standout, f"{appt_date} - you have {len(res)} appointment(s)")
+
+        # if date is in past the had, else have
+        try:
+            if datetime.strptime(appt_date, '%Y-%m-%d').date() < datetime.today().date():
+                tense = "had"
+            else:
+                tense = "have"
+        except ValueError:
+            # if date is 'today'
+            tense = "have"
+        ui.info_2(ui.standout, f"{appt_date} - you {tense} {len(res)} appointment(s)")
+
         # show appts table
         if res:
             table_data = util.output_sql_rows(res, ["date", "appointment time", "patient name"])
