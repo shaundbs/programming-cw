@@ -18,9 +18,9 @@ from datetime import timedelta as td
 import csv
 import os
 import pandas as pd
-
 from dateutil.relativedelta import relativedelta
 import threading
+import patient_utilities as util
 
 
 class Patient:
@@ -94,7 +94,8 @@ class Patient:
                     print("It is not possible for your DoB to be set in the future - please try again")
                     continue
                 elif fm_selected > datetime.datetime.now().date() - datetime.timedelta(16 * 365):
-                    print("Sorry, you must be at least 16 years of age to register for this e-health management service")
+                    print(
+                        "Sorry, you must be at least 16 years of age to register for this e-health management service")
                     continue
                 elif fm_selected < datetime.datetime.now().date():
                     pWord = pWord.encode('utf-8')
@@ -108,7 +109,8 @@ class Patient:
                         "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
                         a)
                     print('You have successfully requested an account. Please wait for confirmation from us:)')
-                    task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
+                    task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"),
+                                            daemon=True)
                     task.start()
                     break
             elif not isValidDate:
@@ -225,13 +227,13 @@ class Patient:
                 if appointmentData[-1] == 1:
                     print("\nThis appointment is completed.")
                     aptid = (appointmentData[0],)
-                    self.db.exec_one("SELECT clinical_notes FROM Appointment WHERE appointment_id = ?",aptid)
+                    self.db.exec_one("SELECT clinical_notes FROM Appointment WHERE appointment_id = ?", aptid)
                     result = self.db.c.fetchone()
                     notes = result[0]
                     if not notes:
                         print("Sorry, you have no clinical notes for this appointment.")
                     else:
-                        print("Clinical notes: "+notes)
+                        print("Clinical notes: " + notes)
                     while True:
                         option = ui.ask_yes_no("Do you want to be redirected to appointment list?", default=False)
                         if option:
@@ -389,16 +391,16 @@ class Patient:
         vaccinations = ["Pfizer-BioNTech", "Oxford University/AstraZeneca"]
         chosen_vac = random.choice(vaccinations)
         if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() < datetime.datetime.now().date() - \
-                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date()\
+                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
                 < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
             vulnerable_individual = True
             print(colored('*New Notification*\n', 'red',
                           attrs=['bold']))
             print("You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
                   "first dose of the " + chosen_vac + " vaccination.\nThis classification has been made based on your "
-                  "age and you have been on the waiting list for over 30 days (30 days since the date that you "
-                  "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
-                  " or 'COVID-19 Immunisation' so that you may be protected.\n - we look forward to hearing from you.\n")
+                                                      "age and you have been on the waiting list for over 30 days (30 days since the date that you "
+                                                      "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
+                                                      " or 'COVID-19 Immunisation' so that you may be protected.\n - we look forward to hearing from you.\n")
         else:
             vulnerable_individual = False
             print("You have not been identified as a high risk patient to COVID-19. However you will be invited to "
@@ -422,11 +424,12 @@ class Patient:
             high_risk_top_waitinglist = True
             print(colored('*New Notification*\n', 'red',
                           attrs=['bold']))
-            print("-- You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
-                  "first dose of the " + chosen_vac + " vaccination.\n-- This classification has been made based on your "
-                  "age and you have been on the waiting list for over 30 days (30 days since the date that you "
-                  "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
-                  " or 'COVID-19 Immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
+            print(
+                "-- You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
+                "first dose of the " + chosen_vac + " vaccination.\n-- This classification has been made based on your "
+                                                    "age and you have been on the waiting list for over 30 days (30 days since the date that you "
+                                                    "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
+                                                    " or 'COVID-19 Immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
         else:
             high_risk_top_waitinglist = False
         return high_risk_top_waitinglist
@@ -553,7 +556,7 @@ class Patient:
                       attrs=['bold']))
         print(tabulate(df1, headers='keys',
                        tablefmt='grid', showindex=True))
-        print(str(num+1) + ". Back")
+        print(str(num + 1) + ". Back")
         return [result_session, available_session]
 
     def select_slots(self, select_date):
@@ -565,7 +568,7 @@ class Patient:
             try:
                 booked_slot = int(input("Enter your option : "))
 
-                if booked_slot == (len(result)+1):
+                if booked_slot == (len(result) + 1):
                     break
                 elif booked_slot in range(8):
                     # Assign GP6 to this appointment temporarily.
@@ -574,7 +577,7 @@ class Patient:
                     symptoms = input("Please list any symptoms or concerns you may have so that we may"
                                      " inform your assigned GP...\n"
                                      "or hit enter if you do not want to disclose now: \n ")
-                    key = session[booked_slot-1][:2]
+                    key = session[booked_slot - 1][:2]
                     slot = result[key][0][1]
                     gp = result[key][0][0]
                     gp_name = self.db.gp_name(gp)
@@ -618,12 +621,12 @@ class Patient:
         # Fetch prescriptions from db.
         try:
             self.db.exec(
-                "SELECT  p.treatment_description, p.medicine_name, p.pres_frequency_in_days, p.expiryDate, p.prescription_id, p.appointment_id, p.startDate FROM Prescription AS P "
+                "SELECT p.medicine_name, p.treatment_description, p.pres_frequency_in_days, p.startDate, p.expiryDate, p.prescription_id, p.appointment_id FROM Prescription AS P "
                 "LEFT JOIN Users as U "
                 "WHERE u.userId = '""" + str(self.patient_id) + """'""")
             output = self.db.c.fetchall()
-            index_8 = ["Treatment Desc", "Medicine Name", "Frequency of intake", "Expiry Date", "Prescription ID",
-                       "Appointment ID", "Start Date"]
+            index_8 = ["Medicine Name", "Treatment Desc", "Frequency of intake (days)", "Start Date", "Expiry Date",
+                       "Prescription ID", "Appointment ID"]
             df4 = DataFrame(output)
             df4.columns = index_8
             df4.index += 1
@@ -649,23 +652,29 @@ class Patient:
                         final_path = os.path.join(path, directory2)
                         os.makedirs(final_path)
                         # save prescription in directory  as a .csv
-                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w', newline='') as f:
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                                  newline='') as f:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
                             for i in output:
                                 thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
                             f.close()
-                            print("Your prescription has been downloaded successfully")
+                            util.loader()
+                            print("\n")
+                            print("Your prescription has been downloaded successfully\n")
                     except:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
-                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w', newline='') as f:
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                                  newline='') as f:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
                             for i in output:
                                 thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
                             f.close()
-                            print("Your prescription has been downloaded successfully")
+                            util.loader()
+                            print("\n")
+                            print("Your prescription has been downloaded successfully\n")
                 elif data_type == "txt":
                     try:
                         directory = "downloadable_data"
@@ -675,23 +684,29 @@ class Patient:
                         final_path = os.path.join(path, directory2)
                         os.makedirs(final_path)
                         # save to Prescription folder as a .txt
-                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w', newline='') as f:
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                                  newline='') as f:
                             f.write("Your prescriptions are as follows:\n"
                                     "\n")
                             f.write("\n")
                             f.write(df4.to_string(header=index_8, index=True))
                             f.close()
-                            print("Your prescription has been downloaded successfully")
+                            util.loader()
+                            print("\n")
+                            print("Your prescription has been downloaded successfully\n")
                     except:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
-                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w', newline='') as f:
+                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                                  newline='') as f:
                             f.write("Your prescriptions are as follows:\n"
                                     "\n")
                             f.write("\n")
                             f.write(df4.to_string(header=index_8, index=True))
                             f.close()
-                            print("Your prescription has been downloaded successfully")
+                            util.loader()
+                            print("\n")
+                            print("Your prescription has been downloaded successfully\n")
 
             # options
             if presc_opts in [0, 1, 2]:
