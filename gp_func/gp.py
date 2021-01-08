@@ -117,6 +117,7 @@ class Gp:
             selected)  # if back is selected, the back state function above will handle going back to parent state.
 
     def view_calendar(self):
+        util.sys_clear()
         selected_month = datetime.now()
         if self.curr_appt_month == "current_month":
             month = datetime.today().strftime('%Y/%m')
@@ -203,6 +204,7 @@ class Gp:
         # selected = ui.ask_choice("Would you like to?", choices=options)
 
     def schedule_time_off(self):
+        util.sys_clear()
         now = datetime.now()
         # now = datetime.strptime("2020-01-01", '%Y-%m-%d')
 
