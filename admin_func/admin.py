@@ -16,13 +16,12 @@ import datetime
 from datetime import date, datetime as Datetime
 from state_manager import StateGenerator
 
-
 states = {
     # admin menu
     "Admin options": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin",
-                      "Track Performance", "Log out"],
+                      "View reports", "Log out"],
     "Return to menu": ["Manage patient", "Manage GP", "Register new GP", "Approve new patients", "Assign new admin",
-                       "Track Performance", "Log out"],
+                       "View reports", "Log out"],
     "Log out": [""],
     "Manage Patient": ["Search by Date of Birth", "Search by Last Name", "Back"],
     "Search by Date of Birth": ["Manage Patient Account"],
@@ -30,10 +29,10 @@ states = {
     "Assign new admin": ["Back"],
 
     # data dashboard menu
-    "Track Performance": ["GP Metrics", "Patient Metrics", "Prescription Metrics", "Back"],
-    "GP Metrics": ["Back"],
-    "patient Metrics": ["Back"],
-    "Prescription Metrics": ["Back"],
+    "View reports": ["GP report", "Patient report", "Specialist report", "Back"],
+    "GP report": ["Back"],
+    "Patient report": ["Back"],
+    "Specialist report": ["Back"],
 
     # Manage GP menu
     "Manage GP": ["Edit GP account Information", "Remove GP account", "Deactivate GP account", "Reactivate GP account",
@@ -97,7 +96,7 @@ class Admin:
         print(f"Hi {self.firstname}")
 
     def handle_state_selection(self, selected):
-        if selected == "Back":
+        if selected.lower() == "back":
             self.state_gen.call_parent_state()
         else:
             self.state_gen.change_state(selected)
@@ -134,7 +133,7 @@ class Admin:
         gp_dataframe_header = ['ID', 'First Name', 'Last Name', 'email', 'Active?']
         gp_dataframe = DataFrame(gp_acct_result)
         gp_dataframe.columns = gp_dataframe_header
-        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='grid', showindex=False)
+        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='pretty', showindex=False)
         print(gp_table + "\n")
 
         # allow admin user to choose desired gp account
@@ -223,7 +222,7 @@ class Admin:
                 print("Please only include letters.")
 
         name_changed_confirm = ui.ask_yes_no("Are you sure you want to change the name for this GP's account "
-                                              "to the above?", default=False)
+                                             "to the above?", default=False)
         if not name_changed_confirm:
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
         else:
@@ -236,7 +235,6 @@ class Admin:
                                    f"Please wait whilst you are redirected.")
             sleep(3)
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
-
 
     def change_gp_registered_email_address(self, gp_id, chosen_gp_table):
         Admin.clear()
@@ -401,7 +399,6 @@ class Admin:
     def return_to_menu(self):
         self.admin_options()
 
-    
     # manage patient functionality
     @staticmethod
     def seepatientrecord(df):
@@ -792,36 +789,236 @@ class Admin:
         elif selected == "Back":
             self.handle_state_selection("Manage Patient Account")
 
-    def track_performance(self):
+    def view_reports(self):
         Admin.clear()
         ui.info_section(ui.blue, "Performance metrics")
-        selected = util.user_select("Please choose one of the trackable items below.",
+        selected = util.user_select("Please choose the trackable metric you would like to view below.",
                                     self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
-    def gp_metrics(self):
+    def gp_report(self):
         Admin.clear()
-        ui.info_section(ui.blue, "GP metrics")
-        # TODO:
-        # view all GPs
-        # number of appointments booked in past week, in past month, in past year
-        # Number of holiday days taken
-        # number of specialists in each departments
+        ui.info_section(ui.blue, "GP metrics report")
 
-    def patient_metrics(self):
-        Admin.clear()
-        ui.info_section(ui.blue, "Patient metrics")
-        # TODO:
-        # view number of appointments
-        # view number of pending registrations
-        # view number of cancelled appointments
-        # view number of referrals
-        # view number of prescriptions
+        no_gp_query = f"SELECT (select count(userid) from Users where trim(accountType) = 'gp' AND is_active='1') " \
+                      f"AS no_active_gps, " \
+                      f"(select count(userid) from Users where trim(accountType) = 'gp' AND is_active='0') " \
+                      f"AS no_inactive_gps, " \
+                      f"(select count(userid) from Users where trim(accountType) = 'gp') " \
+                      f"AS no_total_gps"
 
-    def prescription_metrics(self):
+        active_gp_names_query = f"select firstName || ' ' || lastName as gp_name from Users where " \
+                                f"trim(accountType) = 'gp' and is_active = 1"
+        inactive_gp_names_query = f"select firstName || ' ' || lastName as gp_name from Users where " \
+                                  f"trim(accountType) = 'gp' and is_active = 0"
+        all_gp_names_query = f"select firstName || ' ' || lastName as gp_name from Users where " \
+                             f"trim(accountType) = 'gp'"
+
+        all_gp_query = f'SELECT u.firstName ||" "|| u.lastName AS gp_name, ' \
+                       f'CASE when is_active is null then "-" when is_active = 1 then "Yes" ' \
+                       f'when is_active = 0 then "No" END AS "Account Active?", ' \
+                       f'CASE when date_of_birth is null then "-" ' \
+                       f'when date_of_birth is not null then date_of_birth END AS DOB, ' \
+                       f'signUpDate, ' \
+                       f'userId as GP_ID ' \
+                       f'FROM Users u ' \
+                       f'WHERE accountType="gp"'
+
+        no_gp_holiday_query = f"select count(distinct gp_id) as no_gps_currently_off from gp_time_off where 'now' " \
+                              f"between startTime and endTime"
+
+        no_holidays_taken_query = f"SELECT firstName || ' ' || lastName as gp_name, " \
+                                  f"sum(strftime('%d', endtime) - strftime('%d', starttime)) as no_days " \
+                                  f"from gp_time_off g left join Users u on u.userId = g.gp_id " \
+                                  f"where startTime between date('now', '-1 year') and date('now') " \
+                                  f"group by gp_id, gp_name"
+
+        gp_performance_query = f"SELECT u.firstName ||' '|| u.lastName as gp_name, " \
+                               f"sum(is_confirmed) as no_confirmed_appts, " \
+                               f"sum(is_rejected)  as no_rejected_appts, " \
+                               f"count(appointment_id) as total_appts_requested, " \
+                               f"printf('%.d',round((sum(is_confirmed)*100)/count(appointment_id))) " \
+                               f"as confirmation_rate, " \
+                               f"printf('%.d',round((sum(is_rejected)*100)/count(appointment_id))) " \
+                               f"as rejection_rate " \
+                               f"FROM Appointment a " \
+                               f"LEFT JOIN Users u ON u.userId = a.gp_id " \
+                               f"GROUP BY gp_name"
+
+        # retrieve SQL results
+        self.db = db.Database()
+        all_gp_result = self.db.fetch_data(all_gp_query)
+        no_gp_holiday_result = self.db.fetch_data(no_gp_holiday_query)
+        no_holidays_taken_result = self.db.fetch_data(no_holidays_taken_query)
+        gp_performance_result = self.db.fetch_data(gp_performance_query)
+        self.db.close_db()
+
+        # dataframe for all GPs and activity status
+        all_gp_header_1 = colored('GP: ', 'cyan', attrs=['bold'])
+        all_gp_header_2 = colored('Account active? ', 'cyan', attrs=['bold'])
+        all_gp_header_3 = colored('DOB: ', 'cyan', attrs=['bold'])
+        all_gp_header_4 = colored('Sign up date: ', 'cyan', attrs=['bold'])
+        all_gp_header_5 = colored('ID: ', 'cyan', attrs=['bold'])
+        all_gp_header = []
+        all_gp_header.extend([all_gp_header_1, all_gp_header_2, all_gp_header_3, all_gp_header_4, all_gp_header_5])
+        all_gp_table = util.df_creator(all_gp_header, 'GPs', all_gp_result)
+        print(all_gp_table + "\n")
+
+        # dataframe showing number of GPs on holiday
+        no_gp_holidays_header = [colored('Number of GPs on holiday: ', 'cyan', attrs=['bold'])]
+        gp_holidays_table = util.df_creator(no_gp_holidays_header, 'Current holidays', no_gp_holiday_result)
+        print(gp_holidays_table + "\n")
+
+        # dataframe showing number of holiday days taken
+        no_holidays_header_1 = colored('GP: ', 'cyan', attrs=['bold'])
+        no_holidays_header_2 = colored('Number of holiday days taken this year: ', 'cyan', attrs=['bold'])
+        no_holidays_header = []
+        no_holidays_header.extend([no_holidays_header_1, no_holidays_header_2])
+        no_holidays_table = util.df_creator(no_holidays_header, 'Holiday days taken', no_holidays_taken_result)
+        print(no_holidays_table + "\n")
+
+        # dataframe showing gp appointment performance
+        gp_perf_header_1 = colored('GP: ', 'cyan', attrs=['bold'])
+        gp_perf_header_2 = colored('confirmed appointments: ', 'cyan', attrs=['bold'])
+        gp_perf_header_3 = colored('Rejected appointments: ', 'cyan', attrs=['bold'])
+        gp_perf_header_4 = colored('Requested appointments: ', 'cyan', attrs=['bold'])
+        gp_perf_header_5 = colored('confirmation rate (%): ', 'cyan', attrs=['bold'])
+        gp_perf_header_6 = colored('rejection rate (%): ', 'cyan', attrs=['bold'])
+        gp_perf_header = []
+        gp_perf_header.extend([gp_perf_header_1, gp_perf_header_2, gp_perf_header_3, gp_perf_header_4,
+                               gp_perf_header_5, gp_perf_header_6])
+        gp_perf_table = util.df_creator(gp_perf_header, 'Appointment performance', gp_performance_result)
+        print(gp_perf_table + "\n")
+
+        # state management
+        selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
+
+    def patient_report(self):
         Admin.clear()
-        ui.info_section(ui.blue, "Prescription metrics")
-        # TODO:
+        ui.info_section(ui.blue, "Patient metrics report")
+
+        patients_query = f'SELECT u.firstName ||" "|| u.lastName, CASE when is_registered is null then "-" ' \
+                         f'when is_registered = 1 then "Yes" when is_registered = 0 then "No" END AS "Registered?",  ' \
+                         f'CASE when is_active is null then "-" when is_active = 1 then "Yes" ' \
+                         f'when is_active = 0 then "No" END AS "Account Active?", ' \
+                         f'CASE when date_of_birth is null then "-" ' \
+                         f'when date_of_birth is not null then date_of_birth END, ' \
+                         f'signUpDate ' \
+                         f'FROM Users u WHERE accountType="patient"'
+
+        pending_appt_query = f"SELECT appointment_id, " \
+                              f"u.firstName ||' '|| u.lastName AS patient_name, " \
+                              f"a.patient_id, " \
+                              f"a.gp_id " \
+                              f"FROM Appointment a " \
+                              f"LEFT JOIN Users u ON a.patient_id=u.userId " \
+                              f"LEFT JOIN Users on a.gp_id=u.userId " \
+                              f"WHERE is_confirmed = 0 AND is_rejected = 0"
+
+        appt_referrals_query = f"SELECT appointment_id, " \
+                               f"u.firstName ||' '|| u.lastName AS patient_name, " \
+                               f"s.firstName ||' '|| s.lastName AS specialist_name, " \
+                               f"s.hospital, d.name as 'Department' " \
+                               f"FROM Appointment a LEFT JOIN users u ON a.gp_id=u.userId " \
+                               f"LEFT JOIN Specialists s on a.referred_specialist_id=s.specialist_id " \
+                               f"LEFT JOIN Department d on d.department_id=s.department_id " \
+                               f"WHERE referred_specialist_id is not NULL"
+
+        # sql fetch results
+        self.db = db.Database()
+        patients_result = self.db.fetch_data(patients_query)
+        pending_appt_result = self.db.fetch_data(pending_appt_query)
+        appt_referrals_result = self.db.fetch_data(appt_referrals_query)
+        self.db.close_db()
+
+        # dataframe for all patients
+        patients_header_1 = colored('Patient: ', 'cyan', attrs=['bold'])
+        patients_header_2 = colored('Registration approved?: ', 'cyan', attrs=['bold'])
+        patients_header_3 = colored('Active account?: ', 'cyan', attrs=['bold'])
+        patients_header_4 = colored('Date of birth (DOB): ', 'cyan', attrs=['bold'])
+        patients_header_5 = colored('Sign up date: ', 'cyan', attrs=['bold'])
+        patients_header = []
+        patients_header.extend([patients_header_1, patients_header_2, patients_header_3,
+                                patients_header_4, patients_header_5])
+        patients_table = util.df_creator(patients_header, 'Patients', patients_result)
+        print(patients_table + "\n")
+
+        # dataframe for pending appointments
+        pending_appt_header_1 = colored('Appointment number: ', 'cyan', attrs=['bold'])
+        pending_appt_header_2 = colored('Patient: ', 'cyan', attrs=['bold'])
+        pending_appt_header_3 = colored('Patient ID: ', 'cyan', attrs=['bold'])
+        pending_appt_header_4 = colored('GP ID: ', 'cyan', attrs=['bold'])
+        pending_appt_header = []
+        pending_appt_header.extend([pending_appt_header_1, pending_appt_header_2,
+                                    pending_appt_header_3, pending_appt_header_4])
+        pending_appt_table = util.df_creator(pending_appt_header, 'Pending Appointments', pending_appt_result)
+        print(pending_appt_table + "\n")
+
+        # dataframe for appointments which resulted in referral
+        appt_referrals_header_1 = colored('Appointment ID:  ', 'cyan', attrs=['bold'])
+        appt_referrals_header_2 = colored('Patient: ', 'cyan', attrs=['bold'])
+        appt_referrals_header_3 = colored('Specialist: ', 'cyan', attrs=['bold'])
+        appt_referrals_header_4 = colored('Specialist\'s hospital: ', 'cyan', attrs=['bold'])
+        appt_referrals_header_5 = colored('Specialist\'s department: ', 'cyan', attrs=['bold'])
+        appt_referrals_header = []
+        appt_referrals_header.extend([appt_referrals_header_1, appt_referrals_header_2, appt_referrals_header_3,
+                                      appt_referrals_header_4, appt_referrals_header_5])
+        appt_referrals_table = util.df_creator(appt_referrals_header, 'Patient referrals', appt_referrals_result)
+        print(appt_referrals_table + "\n")
+
+        # state management
+        selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
+    def specialist_report(self):
+        Admin.clear()
+        ui.info_section(ui.blue, "Specialist metrics Report")
+
+        specialists_dept_query = f"select name as department_name, count(specialist_id) as no_available_specialists from Department d left join Specialists s using(department_id) group by name"
+
+        specialists_hosp_query = f"select hospital as Hospital, count(specialist_id) as no_available_specialists FROM Specialists WHERE hospital is not null GROUP BY hospital"
+
+        specialists_query = f"SELECT specialist_id AS specialist_ID, firstName || ' ' || lastName as Specialist_name, Hospital , name FROM Specialists s LEFT JOIN Department d on d.department_id=s.department_id"
+
+        # sql fetch results
+        self.db = db.Database()
+        specialists_dept_result = self.db.fetch_data(specialists_dept_query)
+        specialists_hosp_result = self.db.fetch_data(specialists_hosp_query)
+        specialists_result = self.db.fetch_data(specialists_query)
+        self.db.close_db()
+
+        # dataframe for specialists per department
+        specialists_dept_header_1 = colored('Department: ', 'cyan', attrs=['bold'])
+        specialists_dept_header_2 = colored('Number of available specialists: ', 'cyan', attrs=['bold'])
+        specialists_dept_header = []
+        specialists_dept_header.extend([specialists_dept_header_1, specialists_dept_header_2])
+        specialists_dept_table = util.df_creator(specialists_dept_header, 'Specialists Departments', specialists_dept_result)
+        print(specialists_dept_table + "\n")
+
+        # dataframe for specialists per hospital
+        specialists_hosp_header_1 = colored('Hospital: ', 'cyan', attrs=['bold'])
+        specialists_hosp_header_2 = colored('Number of available specialists: ', 'cyan', attrs=['bold'])
+        specialists_hosp_header = []
+        specialists_hosp_header.extend([specialists_hosp_header_1, specialists_hosp_header_2])
+        specialists_hosp_table = util.df_creator(specialists_hosp_header, 'Specialists Hospitals', specialists_hosp_result)
+        print(specialists_hosp_table + "\n")
+
+        # dataframe for specialists
+        specialists_header_1 = colored('Specialist ID: ', 'cyan', attrs=['bold'])
+        specialists_header_2 = colored('Specialist: ', 'cyan', attrs=['bold'])
+        specialists_header_3 = colored('Hospital: ', 'cyan', attrs=['bold'])
+        specialists_header_4 = colored('Department: ', 'cyan', attrs=['bold'])
+        specialists_header = []
+        specialists_header.extend(
+            [specialists_header_1, specialists_header_2, specialists_header_3, specialists_header_4])
+        specialists_table = util.df_creator(specialists_header, 'Specialists', specialists_result)
+        print(specialists_table + "\n")
+
+        # state management
+        selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
 
 
 

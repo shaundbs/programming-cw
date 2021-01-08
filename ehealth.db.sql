@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS "Specialists" (
 -- INSERT INTO "Users" VALUES ('nh','ya','$2b$12$lztUEfcj1NWlydnJEL9RYe14kaPleanTkpiQ2I0tjNYE40.c6Xvqi',17,'2886@qq.com',1);
 
 -- admin test user, password: test
---INSERT INTO USERS(FIRSTNAME, LASTNAME, EMAIL, PASSWORD, ACCOUNTTYPE) VALUES ('admin', 'test', 'admin@test.com','$2y$12$RtLSd8p2ODkGdfw9K3/IduYm3drd0KrJerNSBoYYj5tTc5Cw.msvK', 'admin');
+--INSERT INTO USERS(FIRSTNAME, LASTNAME, EMAIL, PASSWORD, ACCOUNTTYPE, IS_ACTIVE) VALUES ('admin', 'test', 'admin@test.com','$2y$12$RtLSd8p2ODkGdfw9K3/IduYm3drd0KrJerNSBoYYj5tTc5Cw.msvK', 'admin', 1);
 
 --INSERT INTO USERS(FIRSTNAME, LASTNAME, EMAIL, PASSWORD, ACCOUNTTYPE) VALUES ('Qasim', 'Razvi', 'qr@test.com','$2b$12$oAJxmL.Pa9Y7.U20pvqZ2ef65.8ls3.9U/S2EhZO7ewFo7mHUSihu', 'gp');
 --

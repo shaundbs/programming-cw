@@ -42,6 +42,8 @@ def confirm_patient():
     df = DataFrame(records)
     index = ["ID", "First Name", "Last Name", "Email", "Date Signed Up"]
     df.columns = index
+
+    print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
     clear()
     print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
 
