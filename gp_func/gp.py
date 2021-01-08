@@ -2,6 +2,7 @@ import calendar
 import csv
 import logging
 from datetime import datetime, timedelta
+import os
 
 import cli_ui as ui
 
@@ -72,7 +73,6 @@ class Gp:
     def logout(self):
         # remove state tracking from the object. exiting out of class.
         del self.state_gen
-        pass
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
     def handle_state_selection(self, selected):
@@ -151,7 +151,8 @@ class Gp:
     def view_day_schedule(self):
         date = self.curr_appt_date
         get_appts_sql_query = f"SELECT is_confirmed, strftime('%d/%m/%Y',s.starttime) as date, " \
-                              f"strftime('%Y-%m-%d %H:%M:%S', s.starttime)  as 'appointment time' FROM slots s left outer " \
+                              f"strftime('%Y-%m-%d %H:%M:%S', s.starttime)  as 'appointment time' FROM slots s left " \
+                              f"outer " \
                               f"join Appointment a on s.slot_id = a.slot_id " \
                               f"WHERE gp_id = {self.user_id} and date(s.starttime) = '{date}' order by s.starttime"
 
@@ -774,7 +775,8 @@ class Gp:
         # use appt_id to get patient_id
         get_patient_records_query = f"SELECT * FROM appointment left join slots s using (slot_id) where patient_id = " \
                                     f"(select patient_id from " \
-                                    f"appointment where appointment_id = {appt_id}) and s.endTime < 'now' order by " \
+                                    f"appointment where appointment_id = {appt_id}) and date(s.endTime) < date('now') " \
+                                    f"and is_completed = 1 order by " \
                                     f"slot_id asc "
         get_patient_records = self.db.fetch_data(get_patient_records_query)
 
@@ -786,7 +788,7 @@ class Gp:
         get_medical_hist = self.db.fetch_data(get_medical_hist_query)
 
         # general medical history info if any on record.
-        ui.info_section("View Patient Medical History\n")
+        ui.info_section(ui.blue, "View Patient Medical History\n")
         ui.info(ui.bold, "General Medical History:")
         if len(get_medical_hist) == 0:
             ui.info(ui.indent("No known medical conditions for this patient."))
@@ -815,7 +817,7 @@ class Gp:
 
     def view_previous_appointment_records(self):
         # "there are X no. records"  - option: select a number to view by recency OR download full history OR back
-        ui.info_section("View previous appointment records")
+        ui.info_section(ui.blue, "View previous appointment records")
         ui.info_2(f"{len(self.prev_appt_records)} record(s) available to view.")
 
         # options
@@ -863,7 +865,18 @@ class Gp:
                 ui.info(ui.ellipsis, "Downloading data")
                 ui.info_count(0, 3, "Fetching data from database")
                 # CSV
-                csv_filename = f"downloaded_data/patient_records_{name_no_spaces}_{datetime.today().strftime('%Y%m%d')}.csv"
+                curr_dir = os.path.abspath(os.getcwd())
+                dir_name = "downloaded_data"
+
+                # check file path and directory exists, if not create it
+                save_path = os.path.join(curr_dir, dir_name)
+                if not os.path.exists(save_path):
+                    os.makedirs(save_path)
+
+                csv_filename = f"patient_records_{name_no_spaces}_{datetime.today().strftime('%Y%m%d')}.csv"
+
+                csv_file = os.path.join(save_path, csv_filename)
+                print(csv_file)
 
                 full_records_query = "select u.firstName || ' ' || u.lastname as patient_name, u.date_of_birth as " \
                                      "patient_dob, u2.firstName || ' ' || u2.lastname as doctor_seen, starttime as " \
@@ -881,7 +894,7 @@ class Gp:
                 ui.info_count(1, 3, "Creating CSV file")
                 ui.info_count(2, 3, "Inserting medical record data")
 
-                with open(csv_filename, "w") as records_csv:
+                with open(csv_file, "w") as records_csv:
                     csv_writer = csv.DictWriter(records_csv, fieldnames=full_records[0].keys())
                     csv_writer.writeheader()
                     for row in full_records:
