@@ -128,7 +128,7 @@ class Patient:
 
     def patient_home(self):
         self.print_welcome()
-        prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
+        prv = ["Request appointment", "View appointments", "View referrals", "View prescriptions", "Log out"]
         # if user has an appointment to receive vaccine
         if self.covid_appt_count() >= 1:
             # have they received it yet or not - if so clear notification
@@ -229,8 +229,11 @@ class Patient:
             if option < len(apt) - 1:
                 # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
                 appointmentData = self.appointmentList[option]
+                print('\nAppointment Date: '+appointmentData[3][:10])
+                print('Time Slot: '+appointmentData[3][-8:-3]+" - "+appointmentData[4][-8:-3])
+                print('GP: Dr ' + appointmentData[1] + " "+ appointmentData[2])
                 if appointmentData[-1] == 1:
-                    print("\nThis appointment is completed.")
+                    print("This appointment is completed.")
                     aptid = (appointmentData[0],)
                     self.db.exec_one("SELECT clinical_notes FROM Appointment WHERE appointment_id = ?", aptid)
                     result = self.db.c.fetchone()
@@ -244,7 +247,7 @@ class Patient:
                         if option:
                             break
                 elif (appointmentData[-3] + appointmentData[-2]) == 0:
-                    print("\nThis appointment is not approved yet.")
+                    print("This appointment is not approved yet.")
                     apt = ["Cancel this appointment.", "Back."]
                     option = ui.ask_choice("Choose an option", choices=apt, sort=False)
                     option = list.index(apt, option)
@@ -253,9 +256,9 @@ class Patient:
                     continue
                 elif appointmentData[-3] == 0 or appointmentData[-2] == 0:
                     if appointmentData[-3] == 0:
-                        print("\nThis appointment is rejected.\n")
+                        print("This appointment is rejected.\n")
                     elif appointmentData[-1] == 0:
-                        print("\nThis appointment is confirmed.\n")
+                        print("This appointment is confirmed.\n")
                     apt = ["Reschedule this appointment.",
                            "Cancel this appointment.", "Back."]
                     option = ui.ask_choice("Choose an option", choices=apt, sort=False)
@@ -595,20 +598,21 @@ class Patient:
                     option = ui.ask_choice("Choose an option", choices=["Yes", "No"], sort=False)
                     option = list.index(["Yes", "No"], option)
                     if option == 0:
+                        print("- Appointment Date: " + select_date)
+                        print("- Time Slot: " + session[booked_slot-1])
+                        print("- GP: Dr " + gp_name[0] + " " + gp_name[1])
                         if self.tobecanceled > 0:
                             self.db.reschedule(a, self.tobecanceled)
                             self.tobecanceled = -1
                             print(
-                                "SUCCESS - \nYou have successfully reshceduled an appointments with Dr " + str(
-                                    gp_name[0]) + " " + str(
-                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                                "Great! \nYou have successfully rescheduled this appointment. "
+                                "\nYou will be alerted once your appointment is confirmed.")
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
                             print(
-                                "SUCCESS - \nYou have successfully requested an appointments with Dr " + str(
-                                    gp_name[0]) + " " + str(
-                                    gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                                "Great! \nYou have successfully requested this appointment. "
+                                "\nYou will be alerted once your appointment is confirmed.")
                     self.patient_home()
             except ValueError:
                 print("Please select a valid option.")
