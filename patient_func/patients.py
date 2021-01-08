@@ -142,7 +142,7 @@ class Patient:
                 print(" ")
             # if high-risk but registered with us >30 days
             elif not self.high_risk_top_waitinglist_notification():
-                print(colored('*New Notification*\n', 'red',
+                print(colored('*New Notification*', 'red',
                               attrs=['bold']))
                 print("-- You have been identified as a high risk patient to COVID-19 and have been placed on our "
                       "waiting list.\n-- This classification has been made based on your age making you more "
