@@ -10,6 +10,9 @@ from patient_func.patient_database import Database
 import bcrypt
 import cli_ui as ui
 
+#disable colours for windows compatibility
+if os.name == 'nt':
+    ui.setup(color = 'never')
 
 # Welcome Page.
 def welcome():
