@@ -674,12 +674,12 @@ class Patient:
                         #  create directory for downloaded files
                         directory = "downloadable_data"
                         directory2 = "Prescriptions"
-                        parent_dir = '../../programming-cw'
+                        parent_dir = '../programming-cw'
                         path = os.path.join(parent_dir, directory)
                         final_path = os.path.join(path, directory2)
                         os.makedirs(final_path)
                         # save prescription in directory  as a .csv
-                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                        with open("downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
@@ -693,7 +693,7 @@ class Patient:
                     except:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
-                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                        with open("downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
@@ -708,12 +708,13 @@ class Patient:
                     try:
                         directory = "downloadable_data"
                         directory2 = "Prescriptions"
-                        parent_dir = '../../programming-cw'
+                        parent_dir = '../programming-cw'
                         path = os.path.join(parent_dir, directory)
                         final_path = os.path.join(path, directory2)
+                        print(final_path)
                         os.makedirs(final_path)
                         # save to Prescription folder as a .txt
-                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                        with open("downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
                             f.write("Your prescriptions are as follows:\n"
                                     "\n")
@@ -727,7 +728,7 @@ class Patient:
                     except:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
-                        with open("../downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                        with open("downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
                             f.write("Your prescriptions are as follows:\n"
                                     "\n")
