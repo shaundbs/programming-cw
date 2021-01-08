@@ -668,6 +668,7 @@ class Patient:
                             for i in output:
                                 thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
                             f.close()
+                            print(" ")
                             util.loader('Downloading')
                             print("\n")
                             print("Your prescription has been downloaded successfully\n")
@@ -681,6 +682,7 @@ class Patient:
                             for i in output:
                                 thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
                             f.close()
+                            print(" ")
                             util.loader('Downloading')
                             print("\n")
                             print("Your prescription has been downloaded successfully\n")
@@ -700,6 +702,7 @@ class Patient:
                             f.write("\n")
                             f.write(df4.to_string(header=index_8, index=True))
                             f.close()
+                            print(" ")
                             util.loader('Downloading')
                             print("\n")
                             print("Your prescription has been downloaded successfully\n")
@@ -713,6 +716,7 @@ class Patient:
                             f.write("\n")
                             f.write(df4.to_string(header=index_8, index=True))
                             f.close()
+                            print(" ")
                             util.loader('Downloading')
                             print("\n")
                             print("Your prescription has been downloaded successfully\n")
