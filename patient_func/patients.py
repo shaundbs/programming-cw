@@ -734,8 +734,11 @@ class Patient:
                 elif presc_opts == 2:
                     self.patient_home()
         except ValueError:
+            print(" ")
+            util.loader('Loading')
+            print(" ")
             # no prescription in the DB so return ---
-            print("Sorry - you currently do not have any prescriptions from our GP's to display")
+            print("\nSorry - you currently do not have any prescriptions from our GP's to display\n")
 
     def display_opening_hours(self, selected):
         # get datetime object of the first and last appointments on that day = Opening hours
