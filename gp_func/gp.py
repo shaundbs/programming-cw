@@ -901,7 +901,8 @@ class Gp:
                         csv_writer.writerow(row)
 
                 ui.info_2(
-                    "CSV saved successfully. Please check the downloaded_data folder in the application directory.")
+                    "CSV saved successfully. Please check the downloaded_data folder in the application directory. ("
+                    f"full path - {csv_file})")
                 ui.info("Returning to previous screen")
                 util.loading()
                 self.handle_state_selection("back")
