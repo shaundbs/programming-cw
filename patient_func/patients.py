@@ -3,6 +3,7 @@ from .patient_email_generator import Emails
 from . import date_generator
 import re
 import datetime as datetime
+import getpass  # hide password when inputting
 import bcrypt
 import calendar
 from tabulate import tabulate
@@ -17,6 +18,7 @@ from datetime import timedelta as td
 import csv
 import os
 import pandas as pd
+
 from dateutil.relativedelta import relativedelta
 import threading
 
@@ -72,8 +74,7 @@ class Patient:
                 if pWord == confirmpwd:
                     break
                 else:
-                    print("Sorry, you created different passwords. "
-                          "Please try again.\n")
+                    print("Sorry, you created different passwords. Please try again.\n")
         while True:
             DoB = input("Date of birth(in YYYY-MM-DD format): ")
             try:
@@ -87,16 +88,13 @@ class Patient:
                 fm_selected = datetime.datetime.strptime(
                     DoB, '%Y-%m-%d').date()
                 if fm_selected < datetime.datetime.now().date() - relativedelta(years=120):
-                    print(
-                        "Sorry the date of birth entered is too far into the past - please try again")
+                    print("Sorry the date of birth entered is too far into the past - please try again")
                     continue
                 elif fm_selected > datetime.datetime.now().date():
-                    print(
-                        "It is not possible for your DoB to be set in the future - please try again")
+                    print("It is not possible for your DoB to be set in the future - please try again")
                     continue
                 elif fm_selected > datetime.datetime.now().date() - datetime.timedelta(16 * 365):
-                    print(
-                        "Sorry, you must be at least 16 years of age to register for this e-health management service")
+                    print("Sorry, you must be at least 16 years of age to register for this e-health management service")
                     continue
                 elif fm_selected < datetime.datetime.now().date():
                     pWord = pWord.encode('utf-8')
@@ -109,20 +107,16 @@ class Patient:
                     db.exec_many(
                         "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
                         a)
-                    print(
-                        'You have successfully requested an account. Please wait for confirmation from us:)')
-                    task = threading.Thread(target=Emails.registration_email, args=(
-                        email, fName, lName, "patient"), daemon=True)
+                    print('You have successfully requested an account. Please wait for confirmation from us:)')
+                    task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"), daemon=True)
                     task.start()
                     break
             elif not isValidDate:
-                print(
-                    "Sorry this input is not accepted. Please re-enter your DoB in YYYY-MM-DD format")
+                print("Sorry this input is not accepted. Please re-enter your DoB in YYYY-MM-DD format")
                 continue
 
     def print_welcome(self):
-        self.db.exec("""SELECT firstName, lastName FROM Users WHERE userId = '""" +
-                     str(self.patient_id) + """'""")
+        self.db.exec("""SELECT firstName, lastName FROM Users WHERE userId = '""" + str(self.patient_id) + """'""")
         output = self.db.c.fetchall()
         y = output[0]
         fName = y[0]
@@ -132,8 +126,7 @@ class Patient:
 
     def patient_home(self):
         self.print_welcome()
-        prv = ["Request Appointment", "View Appointments",
-               "View Referrals", "View Prescriptions", "Log out"]
+        prv = ["Request Appointment", "View Appointments", "View Referrals", "View Prescriptions", "Log out"]
         # if user has an appointment to receive vaccine
         if self.covid_appt_count() >= 1:
             # have they received it yet or not - if so clear notification
@@ -155,8 +148,7 @@ class Patient:
                       "in due course.\n")
 
         while True:
-            option = ui.ask_choice("Choose an option:",
-                                   choices=prv, sort=False)
+            option = ui.ask_choice("Choose an option:", choices=prv, sort=False)
             if option == prv[0]:
                 self.request_appointment()
             elif option == prv[1]:
@@ -189,8 +181,7 @@ class Patient:
                 print("Sorry, you have no referrals at the moment.")
                 break
             output.append("Back.")
-            option = ui.ask_choice("Choose a referral:",
-                                   choices=output, sort=False)
+            option = ui.ask_choice("Choose a referral:", choices=output, sort=False)
             if option != "Back.":
                 print("No additional information yet.")
             else:
@@ -226,8 +217,7 @@ class Patient:
                 break
             apt.append("Back")
             # Redirects to appointment management.
-            option = ui.ask_choice(
-                "Choose an appointment", choices=apt, sort=False)
+            option = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
             option = list.index(apt, option)
             if option < len(apt) - 1:
                 # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
@@ -235,25 +225,21 @@ class Patient:
                 if appointmentData[-1] == 1:
                     print("\nThis appointment is completed.")
                     aptid = (appointmentData[0],)
-                    self.db.exec_one(
-                        "SELECT clinical_notes FROM Appointment WHERE appointment_id = ?", aptid)
+                    self.db.exec_one("SELECT clinical_notes FROM Appointment WHERE appointment_id = ?",aptid)
                     result = self.db.c.fetchone()
                     notes = result[0]
                     if not notes:
-                        print(
-                            "Sorry, you have no clinical notes for this appointment.")
+                        print("Sorry, you have no clinical notes for this appointment.")
                     else:
                         print("Clinical notes: "+notes)
                     while True:
-                        option = ui.ask_yes_no(
-                            "Do you want to be redirected to appointment list?", default=False)
+                        option = ui.ask_yes_no("Do you want to be redirected to appointment list?", default=False)
                         if option:
                             break
                 elif (appointmentData[-3] + appointmentData[-2]) == 0:
                     print("\nThis appointment is not approved yet.")
                     apt = ["Cancel this appointment.", "Back."]
-                    option = ui.ask_choice(
-                        "Choose an option", choices=apt, sort=False)
+                    option = ui.ask_choice("Choose an option", choices=apt, sort=False)
                     option = list.index(apt, option)
                     if option == 0:
                         self.cancel_appointment(appointmentData[0])
@@ -265,8 +251,7 @@ class Patient:
                         print("\nThis appointment is confirmed.\n")
                     apt = ["Reschedule this appointment.",
                            "Cancel this appointment.", "Back."]
-                    option = ui.ask_choice(
-                        "Choose an option", choices=apt, sort=False)
+                    option = ui.ask_choice("Choose an option", choices=apt, sort=False)
                     option = list.index(apt, option)
                     if option == 0:
                         self.reschedule_appointment(appointmentData[0])
@@ -277,10 +262,8 @@ class Patient:
 
     def request_appointment(self):
         while True:
-            apt = ["Book an appointment this month.",
-                   "Book an appointment next month.", "Back."]
-            menu_choice = ui.ask_choice(
-                "Choose an appointment", choices=apt, sort=False)
+            apt = ["Book an appointment this month.", "Book an appointment next month.", "Back."]
+            menu_choice = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
             menu_choice = list.index(apt, menu_choice)
             if menu_choice in [0, 1]:
                 if menu_choice == 0:
@@ -298,8 +281,7 @@ class Patient:
                 print(calendar_month)
                 apt = ["Enter booking date",
                        "Back"]
-                date_booker = ui.ask_choice(
-                    "Choose an option", choices=apt, sort=False)
+                date_booker = ui.ask_choice("Choose an option", choices=apt, sort=False)
                 date_booker = list.index(apt, date_booker)
                 if date_booker in [0, 1]:
                     while True:
@@ -307,27 +289,22 @@ class Patient:
                             select_date = input(
                                 "Please enter a valid date in YYYY-MM-DD format between now and the close of the month: "
                             )
-                            dn = datetime.datetime.strftime(
-                                datetime.datetime.now(), '%Y-%m-%d')
+                            dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
                             last_booking_date = date_generator.date_sort(dn)
                             try:
                                 # check if the date is in YYYY-MM-DD format
                                 year, month, day = select_date.split('-')
                                 isValidDate = True
-                                datetime.datetime(
-                                    int(year), int(month), int(day))
+                                datetime.datetime(int(year), int(month), int(day))
                                 fm_selected = datetime.datetime.strptime(
                                     select_date, '%Y-%m-%d').date()
                             except ValueError:
                                 isValidDate = False
                             if not isValidDate:
                                 # if not request user tries again
-                                print(
-                                    "Sorry this value is not accepted - please use the YYYY-MM-DD format")
-                                opts = ["Try again",
-                                        "Back to booking options menu"]
-                                navigate = ui.ask_choice(
-                                    "Choose an option", choices=opts, sort=False)
+                                print("Sorry this value is not accepted - please use the YYYY-MM-DD format")
+                                opts = ["Try again", "Back to booking options menu"]
+                                navigate = ui.ask_choice("Choose an option", choices=opts, sort=False)
                                 navigate = list.index(opts, navigate)
                                 if navigate in [0, 1]:
                                     if navigate == 1:
@@ -342,8 +319,7 @@ class Patient:
                                             select_date))
                                         self.select_slots(select_date)
                                     elif fm_selected < datetime.datetime.now().date():
-                                        print(
-                                            "Sorry, we are unable to book appointments for dates in the past")
+                                        print("Sorry, we are unable to book appointments for dates in the past")
                                     elif fm_selected == datetime.datetime.now().date():
                                         print(
                                             "Sorry, we are unable to book appointments on the day as we must give our GP's prior notice")
@@ -419,8 +395,7 @@ class Patient:
             print(colored('*New Notification*\n', 'red',
                           attrs=['bold']))
             print("You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
-                  "first dose of the " + chosen_vac +
-                  " vaccination.\nThis classification has been made based on your "
+                  "first dose of the " + chosen_vac + " vaccination.\nThis classification has been made based on your "
                   "age and you have been on the waiting list for over 30 days (30 days since the date that you "
                   "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
                   " or 'COVID-19 Immunisation' so that you may be protected.\n - we look forward to hearing from you.\n")
@@ -448,8 +423,7 @@ class Patient:
             print(colored('*New Notification*\n', 'red',
                           attrs=['bold']))
             print("-- You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
-                  "first dose of the " + chosen_vac +
-                  " vaccination.\n-- This classification has been made based on your "
+                  "first dose of the " + chosen_vac + " vaccination.\n-- This classification has been made based on your "
                   "age and you have been on the waiting list for over 30 days (30 days since the date that you "
                   "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
                   " or 'COVID-19 Immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
@@ -608,8 +582,7 @@ class Patient:
                     # Insert request into database.
                     print("Do you confirm that you want to book this appointment?")
 
-                    option = ui.ask_choice("Choose an option", choices=[
-                                           "Yes", "No"], sort=False)
+                    option = ui.ask_choice("Choose an option", choices=["Yes", "No"], sort=False)
                     option = list.index(["Yes", "No"], option)
                     if option == 0:
                         if self.tobecanceled > 0:
@@ -633,8 +606,7 @@ class Patient:
     def cancel_appointment(self, appointmentNo):
         while True:
             print("Do you confirm that you want to cancel this appointment?")
-            a = ui.ask_choice("Choose an option", choices=[
-                              "Yes", "No"], sort=False)
+            a = ui.ask_choice("Choose an option", choices=["Yes", "No"], sort=False)
             a = list.index(["Yes", "No"], a)
             if a == 0:
                 appointmentNo = int(appointmentNo)
@@ -661,10 +633,8 @@ class Patient:
                           attrs=['bold']))
             print(tabulate(df4, headers='keys',
                            tablefmt='grid', showindex=True))
-            presc = [
-                "Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
-            presc_opts = ui.ask_choice(
-                "Choose an option", choices=presc, sort=False)
+            presc = ["Download Prescriptions as (.csv)", "Download Prescriptions as (.txt)", "Back"]
+            presc_opts = ui.ask_choice("Choose an option", choices=presc, sort=False)
             presc_opts = list.index(presc, presc_opts)
 
             #  method for printing out prescriptions as either .txt or .csv
@@ -683,11 +653,9 @@ class Patient:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
                             for i in output:
-                                thewriter.writerow(
-                                    [i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                                thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
                             f.close()
-                            print(
-                                "Your prescription has been downloaded successfully")
+                            print("Your prescription has been downloaded successfully")
                     except:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
@@ -695,11 +663,9 @@ class Patient:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
                             for i in output:
-                                thewriter.writerow(
-                                    [i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                                thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
                             f.close()
-                            print(
-                                "Your prescription has been downloaded successfully")
+                            print("Your prescription has been downloaded successfully")
                 elif data_type == "txt":
                     try:
                         directory = "downloadable_data"
@@ -715,8 +681,7 @@ class Patient:
                             f.write("\n")
                             f.write(df4.to_string(header=index_8, index=True))
                             f.close()
-                            print(
-                                "Your prescription has been downloaded successfully")
+                            print("Your prescription has been downloaded successfully")
                     except:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
@@ -726,8 +691,7 @@ class Patient:
                             f.write("\n")
                             f.write(df4.to_string(header=index_8, index=True))
                             f.close()
-                            print(
-                                "Your prescription has been downloaded successfully")
+                            print("Your prescription has been downloaded successfully")
 
             # options
             if presc_opts in [0, 1, 2]:
@@ -739,8 +703,7 @@ class Patient:
                     self.patient_home()
         except ValueError:
             # no prescription in the DB so return ---
-            print(
-                "Sorry - you currently do not have any prescriptions from our GP's to display")
+            print("Sorry - you currently do not have any prescriptions from our GP's to display")
 
     def display_opening_hours(self, selected):
         # get datetime object of the first and last appointments on that day = Opening hours
