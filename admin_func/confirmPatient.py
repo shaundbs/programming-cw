@@ -10,7 +10,7 @@ from .admin_email_generator import Emails
 
 
 def clear():
-    _ = system('clear')
+    _ = system('cls||clear')
 
 
 def confirm_patient():
@@ -42,7 +42,12 @@ def confirm_patient():
     df = DataFrame(records)
     index = ["ID", "First Name", "Last Name", "Email", "Date Signed Up"]
     df.columns = index
+<<<<<<< HEAD
     print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
+=======
+    clear()
+    print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
+>>>>>>> 0f4a665662f85689782d596b78f9cf182dd07949
 
     global validation_required
     global user_ids
@@ -113,6 +118,7 @@ def validate():
     cursor = connection.cursor()
 
     # Loop through each patient and give user option to validate, delete or quit the program
+    clear()
     for i in range(len(validation_required)):
         print(f"\nPatient ID: {user_ids[i]}\nPatient Name: {fullname_list[i][0]} {fullname_list[i][1]}")
         action1 = input("""Press enter to skip or choose one of the options below:

@@ -3,6 +3,7 @@ import re
 import threading  # send emails in background
 from datetime import datetime
 from time import sleep
+import os
 
 import cli_ui as ui
 from pick import pick
@@ -23,7 +24,7 @@ def user_select(prompt: str, choices: list):
         #     selected = choice
         # except Exception as err:
         # log error
-        logging.info("Exception occurred while trying to use cursors for user input.")
+        # logging.info("Exception occurred while trying to use cursors for user input.")
         try:
             selected = ui.ask_choice(prompt, choices=choices, sort=False)
         except AttributeError:
@@ -85,7 +86,7 @@ def db_update(record_list, table_name, pk_column_name, **new_column_values):
     if err is None:
         return True
     else:
-        # TODO: log the error
+        logging.error(f"Error occurred during gp db_update: \n{err}")
         return False
 
 
@@ -147,10 +148,13 @@ def get_user_date():
                 ui.info(ui.red, "No valid date found in input. Please enter a valid date YYYY-MM-DD with no spaces.")
             else:
                 date_to_search = date_to_search.group()
+                datetime.strptime(date_to_search, '%Y-%m-%d')
                 date_not_valid = False
                 return date_to_search
         except AttributeError:
             print("No date entered")
+        except ValueError:
+            print("Day is outside the range of the selected month")
 
 
 def get_user_month():
@@ -161,15 +165,18 @@ def get_user_month():
 
         selected_date = ui.ask_string("Please enter a date in the format YYYY/MM:")
         # date validation. Can be any date if in valid format.
-        if selected_date.strip().lower() == "today":
-            selected_date = datetime.today().strftime('%Y/%m')
-        date_to_search = re.search("^\d\d\d\d[/](0[1-9]|1[012])$", selected_date.strip())
-        if date_to_search is None:  # no match found
-            ui.info(ui.red, "No valid date found in input. Please enter a valid date YYYY/MM with no spaces.")
-        else:
-            date_to_search = date_to_search.group()
-            date_not_valid = False
-            return date_to_search
+        try:
+            if selected_date.strip().lower() == "today":
+                selected_date = datetime.today().strftime('%Y/%m')
+            date_to_search = re.search("^\d\d\d\d[/](0[1-9]|1[012])$", selected_date.strip())
+            if date_to_search is None:  # no match found
+                ui.info(ui.red, "No valid date found in input. Please enter a valid date YYYY/MM with no spaces.")
+            else:
+                date_to_search = date_to_search.group()
+                date_not_valid = False
+                return date_to_search
+        except AttributeError:
+            print("No date entered")
 
 
 def get_multi_line_input(user_prompt):
@@ -215,6 +222,10 @@ def get_multi_line_input(user_prompt):
     return "\n".join(formatted_inputs)
 
 
+def sys_clear():
+    _ = os.system('cls' if os.name =='nt' else 'clear')
+
+
 def print_appointment_summary(appt_id):
     conn = db.Database()
     get_apt_details_query = f"SELECT appointment_id,  u.firstName || ' ' || u.lastName as 'patient name',  " \
@@ -224,7 +235,6 @@ def print_appointment_summary(appt_id):
                             f"a.patient_id left join slots s on s.slot_id = a.slot_id WHERE appointment_id= " \
                             f"{appt_id} "
     appt_details = conn.fetch_data(get_apt_details_query)
-    # todo: add check that there is only one record returned. if not == problem
 
     # Prescription
     prescription_query = f"select * from Prescription where appointment_id = {appt_id}"
@@ -256,7 +266,7 @@ def print_appointment_summary(appt_id):
         columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
         headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
         pres_table = output_sql_rows(prescription_data, columns, headers)
-        ui.info("Prescriptions:")
+        ui.info(ui.bold, "Prescriptions:")
         print(pres_table, "\n")
 
     # Referrals
@@ -292,7 +302,6 @@ def email_appt_summary(appt_id):
                             f"a.slot_id WHERE appointment_id= " \
                             f"{appt_id} "
     appt_details = conn.fetch_data(get_apt_details_query)
-    # todo: add check that there is only one record returned. if not == problem
 
     # Prescription
     prescription_query = f"select * from Prescription where appointment_id = {appt_id}"

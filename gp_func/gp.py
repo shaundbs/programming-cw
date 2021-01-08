@@ -3,6 +3,8 @@ import csv
 import logging
 from datetime import datetime, timedelta
 import os
+from sqlite3 import OperationalError
+import sys
 
 import cli_ui as ui
 
@@ -68,11 +70,12 @@ class Gp:
     def print_welcome(self):
         ui.info_section(ui.blue, 'Welcome to the GP Dashboard')
         print("Hi Dr", self.firstname, self.lastname)
-        # todo add instructions
 
     def logout(self):
-        # remove state tracking from the object. exiting out of class.
+        # remove state tracking from the object. exiting out of app.
         del self.state_gen
+        ui.info("Logging out and exiting application.")
+        sys.exit()
 
     # to handle whether we need to change state, or whether to call parent state if "back" is selected.
     def handle_state_selection(self, selected):
@@ -84,6 +87,7 @@ class Gp:
     # FUNCTIONS FOR EACH STATE
 
     def main_options(self):
+        util.sys_clear()
         self.print_welcome()  # say hi to the Dr.
         # reset state variable if back to main options.
         self.curr_appt_date = "today"
@@ -104,6 +108,7 @@ class Gp:
     # CALENDAR HANDLING
 
     def manage_calendar(self):
+        util.sys_clear()
         print("Welcome to your calendar")
         self.curr_appt_month = "current_month"
 
@@ -112,6 +117,7 @@ class Gp:
             selected)  # if back is selected, the back state function above will handle going back to parent state.
 
     def view_calendar(self):
+        util.sys_clear()
         selected_month = datetime.now()
         if self.curr_appt_month == "current_month":
             month = datetime.today().strftime('%Y/%m')
@@ -135,13 +141,17 @@ class Gp:
                 display_month = display_month.replace(" %s " % appt["day"], "[%s]" % appt["day"])
 
         ui.info(display_month)
-        ui.info("[Days] that you have appointments")
+        ui.info("Days that you have appointments are highlighted in brackets []")
 
         # user_choices = ["view day", "view another month", "back"]
-        selected = ui.ask_choice("View a day to schedule time off and view appointments or view another month",
+        selected = ui.ask_choice("What would you like to do next?",
                                  choices=self.state_gen.get_state_options())
         if selected == "view day schedule":
             self.curr_appt_date = util.get_user_date()
+            while datetime.strptime(self.curr_appt_date, '%Y-%m-%d').weekday() > 4:
+                ui.info("There are no appointments at weekends, please select a weekday")
+                self.curr_appt_date = util.get_user_date()
+
         elif selected == "view another month":
             self.curr_appt_month = util.get_user_month()
             self.to_view_calendar()
@@ -194,6 +204,7 @@ class Gp:
         # selected = ui.ask_choice("Would you like to?", choices=options)
 
     def schedule_time_off(self):
+        util.sys_clear()
         now = datetime.now()
         # now = datetime.strptime("2020-01-01", '%Y-%m-%d')
 
@@ -227,13 +238,21 @@ class Gp:
         appointments = self.db.fetch_data(clash_query)
         start_stamp = datetime.strptime(start_time, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S')
         end_stamp = (datetime.strptime(end_time, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+        print(end_stamp)
 
         time_off_query = f"INSERT INTO gp_time_off (gp_id, startTime, endTime)" \
                          f"VALUES ({self.user_id}, '{start_stamp}', '{end_stamp}')"
 
         if not appointments:
-            print("No clashes, time-off successfully booked")
-            self.db.exec(time_off_query)
+
+            yes = ui.ask_yes_no(f"These dates are available. Are you sure you would like to book time off"
+                                f" between the following dates?:\n {start_time} - {end_time}")
+            if yes:
+                self.db.exec(time_off_query)
+                print("Time-off successfully booked")
+            else:
+                print("Booking cancelled")
+
             # TODO ERROR HANDLING
 
         elif appointments:
@@ -261,8 +280,7 @@ class Gp:
     # CONFIRM APPOINTMENTS
 
     def confirm_appointments(self):
-        # todo - confirm appts bug - after going to confirm appts, then going back back, logout returns to confirm
-        #  appts.
+        util.sys_clear()
         ui.info_section(ui.blue, "Confirm Appointments")
         # show requested appt booking for GP
         query = f"SELECT APPOINTMENT_ID,  u.firstName || ' ' || u.lastName as 'patient name',  strftime('%d/%m/%Y', " \
@@ -358,7 +376,7 @@ class Gp:
 
     # View today's or another day's appointments and initiate consultations.
     def view_my_appointments(self):
-        # TODO - add details on how to use. I.e. show appt details to begin a consultation.
+        util.sys_clear()
 
         # state variables
         self.curr_appt_id = None  # reset current appointment if previously declared
@@ -368,6 +386,13 @@ class Gp:
         appt_date = self.curr_appt_date
 
         ui.info_section(ui.blue, "View your appointments")
+        # instructions
+        ui.info(ui.faint, "Info:"
+                          "\nDefault view will show your appointments for today."
+                          "\nIf you have any appointments, select one to view the appointment details: add "
+                          "prescriptions, referrals, clinical notes, view a patients previous appointment history "
+                          "etc.\n")
+
         ui.info(f"showing appointments for {str(appt_date)}")
         if appt_date == "today":
             date = "date('now')"
@@ -376,13 +401,26 @@ class Gp:
         # get appointments for the GP user
         get_appts_sql_query = "SELECT appointment_id,  u.firstName || ' ' || u.lastName as 'patient name',  strftime(" \
                               f"'%d/%m/%Y', " \
-                              f"s.starttime) as date, strftime('%H:%M', s.starttime)  as 'appointment time' FROM APPOINTMENT  a " \
+                              f"s.starttime) as date, strftime('%H:%M', s.starttime)  as 'appointment time' FROM " \
+                              f"APPOINTMENT  a " \
                               f"left join Users u " \
-                              f" on u.userId = a.patient_id left join slots s on s.slot_id = a.slot_id WHERE IS_CONFIRMED= 1 and  " \
+                              f" on u.userId = a.patient_id left join slots s on s.slot_id = a.slot_id WHERE " \
+                              f"IS_CONFIRMED= 1 and  " \
                               f"GP_ID = {self.user_id}  and date(s.starttime) = {date} order by s.starttime "
 
         res = self.db.fetch_data(get_appts_sql_query)
-        ui.info_2(ui.standout, f"{appt_date} - you have {len(res)} appointment(s)")
+
+        # if date is in past the had, else have
+        try:
+            if datetime.strptime(appt_date, '%Y-%m-%d').date() < datetime.today().date():
+                tense = "had"
+            else:
+                tense = "have"
+        except ValueError:
+            # if date is 'today'
+            tense = "have"
+        ui.info_2(ui.standout, f"{appt_date} - you {tense} {len(res)} appointment(s)")
+
         # show appts table
         if res:
             table_data = util.output_sql_rows(res, ["date", "appointment time", "patient name"])
@@ -435,6 +473,7 @@ class Gp:
             self.handle_state_selection("back")
 
     def show_appointment_details(self):
+        util.sys_clear()
 
         appt_id = self.curr_appt_id  # grab state variable of current appointment
 
@@ -489,20 +528,31 @@ class Gp:
         notes = util.get_multi_line_input("Please write your clinical notes here:")
 
         if rewrite_or_append == "append to current notes":  # if append need to append.
-            # TODO HANDLING IN CASE ERRORS ON JOIN?
             notes = "\n".join([clinical_notes[0]["clinical_notes"], notes])
             ui.info_1("We've appended your new notes to the previous notes:")
         else:
             ui.info_1("Your clinical notes:")
+
+        # replace any invalid double quotation marks with single.
+        notes = notes.replace('"', '\'')
 
         ui.info(ui.indent(notes, 6))
         if ui.ask_yes_no(
                 "Are you happy to add the clinical notes to the appointment? Select 'No' to discard changes or 'Yes' "
                 "to save."):
             # update db
-            success = util.db_update(clinical_notes, "Appointment", "appointment_id",
-                                     **{"clinical_notes": f'"{notes}"'})
-            # todo - this may break if a user users double quotation marks... - could use """ triple quotations in the get multi input fn?
+            try:
+                success = util.db_update(clinical_notes, "Appointment", "appointment_id",
+                                         **{"clinical_notes": f'"{notes}"'})
+            except OperationalError:
+                logging.exception(
+                    f"Exception occurred when updating clinical notes in DB. notes value entered = {notes}")
+                ui.error("an error occurred while updating the database. Change not saved. Please try again later.")
+                ui.info("Returning to appointment details")
+                util.loading()
+                # Return to Appointment details
+                self.to_show_appointment_details()
+
             if success:
                 ui.info(ui.green, "Clinical notes successfully saved.")
             else:
@@ -528,8 +578,8 @@ class Gp:
         too_early = too_early[0]["is_after_now"]
 
         if too_early == 1:
-            ui.info("Sorry, prescriptions cannot be written for appointments in the future. \nPrescriptions may be "
-                    "written for appointments today, or amended for appointments in the past.")
+            ui.warning("Sorry, prescriptions cannot be written for appointments in the future. \nPrescriptions may be "
+                       "written for appointments today, or amended for appointments in the past.")
             ui.info("Returning to previous screen")
             util.loading(load_time=4)
             self.handle_state_selection("back")
@@ -608,6 +658,7 @@ class Gp:
             self.to_show_appointment_details()
 
     def add_referral(self):
+        util.sys_clear()
         appt_id = self.curr_appt_id  # get current state appointment id
 
         ui.info_section("Refer this patient to a specialist")
@@ -673,6 +724,7 @@ class Gp:
         self.to_show_appointment_details()
 
     def finalise_appointment(self):
+        util.sys_clear()
         appt_id = self.curr_appt_id
 
         # appointment status summary - clinical notes written? prescription? referral?
@@ -770,6 +822,7 @@ class Gp:
             self.handle_state_selection(selected)
 
     def view_patient_medical_history(self):
+        util.sys_clear()
         # check how many records are available
         appt_id = self.curr_appt_id
         # use appt_id to get patient_id
@@ -843,6 +896,8 @@ class Gp:
         # get results.
         ui.info(f"Fetching {limit_number} results in order of appointment date")
         util.loading()
+        util.sys_clear()
+        ui.info_section(ui.blue, "Viewing patient medical records by recency")
         for i in range(limit_number):
             # get each appointment up to index - results already ordered.
             desired_index = len(self.prev_appt_records) - limit_number + i  # results are in time asc, we want to print
