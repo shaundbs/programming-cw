@@ -31,10 +31,13 @@ class Panel:
             p_word = ui.ask_password('Please input your password:')
             a = (email,)
             self.db.exec_one(
-                "SELECT password, userId, accountType, is_registered FROM Users WHERE email = ?", a)
+                "SELECT password, userId, accountType, is_registered, is_active FROM Users WHERE email = ?", a)
             record = self.db.c.fetchone()
 
             if record and bcrypt.checkpw(p_word.encode('utf-8'), record[0]):
+                if record[-1] == 0:
+                    ui.info('Sorry, your account is being deactivated for now.')
+                    break
                 if record[2] == 'patient':
                     if record[3] == 1:
                         self.userType = 'patient'

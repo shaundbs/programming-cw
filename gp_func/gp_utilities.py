@@ -3,6 +3,7 @@ import re
 import threading  # send emails in background
 from datetime import datetime
 from time import sleep
+from os import system
 
 import cli_ui as ui
 from pick import pick
@@ -163,7 +164,7 @@ def get_user_month():
     while date_not_valid:
 
         selected_date = ui.ask_string("Please enter a date in the format YYYY/MM:")
-            # date validation. Can be any date if in valid format.
+        # date validation. Can be any date if in valid format.
         try:
             if selected_date.strip().lower() == "today":
                 selected_date = datetime.today().strftime('%Y/%m')
@@ -176,6 +177,7 @@ def get_user_month():
                 return date_to_search
         except AttributeError:
             print("No date entered")
+
 
 def get_multi_line_input(user_prompt):
     """
@@ -220,6 +222,10 @@ def get_multi_line_input(user_prompt):
     return "\n".join(formatted_inputs)
 
 
+def sys_clear():
+    _ = system('cls||clear')
+
+
 def print_appointment_summary(appt_id):
     conn = db.Database()
     get_apt_details_query = f"SELECT appointment_id,  u.firstName || ' ' || u.lastName as 'patient name',  " \
@@ -260,7 +266,7 @@ def print_appointment_summary(appt_id):
         columns = ["medicine_name", "treatment_description", "pres_frequency_in_days", "startDate", "expiryDate"]
         headers = ["Medicine", "Treatment", "Repeat prescription (days)", "Start date", "Prescription valid until"]
         pres_table = output_sql_rows(prescription_data, columns, headers)
-        ui.info("Prescriptions:")
+        ui.info(ui.bold, "Prescriptions:")
         print(pres_table, "\n")
 
     # Referrals
