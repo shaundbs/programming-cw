@@ -111,7 +111,7 @@ class Admin:
 
     @staticmethod
     def clear():
-        _ = system('cls||clear')
+        _ = os.system('cls' if os.name == 'nt' else 'clear')
 
     def admin_options(self):
         Admin.clear()
