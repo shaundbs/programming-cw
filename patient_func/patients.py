@@ -165,6 +165,11 @@ class Patient:
                               attrs=['bold']))
                 while True:
                     try:
+                        incrementer = 1
+                        for i in prv:
+                            print(incrementer + str(". ") + i)
+                            incrementer += 1
+
                         ask_for_help = int(input("Which tab would you like help with?: "))
                         if ask_for_help in range(5):
                             if ask_for_help == 1:
@@ -684,7 +689,7 @@ class Patient:
                 "ON a.appointment_id = p.appointment_id "
                 "LEFT JOIN Users as u "
                 "ON a.patient_id = u.userId "
-                "WHERE u.userId = '""" + str(18) + """'""")
+                "WHERE u.userId = '""" + str(self.patient_id) + """'""")
             output = self.db.c.fetchall()
             index_8 = ["Medicine Name", "Treatment Desc", "Frequency of intake (days)", "Start Date", "Expiry Date",
                        "Prescription ID", "Appointment ID"]
