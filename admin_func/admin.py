@@ -1219,8 +1219,18 @@ class Admin:
         assign_admin_confirm = ui.ask_yes_no("Please confirm if you want to assign a new Admin account?",
                                              default=False)
         if assign_admin_confirm:
-            new_fname = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
-            new_lname = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
+            while True:
+                new_fname = ui.ask_string("Please enter the Admin's new first name: ").capitalize()
+                if new_fname.isalpha():
+                    break
+                else:
+                    print("Please only include letters.")
+            while True:
+                new_lname = ui.ask_string("Please enter the Admin's new last name: ").capitalize()
+                if new_lname.isalpha():
+                    break
+                else:
+                    print("Please only include letters.")
             email_repetition = True
             while email_repetition:
                 regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
