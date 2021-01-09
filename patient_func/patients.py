@@ -309,6 +309,7 @@ class Patient:
                            str(i[1]) + " " + str(i[2]) + " at " + str(i[3][:10]) + " is " + status)
             if len(apt) == 0:
                 print("Sorry, you have no appointments at the moment.")
+                print(" ")
                 break
             apt.append("Back")
             # Redirects to appointment management.
