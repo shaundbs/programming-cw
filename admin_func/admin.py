@@ -333,38 +333,110 @@ class Admin:
     def deactivate_gp_account(self, gp_id):
         Admin.clear()
         ui.info_section(ui.blue, 'Deactivate GP account?')
-        # confirm deactivation
+
+        # handling if GP is deactivated
+
+        # confirm deactivation intent
         deactivate_gp_confirm = ui.ask_yes_no("Are you sure you want to deactivate this GP account?", default=False)
+
+        # If intent to deactivate is confirmed
         if deactivate_gp_confirm:
+
+            # set GP user's active flag to False
+            deactivate_gp_query = f"UPDATE Users " \
+                                  f"SET is_active=0 " \
+                                  f"WHERE userID={gp_id};"\
+            # Set GP's unconfirmed appointments to rejected
+            del_confirmed_appt_query = f"UPDATE Appointment " \
+                                       f"SET is_confirmed=0 " \
+                                       f"WHERE is_completed is not 1 " \
+                                       f"AND gp_id={gp_id};"
+            set_rejected_query = f"UPDATE Appointment " \
+                                 f"SET is_rejected=1 " \
+                                 f"WHERE is_completed is not 1 " \
+                                 f"AND gp_id={gp_id};"
+
+            # Execute queries
             self.db = db.Database()
-            deactivate_gp_query = f"UPDATE Users SET is_active=0 WHERE userID={gp_id}"
             self.db.exec(deactivate_gp_query)
+            self.db.exec(del_confirmed_appt_query)
+            self.db.exec(set_rejected_query)
             self.db.close_db()
+
+            # inform Admin user of changes
             ui.info_2(ui.standout, f"This account has been deactivated.")
+            ui.info_2(ui.standout, f"All pending appointments have been set to rejected.")
+            ui.info_2(ui.standout, f"Please wait to be redirected.")
+            sleep(4)
+
+        # state management
             self.state_gen.change_state("Manage GP")
+
+        # if reactivation intent is not confirmed
         else:
             self.handle_state_selection("Back")
+
 
     def reactivate_gp_account(self, gp_id):
         Admin.clear()
         ui.info_section(ui.blue, 'Reactivate GP account?')
+
+        # confirm reactivation intent
         reactivate_gp_confirm = ui.ask_yes_no("Are you sure you want to reactivate this GP account?", default=False)
+
+        # if intent to reactivate is confirmed
         if reactivate_gp_confirm:
+
+            # set GP user's active flag to True
+            reactivate_gp_query = f"UPDATE Users " \
+                                  f"SET is_active=1 " \
+                                  f"WHERE userID={gp_id};"
+
+            # Set GP's unfinished appointments back to pending GP approval
+            reset_confirmed_appts_query = f"  UPDATE Appointment " \
+                                          f"SET is_confirmed=0 " \
+                                          f"WHERE is_completed is not 1 " \
+                                          f"AND gp_id={gp_id};"
+            reset_rejected_appts_query = f"UPDATE Appointment " \
+                                         f"SET is_rejected=0 " \
+                                         f"WHERE is_completed is not 1 " \
+                                         f"AND gp_id={gp_id};"
+
+            # Execute queries
             self.db = db.Database()
-            reactivate_gp_query = f"UPDATE Users SET is_active=1 WHERE userID={gp_id}"
             self.db.exec(reactivate_gp_query)
+            self.db.exec(reset_confirmed_appts_query)
+            self.db.exec(reset_rejected_appts_query)
             self.db.close_db()
+
+            # inform Admin user of changes
             ui.info_2(ui.standout, f"This account has been reactivated.")
+            ui.info_2(ui.standout, f"All incomplete appointments have been set back to pending.")
+            ui.info_2(ui.standout, f"Please wait to be redirected.")
+            sleep(4)
+
+            # state management
             self.state_gen.change_state("Manage GP")
+
+        # if reactivation intent is not confirmed
         else:
             self.handle_state_selection("Back")
 
+
     def sign_in_as_this_gp(self, gp_id):
-        # view GP dashboard
-        Gp(gp_id)
-        # State management
-        selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
-        self.handle_state_selection(selected)
+
+        # confirm sign in intent
+        sign_in_as_gp_confirm = ui.ask_yes_no("Are you sure you want to sign in as this GP account?", default=False)
+
+        # if intent confirmed
+        if sign_in_as_gp_confirm:
+
+            # view GP dashboard
+            Gp(gp_id)
+
+        # if sign in intent is not confirmed
+        else:
+            self.handle_state_selection("Back")
 
     def register_new_gp(self):
         registerGP()
