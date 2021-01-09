@@ -467,6 +467,7 @@ class Patient:
                         elif date_booker == 1:
                             break
             elif menu_choice == 2:
+                util.clear()
                 break
             else:
                 print("System Failure: please restart")
