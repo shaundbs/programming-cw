@@ -187,7 +187,7 @@ class Patient:
                                       "appointments for "
                                       "weekdays (weekends excluded)\n2.You can only request up until the last working day"
                                       " of the following month (e.g if date is 2021-01-07 the patient can only request up "
-                                      "until 2021-02-26\n3.You cannot request appointments for a date in the past or onthe "
+                                      "until 2021-02-26)\n3.You cannot request appointments for a date in the past or on the "
                                       "date of login\n4.You cannot request an appointment for a week where you already"
                                       " have an appointment confirmed by one of our GPs\n\n-Once you have requested a "
                                       "valid date the time slot for the date where we have GP's available will be"
@@ -231,7 +231,7 @@ class Patient:
                                 print(colored('*View Prescriptions Help Screen*', 'yellow',
                                               attrs=['bold']))
                                 print("--This sections offers help and guidance with regards to patients viewing "
-                                      "prescriptions\n-If the patient navigates to this tab a table is printed "
+                                      "prescriptions\n\n-If the patient navigates to this tab, a table is printed "
                                       "containing information about their past prescriptions.\n-The patient then has"
                                       " option to save and print the prescription summary as either a .csv or .txt file"
                                       "\n-nb. These files are saved locally in the repo in the directory '"
