@@ -503,7 +503,7 @@ class Patient:
             print("You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
                   "first dose of the " + chosen_vac + " vaccination.\nThis classification has been made based on your "
                                                       "age and you have been on the waiting list for over 30 days (30 days since the date that you "
-                                                      "registered with us).\nPlease request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
+                                                      "registered with us).\n-Please request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
                                                       " or 'COVID-19 Immunisation' so that you may be protected.\n - we look forward to hearing from you.\n")
         else:
             vulnerable_individual = False
