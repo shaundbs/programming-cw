@@ -495,7 +495,7 @@ class Patient:
         vaccinations = ["Pfizer-BioNTech", "Oxford University/AstraZeneca", "Moderna mRNA-1273"]
         chosen_vac = random.choice(vaccinations)
         if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() < datetime.datetime.now().date() - \
-                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
+                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%m-%d-%Y').date() \
                 < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
             vulnerable_individual = True
             print(colored('*COVID-19 status notification*', 'red',
@@ -523,7 +523,7 @@ class Patient:
         vaccinations = ["Pfizer-BioNTech", "Oxford University/AstraZeneca"]
         chosen_vac = random.choice(vaccinations)
         if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() < datetime.datetime.now().date() - \
-                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
+                datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%m-%d-%Y').date() \
                 < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
             high_risk_top_waitinglist = True
             print(colored('*COVID-19 status notification*', 'red',
