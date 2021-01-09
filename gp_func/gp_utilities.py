@@ -4,6 +4,8 @@ import threading  # send emails in background
 from datetime import datetime
 from time import sleep
 import os
+import sys
+import itertools
 
 import cli_ui as ui
 from pick import pick
@@ -131,6 +133,27 @@ def loading(load_time=3, new_line=True):
         ui.dot()
 
 
+def loader(message):
+    done = False
+
+    #  animation
+
+    def animate():
+        for c in itertools.cycle(['|', '/', '-', '\\']):
+            if done:
+                break
+            sys.stdout.write('\r' + message + '... ' + c)
+            sys.stdout.flush()
+            sleep(0.1)
+
+    t = threading.Thread(target=animate)
+    t.start()
+
+    #  timeout
+    sleep(1)
+    done = True
+
+
 def get_user_date():
     """
     triggers user input to enter a valid date 'YYYY-MM-DD' validated via regex.
@@ -223,7 +246,7 @@ def get_multi_line_input(user_prompt):
 
 
 def sys_clear():
-    _ = os.system('cls' if os.name =='nt' else 'clear')
+    _ = os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def print_appointment_summary(appt_id):

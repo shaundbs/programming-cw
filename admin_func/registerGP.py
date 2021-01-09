@@ -9,7 +9,7 @@ from . import admin_utilities as util
 
 
 def clear():
-    _ = system('cls||clear')
+    _ = os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def registerGP():
