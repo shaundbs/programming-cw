@@ -3,7 +3,6 @@ from .patient_email_generator import Emails
 from . import date_generator
 import re
 import datetime as datetime
-import getpass  # hide password when inputting
 import bcrypt
 import calendar
 from tabulate import tabulate
@@ -13,7 +12,6 @@ import random
 import operator
 import cli_ui as ui
 from dateutil.relativedelta import relativedelta
-# import gp_utilities
 from datetime import timedelta as td
 import csv
 import os
@@ -280,8 +278,8 @@ class Patient:
             output.append("Back.")
             option = ui.ask_choice("Choose a referral:", choices=output, sort=False)
             if option != "Back.":
-                print("No additional information yet.")
                 util.clear()
+                print("No additional information yet.")
             else:
                 break
 
