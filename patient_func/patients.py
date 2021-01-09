@@ -164,6 +164,7 @@ class Patient:
             elif option == prv[4]:
                 print(colored('*Help*', 'yellow',
                               attrs=['bold']))
+                print("Please select an feature that you need assistance with:\n")
                 while True:
                     try:
                         incrementer = 1
@@ -173,7 +174,7 @@ class Patient:
                             print(str(incrementer) + ". " + str(i))
                             incrementer += 1
                         print(" ")
-                        ask_for_help = int(input("Which tab would you like help with?: "))
+                        ask_for_help = int(input("Which feature would you like help with?: "))
                         if ask_for_help in range(6):
                             if ask_for_help == 1:
                                 print(" ")
@@ -873,23 +874,3 @@ class Patient:
         print(tabulate(df2, headers='keys',
                        tablefmt='grid', showindex=False))
         return output[0]
-
-    # def select_options(self, options):
-    #     # TODO: Move to utilities.
-    #     selected = 0
-    #     while selected < 1 or selected > len(options):
-    #         try:
-    #             # Print privileges.
-    #             num = 1
-    #             for i in options:
-    #                 print(str(num) + ". " + i)
-    #                 num += 1
-    #             selected = int(input('Please choose an option: '))
-    #         except ValueError:
-    #             # Handle exceptions.
-    #             print("No valid integer! Please try again ...\n")
-    #     return selected
-
-
-# if __name__ == "__main__":
-#     Patient(4).patient_home()

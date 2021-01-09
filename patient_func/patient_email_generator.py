@@ -93,6 +93,3 @@ class Emails:
         mail.login(sender_email, password)
         mail.sendmail(admin, rec, msg.as_string())
         mail.quit()
-
-# if __name__ == "__main__":
-#     Emails.registration_email('dcwx1016@gmail.com', 'yang', 'zou', 'patient')
