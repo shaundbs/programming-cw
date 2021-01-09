@@ -128,7 +128,7 @@ class Patient:
 
     def patient_home(self):
         self.print_welcome()
-        prv = ["Request appointment", "View appointments", "View referrals", "View prescriptions", "Log out"]
+        prv = ["Request appointment", "View appointments", "View referrals", "View prescriptions", "Help?", "Log out"]
         # if user has an appointment to receive vaccine
         if self.covid_appt_count() >= 1:
             # have they received it yet or not - if so clear notification
@@ -161,6 +161,39 @@ class Patient:
             elif option == prv[3]:
                 self.view_prescription()
             elif option == prv[4]:
+                print(colored('*Help*\n', 'red',
+                              attrs=['bold']))
+                while True:
+                    try:
+                        ask_for_help = int(input("Which tab would you like help with?: "))
+                        if ask_for_help in range(5):
+                            if ask_for_help == 1:
+                                util.loader('Loading')
+                                print(" ")
+                                print("This is for requesting appointments...\n")
+                                break
+                            elif ask_for_help == 2:
+                                util.loader('Loading')
+                                print(" ")
+                                print("This is for viewing appointments...\n")
+                                break
+                            elif ask_for_help == 3:
+                                util.loader('Loading')
+                                print(" ")
+                                print("This is for viewing referrals...\n")
+                                break
+                            elif ask_for_help == 4:
+                                util.loader('Loading')
+                                print(" ")
+                                print("This is for viewing and printing prescriptions...\n")
+                                break
+                        else:
+                            print("Integer out of range\n")
+                            continue
+                    except ValueError:
+                        print("Please enter numerical values only\n")
+                        continue
+            elif option == prv[5]:
                 break
 
     def view_referrals(self):
