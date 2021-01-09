@@ -10,9 +10,10 @@ from patient_func.patient_database import Database
 import bcrypt
 import cli_ui as ui
 
-#disable colours for windows compatibility
+# disable colours for windows compatibility
 if os.name == 'nt':
-    ui.setup(color = 'never')
+    ui.setup(color='never')
+
 
 # Welcome Page.
 def welcome():
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     # initialise logging file
     logging.basicConfig(filename='e_patient_system.log', filemode='a', format='%(asctime)s - %(levelname)s - %('
                                                                               'message)s')
-
+try:
     # Main loop.
     while True:
         newPanel = Panel()
@@ -95,3 +96,5 @@ if __name__ == '__main__':
         if toExit:
             ui.info('You have exited from the system.')
             break
+except KeyboardInterrupt:
+    ui.info(" Keyboard Interrupt detected - Exiting application...")

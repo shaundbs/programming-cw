@@ -16,29 +16,29 @@ from state_manager import StateGenerator
 # back button should be child node if available option from a state.
 
 states = {
-    "main options": ["manage calendar", "confirm appointments", "view my appointments", "logout"],
-    "logout": [],
+    "Main options": ["Manage calendar", "Confirm appointments", "View my appointments", "Logout"],
+    "Logout": [],
     # Calendar / holiday
-    "manage calendar": ["view calendar", "schedule time off", "back"],
-    "view calendar": ["view another month", "view day schedule", "back"],
-    "view day schedule": ["back"],
-    "schedule time off": ["back"],
+    "Manage calendar": ["View calendar", "Schedule time off", "Back"],
+    "View calendar": ["View another month", "View day schedule", "Back"],
+    "View day schedule": ["Back"],
+    "Schedule time off": ["Back"],
     # confirm appts
-    "confirm appointments": ["back"],
+    "Confirm appointments": ["Back"],
     # view appts
-    "view my appointments": ["select an appointment", "view appointments from another day", "back"],
-    "select an appointment": ["show appointment details", "back"],
-    "view appointments from another day": ["back"],
-    "show appointment details": ["write clinical notes", "write prescriptions", "add referral", "finalise appointment",
-                                 "view patient medical history", "back"],
-    "write clinical notes": ["back"],
-    "write prescriptions": ["back"],
-    "add referral": ["back"],
-    "finalise appointment": ["back"],
-    "view patient medical history": ["view previous appointment records", "back"],
-    "view previous appointment records": ["view patient records by recency", "download all records as a csv", "back"],
-    "view patient records by recency": ["back"],
-    "download all records as a csv": ["back"]
+    "View my appointments": ["Select an appointment", "View appointments from another day", "Back"],
+    "Select an appointment": ["Show appointment details", "Back"],
+    "View appointments from another day": ["Back"],
+    "Show appointment details": ["Write clinical notes", "Write prescriptions", "Add referral", "Finalise appointment",
+                                 "View patient medical history", "Back"],
+    "Write clinical notes": ["Back"],
+    "Write prescriptions": ["Back"],
+    "Add referral": ["Back"],
+    "Finalise appointment": ["Back"],
+    "View patient medical history": ["View previous appointment records", "Back"],
+    "View previous appointment records": ["View patient records by recency", "Download all records as a csv", "Back"],
+    "View patient records by recency": ["Back"],
+    "Download all records as a csv": ["Back"]
 
 }
 
@@ -146,13 +146,13 @@ class Gp:
         # user_choices = ["view day", "view another month", "back"]
         selected = ui.ask_choice("What would you like to do next?",
                                  choices=self.state_gen.get_state_options())
-        if selected == "view day schedule":
+        if selected == "View day schedule":
             self.curr_appt_date = util.get_user_date()
             while datetime.strptime(self.curr_appt_date, '%Y-%m-%d').weekday() > 4:
                 ui.info("There are no appointments at weekends, please select a weekday")
                 self.curr_appt_date = util.get_user_date()
 
-        elif selected == "view another month":
+        elif selected == "View another month":
             self.curr_appt_month = util.get_user_month()
             self.to_view_calendar()
 
@@ -295,7 +295,7 @@ class Gp:
         while res:
             table_data = util.output_sql_rows(res, ["date", "appointment time", "patient name"])
             print(table_data)
-            user_choices = ["confirm all", "reject all", "confirm or reject an individual appointment", "back"]
+            user_choices = ["Confirm all", "Reject all", "Confirm or reject an individual appointment", "Back"]
 
             selected = ui.ask_choice("What would you like to do?", choices=user_choices)
 
@@ -332,7 +332,7 @@ class Gp:
                                                      "appointment's row number:")
 
                 # choose accept or reject or back
-                further_options = ["confirm", "reject", "back"]
+                further_options = ["Confirm", "Reject", "Back"]
                 selected = ui.ask_choice("What would you like to do with this appointment?", choices=further_options)
                 if selected == further_options[2]:  # back
                     res = None  # remove result to exit from while loop if back chosen
@@ -426,7 +426,7 @@ class Gp:
             table_data = util.output_sql_rows(res, ["date", "appointment time", "patient name"])
             print(table_data)
             selected = util.user_select("What would you like to do?", choices=self.state_gen.get_state_options())
-            if selected == "select an appointment":
+            if selected == "Select an appointment":
                 self.to_select_an_appointment(res, table_data)  # handle state transition manually as state
                 # requires 2 arguments.
             else:
@@ -482,9 +482,9 @@ class Gp:
 
         # offer options for this state (write/edit notes, prescriptions, referals, finalise appt, view patient records.)
         selected = util.user_select("How would you like to proceed?", self.state_gen.get_state_options())
-        if selected == "write prescriptions":
+        if selected == "Write prescriptions":
             self.to_write_prescriptions(appt_id)  # handle manually as state requires appt_id argument
-        elif selected == "back":  # need to skip select appointment
+        elif selected == "Back":  # need to skip select appointment
             self.to_view_my_appointments()
         else:
             self.handle_state_selection(selected)
@@ -565,7 +565,7 @@ class Gp:
             # go back or rewrite?
             options = ["Try writing clinical notes again", "back"]
             selected = util.user_select("What would you like to do now?", choices=options)
-            if selected == "back":
+            if selected == "Back":
                 self.handle_state_selection("back")
             else:
                 self.to_write_clinical_notes()  # restart state from scratch if gp wants to try writing again.
@@ -652,9 +652,9 @@ class Gp:
 
         user_options = ["write another prescription", "back"]
         selected = util.user_select("How would you like to proceed?", choices=user_options)
-        if selected == "write another prescription":
+        if selected == "Write another prescription":
             self.to_write_prescriptions(appt_id)
-        elif selected == "back":
+        elif selected == "Back":
             self.to_show_appointment_details()
 
     def add_referral(self):
@@ -727,6 +727,19 @@ class Gp:
         util.sys_clear()
         appt_id = self.curr_appt_id
 
+        too_early_query = f"SELECT date(s.starttime) > date('now') as is_after_now FROM APPOINTMENT LEFT JOIN SLOTS S " \
+                          f"USING (SLOT_ID) where appointment_id = {self.curr_appt_id}"
+        too_early = self.db.fetch_data(too_early_query)
+        too_early = too_early[0]["is_after_now"]
+
+        if too_early == 1:
+            ui.warning("This appointment is in the future.")
+            proceed = ui.ask_yes_no("Are you sure you would like to proceed?")
+            if not proceed:
+                ui.info("Returning to previous screen.")
+                util.loading()
+                self.handle_state_selection("back")
+
         # appointment status summary - clinical notes written? prescription? referral?
         util.print_appointment_summary(appt_id)
 
@@ -769,13 +782,13 @@ class Gp:
         ui.info_count(0, 3, "Finalisation process")
         if ui.ask_yes_no(notes_colour_status, confirmation_message):
             ui.info_count(1, 3, "Finalisation process")
-            new_options = ["yes", "no", "abort finalisation process"]
+            new_options = ["Yes", "No", "Abort finalisation process"]
             selected = util.user_select("Should this patient be emailed the appointment details?", choices=new_options)
-            if selected == "abort finalisation process":
+            if selected == "Abort finalisation process":
                 self.handle_state_selection("back")
-            elif selected == "yes":
+            elif selected == "Yes":
                 email = True
-            elif selected == "no":
+            elif selected == "No":
                 email = False
 
             # perform update is_completed = 1 in appointment table.
