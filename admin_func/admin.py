@@ -111,7 +111,7 @@ class Admin:
 
     @staticmethod
     def clear():
-        _ = os.system('cls' if os.name == 'nt' else 'clear')
+        _ = system('cls||clear')
 
     def admin_options(self):
         Admin.clear()
@@ -125,6 +125,7 @@ class Admin:
                           "\n'Manage GP' to sign as selected GP user, "
                           "edit specific GP account information and account status."
                           "\n'Register new GP' to appoint a new GP."
+                          "\n'Approve new patients' to validate newly registered patients."
                           "\n'Assign new admin' to appoint a new user with admin privileges."
                           "\n'View reports' to track user metrics. \n")
 
@@ -262,8 +263,8 @@ class Admin:
             self.db.close_db()
             ui.info_section(ui.blue, "")
             ui.info_2(ui.standout, f"Successfully updated GP's name to: {new_firstname} {new_lastname}. "
-                                   f"Please wait whilst you are redirected.")
-            sleep(3)
+                                   f"Please wait whilst you are redirected.\n")
+            util.loader('Loading')
 
             # State management
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
@@ -304,8 +305,8 @@ class Admin:
             self.db.exec_one("""UPDATE Users SET email=? WHERE userID=?""", [new_email, gp_id])
             self.db.close_db()
             ui.info_section(ui.blue, "")
-            ui.info_2(ui.standout, f"Successfully updated GP's email. Please wait whilst you are redirected.")
-            sleep(3)
+            ui.info_2(ui.standout, f"Successfully updated GP's email. Please wait whilst you are redirected.\n")
+            util.loader('Loading')
 
             # state management
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
@@ -353,8 +354,8 @@ class Admin:
                 self.db.close_db()
                 # success notification
                 ui.info_section(ui.blue, "")
-                ui.info_2(ui.standout, f"Successfully reset GP's password. Please wait whilst you are redirected.")
-                sleep(3)
+                ui.info_2(ui.standout, f"Successfully reset GP's password. Please wait whilst you are redirected.\n")
+                util.loader('Loading')
                 # State management
                 self.to_edit_gp_account_information(gp_id, chosen_gp_table)
 
@@ -419,8 +420,8 @@ class Admin:
             # inform Admin user of changes
             ui.info_2(ui.standout, f"This account has been deactivated.")
             ui.info_2(ui.standout, f"All pending appointments have been set to rejected.")
-            ui.info_2(ui.standout, f"Please wait to be redirected.")
-            sleep(4)
+            ui.info_2(ui.standout, f"Please wait to be redirected.\n")
+            util.loader('Loading')
 
         # state management
             self.state_gen.change_state("Manage GP")
@@ -465,8 +466,8 @@ class Admin:
             # inform Admin user of changes
             ui.info_2(ui.standout, f"This account has been reactivated.")
             ui.info_2(ui.standout, f"All incomplete appointments have been set back to pending.")
-            ui.info_2(ui.standout, f"Please wait to be redirected.")
-            sleep(4)
+            ui.info_2(ui.standout, f"Please wait to be redirected.\n")
+            util.loader('Loading')
 
             # state management
             self.state_gen.change_state("Manage GP")
@@ -506,14 +507,18 @@ class Admin:
         self.register_new_gp()
 
     def approve_new_patients(self):
-        try:
-            confirm_patient()
-            selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
-            self.handle_state_selection(selected)
-        except:
-            print("\nNo patients currently require validation!\nRedirecting...")
-            sleep(2)
-            self.to_admin_options()
+        # try:
+        #     confirm_patient()
+        #     selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
+        #     self.handle_state_selection(selected)
+        # except:
+        #     print("\nNo more patients currently require validation!\nRedirecting...")
+        #     sleep(2)
+        #     self.to_admin_options()
+        confirm_patient()
+        selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
 
     def approve_all_patients(self):
         approve_all()
@@ -662,8 +667,8 @@ class Admin:
             result = db.c.fetchall()
             row = len(result)
             if row == 0:
-                print("No result found, Check if the Birth Date was entered in the correct format: DD-MM-YYYY ")
-                sleep(2)
+                print("No result found, Check if the Birth Date was entered in the correct format: DD-MM-YYYY \n")
+                util.loader('Loading')
                 Admin.clear()
                 self.to_manage_patient()
 
@@ -689,8 +694,8 @@ class Admin:
             result = db.c.fetchall()
             row = len(result)
             if row == 0:
-                print("No result found, Check if the Name was typed in correctly.")
-                sleep(2)
+                print("No result found, Check if the Name was typed in correctly.\n")
+                util.loader('Loading')
                 Admin.clear()
                 self.to_manage_patient()
             else:
@@ -745,8 +750,8 @@ class Admin:
             db = Database()
             db.exec_one("""UPDATE Users SET firstname=?,LastName=?  WHERE userID=?""", (FirstName, LastName, self.ID,))
             ui.info_2(ui.standout, f"Successfully Updated Patient Name. "
-                                   f"Please wait whilst you are redirected.")
-            sleep(2)
+                                   f"Please wait whilst you are redirected.\n")
+            util.loader('Loading')
             Admin.clear()
             self.edit_patient_details()
         elif selected == "Change Date of Birth":
@@ -762,8 +767,8 @@ class Admin:
             db = Database()
             db.exec_one("""UPDATE Users SET date_of_birth=?  WHERE userID=?""", (DoB, self.ID,))
             ui.info_2(ui.standout, f"Successfully Updated Date of Birth. "
-                                   f"Please wait whilst you are redirected.")
-            sleep(2)
+                                   f"Please wait whilst you are redirected.\n")
+            util.loader('Loading')
             Admin.clear()
             self.edit_patient_details()
 
@@ -780,8 +785,8 @@ class Admin:
             db = Database()
             db.exec_one("""UPDATE Users SET email=?  WHERE userID=?""", (email, self.ID,))
             ui.info_2(ui.standout, f"Successfully Updated the email. "
-                                   f"Please wait whilst you are redirected.")
-            sleep(2)
+                                   f"Please wait whilst you are redirected.\n")
+            util.loader('Loading')
             Admin.clear()
             self.edit_patient_details()
         elif selected == "Back":
@@ -826,8 +831,8 @@ class Admin:
                                 prescribed_medication=? WHERE Medical_historyNo=?""",
                              (illness, time_afflicted, description, prescribed_medication, mednr,))
                 ui.info_2(ui.standout, f"Medical History was added to the Patients record."
-                                       f"Please wait whilst you are redirected.")
-                sleep(2)
+                                       f"Please wait whilst you are redirected.\n")
+                util.loader('Loading')
                 self.add_medical_history()
             else:
 
@@ -836,8 +841,8 @@ class Admin:
                     "VALUES(?, ?,?, ?,?)",
                     (self.ID, illness, time_afflicted, description, prescribed_medication))
                 ui.info_2(ui.standout, f"Medical History was added to the Patients record."
-                                       f"Please wait whilst you are redirected.")
-                sleep(2)
+                                       f"Please wait whilst you are redirected.\n")
+                util.loader('Loading')
                 self.add_medical_history()
         elif selected == "Back":
             self.handle_state_selection("Back")
@@ -870,8 +875,8 @@ class Admin:
                                         prescribed_medication=? WHERE Medical_historyNo=?""",
                                      ("Empty", "Empty", "Empty", "Empty", nr,))
                         ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
-                                               f"Please wait whilst you are redirected.")
-                        sleep(2)
+                                               f"Please wait whilst you are redirected.\n")
+                        util.loader('Loading')
                         x = 2
                     else:
                         print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
@@ -885,8 +890,8 @@ class Admin:
                         db1 = Database()
                         db1.exec_one("DELETE FROM MedicalHistory WHERE Medical_historyNo=?", (nr,))
                         ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
-                                               f"Please wait whilst you are redirected.")
-                        sleep(2)
+                                               f"Please wait whilst you are redirected.\n")
+                        util.loader('Loading')
                         x = 2
                     else:
                         print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
@@ -904,8 +909,8 @@ class Admin:
             db = Database()
             db.exec_one("""UPDATE Users SET is_active=0  WHERE userID=?""", (self.ID,))
             ui.info_2(ui.standout, f"Patients account has been deactivated. "
-                                   f"Please wait whilst you are redirected.")
-            sleep(2)
+                                   f"Please wait whilst you are redirected.\n")
+            util.loader('Loading')
             self.deactivate_patient_account()
         elif selected == "Back":
             self.handle_state_selection("Manage Patient Account")
@@ -920,8 +925,8 @@ class Admin:
             db = Database()
             db.exec_one("""UPDATE Users SET is_active=1  WHERE userID=?""", (self.ID,))
             ui.info_2(ui.standout, f"Patients account has been reactivated. "
-                                   f"Please wait whilst you are redirected.")
-            sleep(2)
+                                   f"Please wait whilst you are redirected.\n")
+            util.loader('Loading')
             self.reactivate_patient_account()
         elif selected == "Back":
             self.handle_state_selection("Manage Patient Account")
@@ -1258,8 +1263,8 @@ class Admin:
                              [new_fname, new_lname, new_email, hashed_password, format_date, "admin", is_registered,
                               is_active])
             self.db.close_db()
-            ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.")
-            sleep(2)
+            ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.\n")
+            util.loader('Loading')
             self.state_gen.change_state("Admin Options")
 
         else:

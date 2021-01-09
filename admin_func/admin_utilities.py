@@ -2,7 +2,11 @@ import cli_ui as ui
 import re
 from pandas import DataFrame
 from tabulate import tabulate
-
+import threading
+import time
+import itertools
+import sys
+import os
 
 def user_select(prompt: str, choices: list):
     selected = None
@@ -126,3 +130,21 @@ def get_multi_line_input(user_prompt):
             current_index += 1
     return "\n".join(formatted_inputs)
 
+def loader(message):
+    done = False
+    #animation
+
+    def animate():
+        for c in itertools.cycle(['|', '/', '-', '\\']):
+            if done:
+                break
+            sys.stdout.write('\r' + message + '... ' + c)
+            sys.stdout.flush()
+            time.sleep(0.1)
+
+    t = threading.Thread(target=animate)
+    t.start()
+
+    #  timeout
+    time.sleep(1)
+    done = True

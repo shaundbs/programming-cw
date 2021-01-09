@@ -5,6 +5,7 @@ import threading
 import bcrypt
 from .admin_database import Database
 from .admin_email_generator import Emails
+from . import admin_utilities as util
 
 
 def clear():
@@ -96,7 +97,8 @@ def confirmation():
         Database().exec_many(
             """INSERT INTO Users(firstName,lastName,email,password,accountType,is_registered,is_active,signUpDate)
              Values (?,?,?,?,?,?,?,?)""", a)
-    except:
+    except OperationalError:
+        logging.exception("Error adding GP details to database")
         clear()
         print("Registration unsuccessful")
         ver1 = True
@@ -112,7 +114,7 @@ def confirmation():
                 clear()
                 print("Program Terminated")
                 Database().connection.close()
-                quit()
+                sys.exit()
             else:
                 clear()
                 print("Please select a valid option!")
@@ -125,11 +127,12 @@ def confirmation():
 
         # Email new user with the relevant details
         try:
-            print("Sending confirmation email...")
+            util.loader("Sending confirmation email")
             Emails.gp_registration_email(email, firstName, lastName, pWord, 'GP')
-            print("\nEmail has been sent with record of the account details\n")
-        except Error as err:
-            print("Sorry, unable to send email...")
+            print("\nEmail has been sent with a record of the account details\n")
+        except UnboundLocalError:
+            logging.exception("Exception occurred while trying to send confirmation of GP registration email")
+            print("\nSorry, unable to send email...\n")
 
 
 if __name__ == "__main__":

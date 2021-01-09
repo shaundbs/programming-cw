@@ -7,6 +7,7 @@ from tabulate import tabulate
 from termcolor import colored
 
 from .admin_email_generator import Emails
+from . import admin_utilities as util
 
 
 def clear():
@@ -23,7 +24,8 @@ def confirm_patient():
         connection = sqlite3.connect('database/ehealth.db')
         cursor = connection.cursor()
 
-    except Error as e:
+    except OperationalError:
+        logging.exception("Database connection failure")
         print("Unable to connect to database!")
 
     # Query database for patients in need of validation
@@ -43,7 +45,7 @@ def confirm_patient():
     index = ["ID", "First Name", "Last Name", "Email", "Date Signed Up"]
     df.columns = index
 
-    print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
+
     clear()
     print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
 
@@ -81,10 +83,15 @@ def approve_all():
 
     connection.close()
     print("All patients successfully approved!\n")
-    sleep(1)
+    util.loader("Sending confirmation emails")
+    email = emails[i]
+    firstName = fullname_list[i][0]
+    lastName = fullname_list[i][1]
+
+    Emails.validation_email(email, firstName, lastName, 'patient')
     clear()
     print(
-        f"Number of patients approved: {len(patients_validated)}")
+        f"\nNumber of patients approved: {len(patients_validated)}")
 
 
 def delete_all():
@@ -100,9 +107,10 @@ def delete_all():
         connection.commit()
         patients_deleted.append(validation_required[i])
 
-    connection.close()
+
     print("All patients successfully deleted!\n")
-    sleep(1)
+    util.loader('Loading')
+    connection.close()
     clear()
     print(
         f"Number of patients deleted: {len(patients_deleted)}")
@@ -118,7 +126,7 @@ def validate():
     # Loop through each patient and give user option to validate, delete or quit the program
     clear()
     for i in range(len(validation_required)):
-        print(f"\nPatient ID: {user_ids[i]}\nPatient Name: {fullname_list[i][0]} {fullname_list[i][1]}")
+        print(f"\n\nPatient ID: {user_ids[i]}\nPatient Name: {fullname_list[i][0]} {fullname_list[i][1]}")
         action1 = input("""Press enter to skip or choose one of the options below:
         \n1.Approve\n2.Delete\n3.Quit\nSelect option: """)
         if action1 == "1":
@@ -131,6 +139,7 @@ def validate():
             patients_validated.append(validation_required[i])
 
             # Send user email confirming successful validation
+            util.loader("Sending confirmation email")
             email = emails[i]
             firstName = fullname_list[i][0]
             lastName = fullname_list[i][1]
@@ -142,28 +151,28 @@ def validate():
             delete_entry = user_ids[i]
             cursor.execute(delete_query, (delete_entry,))
             connection.commit()
-            print("Patient successfully deleted!\n")
+            print("Patient successfully deleted!")
             patients_deleted.append(validation_required[i])
 
         elif action1 == "3":
-            print("Program Terminated")
+            print("Exiting patient confirmation")
             break
 
         else:
-            print("No action taken\n")
+            print("No action taken")
             pass
 
     connection.close()
 
     # Displays the total number of accounts validated/deleted
-    sleep(1)
+    util.loader('Loading')
     clear()
     print(
-        f"Number of patients approved: {len(patients_validated)}\nNumber of patients deleted: {len(patients_deleted)}")
+        f"\nNumber of patients approved: {len(patients_validated)}\nNumber of patients deleted: {len(patients_deleted)}")
 
 
 def no_patients():
-    sleep(1)
+    util.loader('Loading')
 
 
 if __name__ == "__main__":
