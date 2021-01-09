@@ -371,7 +371,7 @@ class Gp:
                 self.handle_state_selection("back")
             else:
                 ui.info("Well, nothing to do here. I'll take you back anyway")
-                util.loading()
+                util.loader("Loading")
                 self.handle_state_selection("back")  # back to main options
 
     # View today's or another day's appointments and initiate consultations.
@@ -462,14 +462,14 @@ class Gp:
             if len(appointment_list) == 1:
                 ui.info_1("Only one appointment found. Appointment auto-selected.\nNavigating to appointment "
                           "information.")
-                util.loading()
+                util.loader("Loading")
             self.to_show_appointment_details()
         except KeyError:
             #  LOG ERROR IF INVALID DICTIONARY PASSED TO FUNCTION.
             logging.exception("Exception occurred.")
             ui.info(ui.red, "An error has occurred. We could not get the appointment data for the record.")
             ui.info("Going back to 'view appointment' page")
-            util.loading()
+            util.loader("Loading")
             self.handle_state_selection("back")
 
     def show_appointment_details(self):
@@ -502,7 +502,7 @@ class Gp:
             proceed = ui.ask_yes_no("Are you sure you would like to proceed?")
             if not proceed:
                 ui.info("Returning to previous screen.")
-                util.loading()
+                util.loader("Loading")
                 self.handle_state_selection("back")
 
         # get clinical notes for this appt
@@ -549,7 +549,7 @@ class Gp:
                     f"Exception occurred when updating clinical notes in DB. notes value entered = {notes}")
                 ui.error("an error occurred while updating the database. Change not saved. Please try again later.")
                 ui.info("Returning to appointment details")
-                util.loading()
+                util.loader("Loading")
                 # Return to Appointment details
                 self.to_show_appointment_details()
 
@@ -558,7 +558,7 @@ class Gp:
             else:
                 ui.info("There was an error, processing your request, please try later")
             ui.info("Returning to appointment details")
-            util.loading()
+            util.loader("Loading")
             # Return to Appointment details
             self.to_show_appointment_details()
         else:
@@ -679,7 +679,7 @@ class Gp:
                                     "updated/overwritten.")
             if not proceed:
                 ui.info("Returning to appointment details")
-                util.loading()
+                util.loader("Loading")
                 # Return to Appointment details
                 self.to_show_appointment_details()
 
@@ -719,7 +719,7 @@ class Gp:
             else:
                 ui.info("There was an error, processing your request, please try later")
         ui.info("Returning to appointment details")
-        util.loading()
+        util.loader("Loading")
         # Return to Appointment details
         self.to_show_appointment_details()
 
@@ -737,7 +737,7 @@ class Gp:
             proceed = ui.ask_yes_no("Are you sure you would like to proceed?")
             if not proceed:
                 ui.info("Returning to previous screen.")
-                util.loading()
+                util.loader("Loading")
                 self.handle_state_selection("back")
 
         # appointment status summary - clinical notes written? prescription? referral?
@@ -799,7 +799,7 @@ class Gp:
             else:
                 ui.error("There was an error, processing your request, please try later")
                 ui.info("Returning to appointment page.")
-                util.loading()
+                util.loader("Loading")
                 self.to_show_appointment_details()
 
             # send email or not of appt details
@@ -908,7 +908,7 @@ class Gp:
 
         # get results.
         ui.info(f"Fetching {limit_number} results in order of appointment date")
-        util.loading()
+        util.loader("Loading")
         util.sys_clear()
         ui.info_section(ui.blue, "Viewing patient medical records by recency")
         for i in range(limit_number):
@@ -973,18 +973,18 @@ class Gp:
                     "CSV saved successfully. Please check the downloaded_data folder in the application directory. ("
                     f"full path - {csv_file})")
                 ui.info("Returning to previous screen")
-                util.loading()
+                util.loader("Loading")
                 self.handle_state_selection("back")
 
             except IOError:
                 logging.exception("Exception occurred fetching and saving data as CSV:")
                 ui.error("Sorry, an error occurred while saving the data as a CSV")
                 ui.info("Returning to previous screen")
-                util.loading()
+                util.loader("Loading")
                 self.handle_state_selection("back")
         else:  # if download not confirmed.
             ui.info("Returning to previous screen")
-            util.loading()
+            util.loader("Loading")
             self.handle_state_selection("back")
 
     def view_appointments_from_another_day(self):
@@ -1000,6 +1000,6 @@ class Gp:
                 date_not_chosen = False
 
         ui.info(f"Fetching your appointments for {date_to_search}")
-        util.loading()
+        util.loader("Loading")
         self.curr_appt_date = date_to_search
         self.to_view_my_appointments()
