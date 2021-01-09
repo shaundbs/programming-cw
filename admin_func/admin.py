@@ -15,6 +15,7 @@ from termcolor import colored
 import datetime
 from datetime import date, datetime as Datetime
 from state_manager import StateGenerator
+from gp_func.gp import Gp
 
 states = {
     # admin menu
@@ -35,8 +36,8 @@ states = {
     "Specialist report": ["Back"],
 
     # Manage GP menu
-    "Manage GP": ["Edit GP account Information", "Remove GP account", "Deactivate GP account", "Reactivate GP account",
-                  "Back"],
+    "Manage GP": ["Edit GP account Information", "Remove GP account", "Deactivate GP account",
+                  "Reactivate GP account", "Sign in as this GP", "Back"],
 
     # Edit GP menu
     "Edit GP account information": ["Change GP name", "Change GP registered email address", "Reset GP password",
@@ -44,12 +45,12 @@ states = {
     "Change GP name": ["Back"],
     "Change GP registered email address": ["Back"],
     "reset GP password": ["Back"],
-    # Other menus
+
+    # Other Manage GP menu options
     "Remove GP account": ["Back"],
     "Deactivate GP account": ["Back"],
     "Reactivate GP account": ["Back"],
-
-
+    "Sign in as this GP": ["Back"],
 
     # Register GP
     "Register new GP": ["Confirm details", "Back"],
@@ -127,13 +128,13 @@ class Admin:
 
         # show GPs in system
         self.db = db.Database()
-        gp_acct_query = f"SELECT userID, firstname, lastName, email, is_active FROM users WHERE accountType = 'gp'"
+        gp_acct_query = f"SELECT firstname, lastName, email, is_active, userID FROM users WHERE accountType = 'gp'"
         gp_acct_result = self.db.fetch_data(gp_acct_query)
         self.db.close_db()
-        gp_dataframe_header = ['ID', 'First Name', 'Last Name', 'email', 'Active?']
+        gp_dataframe_header = ['First Name', 'Last Name', 'email', 'Active?', 'ID']
         gp_dataframe = DataFrame(gp_acct_result)
         gp_dataframe.columns = gp_dataframe_header
-        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='pretty', showindex=False)
+        gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='grid', showindex=False)
         print(gp_table + "\n")
 
         # allow admin user to choose desired gp account
@@ -172,6 +173,8 @@ class Admin:
                 self.to_deactivate_gp_account(gp_id)
             elif selected == "Reactivate GP account":
                 self.to_reactivate_gp_account(gp_id)
+            elif selected == "Sign in as this GP":
+                self.to_sign_in_as_this_gp(gp_id)
             else:
                 self.handle_state_selection("Manage GP")
         elif gp_id == "Back":
@@ -181,19 +184,19 @@ class Admin:
         Admin.clear()
         ui.info_section(ui.blue, 'Edit GP account')
 
-        # Refresh chose_gp table
+        # Refresh chose_gp table with only chosen GP
         self.db = db.Database()
-        gp_acct_query = f"SELECT userID, firstname, lastName, email, is_active FROM users WHERE accountType = 'gp' " \
+        gp_acct_query = f"SELECT firstname, lastName, email, is_active, userID FROM users WHERE accountType = 'gp' " \
                         f"AND userID={gp_id}"
         gp_acct_result = self.db.fetch_data(gp_acct_query)
         self.db.close_db()
-        gp_dataframe_header = ['ID', 'First Name', 'Last Name', 'email', 'Active?']
+        gp_dataframe_header = ['First Name', 'Last Name', 'email', 'Active?', 'ID']
         gp_dataframe = DataFrame(gp_acct_result)
         gp_dataframe.columns = gp_dataframe_header
         chosen_gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='grid', showindex=False)
         print(chosen_gp_table + "\n")
 
-        # control program flow
+        # State management
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
         if selected == "Change GP name":
             self.to_change_gp_name(gp_id, chosen_gp_table)
@@ -330,6 +333,7 @@ class Admin:
     def deactivate_gp_account(self, gp_id):
         Admin.clear()
         ui.info_section(ui.blue, 'Deactivate GP account?')
+        # confirm deactivation
         deactivate_gp_confirm = ui.ask_yes_no("Are you sure you want to deactivate this GP account?", default=False)
         if deactivate_gp_confirm:
             self.db = db.Database()
@@ -355,8 +359,16 @@ class Admin:
         else:
             self.handle_state_selection("Back")
 
+    def sign_in_as_this_gp(self, gp_id):
+        # view GP dashboard
+        Gp(gp_id)
+        # State management
+        selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
+        self.handle_state_selection(selected)
+
     def register_new_gp(self):
         registerGP()
+        # State management
         selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 

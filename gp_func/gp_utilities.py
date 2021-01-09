@@ -58,7 +58,7 @@ def output_sql_rows(query_result, column_names: list, table_headers=None, table_
             record.append((values[header]))
         output_list.append(record)
     # return Table(output_list, table_title).table
-    return tabulate(output_list, headers="firstrow", tablefmt=grid)
+    return tabulate(output_list, headers="firstrow", tablefmt='grid')
 
 
 def db_update(record_list, table_name, pk_column_name, **new_column_values):
