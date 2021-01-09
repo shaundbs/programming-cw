@@ -177,6 +177,7 @@ class Patient:
                         ask_for_help = int(input("Which feature would you like help with?: "))
                         if ask_for_help in range(6):
                             if ask_for_help == 1:
+                                util.clear()
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
@@ -196,6 +197,7 @@ class Patient:
                                       "do so before confirming the appointment request\n ")
                                 break
                             elif ask_for_help == 2:
+                                util.clear()
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
@@ -211,6 +213,7 @@ class Patient:
                                       "view the appointment date, time slot, and assigned GP\n\n")
                                 break
                             elif ask_for_help == 3:
+                                util.clear()
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
@@ -225,6 +228,7 @@ class Patient:
                                       "appointment with one of our GPs\n\n")
                                 break
                             elif ask_for_help == 4:
+                                util.clear()
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
