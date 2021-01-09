@@ -9,9 +9,7 @@ from tabulate import tabulate
 from termcolor import colored
 from pandas import DataFrame
 import random
-import operator
 import cli_ui as ui
-from dateutil.relativedelta import relativedelta
 from datetime import timedelta as td
 import csv
 import os
@@ -20,6 +18,7 @@ from dateutil.relativedelta import relativedelta
 import threading
 from . import patient_utilities as util
 import time
+import sys
 
 class Patient:
     patient_id = 0
@@ -249,7 +248,12 @@ class Patient:
                         print("Please enter numerical values only\n")
                         continue
             elif option == prv[5]:
-                break
+                util.clear()
+                print(" ")
+                util.loader("Logging out")
+                print(" ")
+                sys.exit()
+
 
     def view_referrals(self):
         """
@@ -270,7 +274,7 @@ class Patient:
             util.loader('Loading')
             print("\n")
             for i in self.referralsList:
-                output.append("Your are referred to our specialist Dr " + str(i[1]) + " " + str(
+                output.append("You are referred to our specialist Dr. " + str(i[1]) + " " + str(
                     i[2]) + " at Department " + str(i[4]) + " of Hopsital " + str(i[3]) + ".")
             if len(output) == 0:
                 print("Sorry, you have no referrals at the moment.\n")
@@ -308,7 +312,7 @@ class Patient:
                     status = "confirmed."
                 else:
                     status = "rejected."
-                apt.append("Your appointment with Dr " +
+                apt.append("Your appointment with Dr. " +
                            str(i[1]) + " " + str(i[2]) + " at " + str(i[3][:10]) + " is " + status)
             if len(apt) == 0:
                 print("Sorry, you have no appointments at the moment.")
@@ -743,7 +747,7 @@ class Patient:
                 "ON a.patient_id = u.userId "
                 "WHERE u.userId = '""" + str(self.patient_id) + """'""")
             output = self.db.c.fetchall()
-            index_8 = ["Medicine Name", "Treatment Desc", "Frequency of intake (days)", "Start Date", "Expiry Date",
+            index_8 = ["Medicine Name", "Treatment Desc", "Frequency of presc renewal (days)", "Start Date", "Expiry Date",
                        "Prescription ID", "Appointment ID"]
             df4 = DataFrame(output)
             df4.columns = index_8
