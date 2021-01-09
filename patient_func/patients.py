@@ -146,8 +146,8 @@ class Patient:
                 print(colored('*COVID-19 status notification*', 'red',
                               attrs=['bold']))
                 print("-- You have been identified as a high risk patient to COVID-19 and have been placed on our "
-                      "waiting list.\n-- This classification has been made based on your age making you more "
-                      "susceptible to the virus. You will be invited to receive a vaccination with us "
+                      "waiting list.\n- This classification has been made based on your age making you more "
+                      "susceptible to the virus.\n- You will be invited to receive a vaccination with us "
                       "in due course.\n")
 
         while True:
@@ -551,9 +551,9 @@ class Patient:
             low_risk_patient = True
             print(colored('*COVID-19 status notification*', 'green',
                           attrs=['bold']))
-            print("In accordance with our system, you have been classified as a low-risk patient to COVID-19.\n"
-                  "However, you will receive an invite to have a vaccination in due course but we are currently "
-                  "prioritising the vulnerable groups.\nPlease stay at home and protect the NHS! :)")
+            print("-- In accordance with our system, you have been classified as a low-risk patient to COVID-19.\n"
+                  "- However, you will receive an invite to have a vaccination in due course but we are currently "
+                  "prioritising the vulnerable groups.\n- Please stay at home and protect the NHS! :)")
         else:
             low_risk_patient = False
         return low_risk_patient
@@ -587,12 +587,12 @@ class Patient:
             print(colored('*COVID-19 status notification*', 'green',
                           attrs=['bold']))
             print("-- Congratulations! You have now received you first dose of the "
-                  "COVID-19 vaccine.\n-- We will contact you again in 3 months time to receive your second dose.\n")
+                  "COVID-19 vaccine.\n- We will contact you again in 3 months time to receive your second dose.\n")
             immunised = True
         else:
             print(colored('*COVID-19 status notification*', 'red',
                           attrs=['bold']))
-            print("-- You have an upcoming appointment to receive a COVID-19 vaccination.\n-- Please check your "
+            print("-- You have an upcoming appointment to receive a COVID-19 vaccination.\n- Please check your "
                   "'View appointments' tab for further details. \n")
             immunised = False
         return immunised
