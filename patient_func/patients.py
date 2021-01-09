@@ -21,6 +21,7 @@ import pandas as pd
 from dateutil.relativedelta import relativedelta
 import threading
 from . import patient_utilities as util
+import time
 
 class Patient:
     patient_id = 0
@@ -161,40 +162,82 @@ class Patient:
             elif option == prv[3]:
                 self.view_prescription()
             elif option == prv[4]:
-                print(colored('*Help*\n', 'red',
+                print(colored('*Help*', 'yellow',
                               attrs=['bold']))
                 while True:
                     try:
                         incrementer = 1
-                        for i in prv:
-                            print(incrementer + str(". ") + i)
+                        help_options = prv[:4]
+                        help_options.append("Back")
+                        for i in help_options:
+                            print(str(incrementer) + ". " + str(i))
                             incrementer += 1
-
+                        print(" ")
                         ask_for_help = int(input("Which tab would you like help with?: "))
-                        if ask_for_help in range(5):
+                        if ask_for_help in range(6):
                             if ask_for_help == 1:
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
-                                print("This is for requesting appointments...\n")
+                                print(colored('*Request Appointment Help Screen*', 'yellow',
+                                              attrs=['bold']))
+                                print("--This sections offers help and guidance with regards to patients requesting "
+                                      "appointments\n\nConditions for requesting appointments:\n\n1.You can only request "
+                                      "appointments for "
+                                      "weekdays (weekends excluded)\n2.You can only request up until the last working day"
+                                      " of the following month (e.g if date is 2021-01-07 the patient can only request up "
+                                      "until 2021-02-26\n3.You cannot request appointments for a date in the past or onthe "
+                                      "date of login\n4.You cannot request an appointment for a week where you already"
+                                      " have an appointment confirmed by one of our GPs\n\n-Once you have requested a "
+                                      "valid date the time slot for the date where we have GP's available will be"
+                                      " presented to the patient\n-Then the patient can select a timeslot that suits"
+                                      " their own availability and proceed to enter symptoms/concerns if they wish to "
+                                      "do so before confirming the appointment request\n ")
                                 break
                             elif ask_for_help == 2:
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
-                                print("This is for viewing appointments...\n")
+                                print(colored('*View Appointments Help Screen*', 'yellow',
+                                              attrs=['bold']))
+                                print("--This sections offers help and guidance with regards to patients viewing "
+                                      "appointments\n\n-In the viewing appointments tab patients can see information"
+                                      " regarding upcoming appointments, these appointments are classified as either"
+                                      " 'requested' or 'confirmed'\n-Requested appointments can be cancelled and this "
+                                      "will remove the appointment from the patient's view\n-Confirmed appointments "
+                                      "offer more features with the user then having the ability to select any"
+                                      " appointment that they would like to view in greater detail and "
+                                      "view the appointment date, time slot, and assigned GP\n\n")
                                 break
                             elif ask_for_help == 3:
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
-                                print("This is for viewing referrals...\n")
+                                print(colored('*View Referrals Help Screen*', 'yellow',
+                                              attrs=['bold']))
+                                print("--This sections offers help and guidance with regards to patients viewing "
+                                      "referrals\n\n-This is a simple feature that displays information of referrals"
+                                      " to our external medical professionals\n-This information includes"
+                                      " the specialist's name, the department they work in and the hospital or medical"
+                                      " practice where they work\n-Patients have the option to contact the specialists "
+                                      "and consider booking a consultation for further examination following an "
+                                      "appointment with one of our GPs\n\n")
                                 break
                             elif ask_for_help == 4:
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
-                                print("This is for viewing and printing prescriptions...\n")
+                                print(colored('*View Prescriptions Help Screen*', 'yellow',
+                                              attrs=['bold']))
+                                print("--This sections offers help and guidance with regards to patients viewing "
+                                      "prescriptions\n-If the patient navigates to this tab a table is printed "
+                                      "containing information about their past prescriptions.\n-The patient then has"
+                                      " option to save and print the prescription summary as either a .csv or .txt file"
+                                      "\n-nb. These files are saved locally in the repo in the directory '"
+                                      "../downloaded_data/Prescriptions'\n\n")
+                                break
+                            elif ask_for_help == 5:
+                                util.clear()
                                 break
                         else:
                             print("Integer out of range\n")
@@ -233,6 +276,7 @@ class Patient:
             option = ui.ask_choice("Choose a referral:", choices=output, sort=False)
             if option != "Back.":
                 print("No additional information yet.")
+                util.clear()
             else:
                 break
 
@@ -714,14 +758,14 @@ class Patient:
                 if data_type == "csv":
                     try:
                         #  create directory for downloaded files
-                        directory = "downloadable_data"
+                        directory = "downloaded_data"
                         directory2 = "Prescriptions"
                         parent_dir = '../programming-cw'
                         path = os.path.join(parent_dir, directory)
                         final_path = os.path.join(path, directory2)
                         os.makedirs(final_path)
                         # save prescription in directory  as a .csv
-                        with open("downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                        with open("downloaded_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
@@ -731,11 +775,14 @@ class Patient:
                             print(" ")
                             util.loader('Downloading')
                             print("\n")
-                            print("Your prescription has been downloaded successfully\n")
-                    except:
+                            print("...Your prescription has been downloaded successfully\n")
+                            print(" ")
+                            time.sleep(1.5)
+                            util.clear()
+                    except FileExistsError:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
-                        with open("downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                        with open("downloaded_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
@@ -745,18 +792,20 @@ class Patient:
                             print(" ")
                             util.loader('Downloading')
                             print("\n")
-                            print("Your prescription has been downloaded successfully\n")
+                            print("...Your prescription has been downloaded successfully\n")
+                            print(" ")
+                            time.sleep(1.5)
+                            util.clear()
                 elif data_type == "txt":
                     try:
-                        directory = "downloadable_data"
+                        directory = "downloaded_data"
                         directory2 = "Prescriptions"
                         parent_dir = '../programming-cw'
                         path = os.path.join(parent_dir, directory)
                         final_path = os.path.join(path, directory2)
-                        print(final_path)
                         os.makedirs(final_path)
                         # save to Prescription folder as a .txt
-                        with open("downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                        with open("downloaded_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
                             f.write("Your prescriptions are as follows:\n"
                                     "\n")
@@ -766,11 +815,14 @@ class Patient:
                             print(" ")
                             util.loader('Downloading')
                             print("\n")
-                            print("Your prescription has been downloaded successfully\n")
-                    except:
+                            print("...Your prescription has been downloaded successfully\n")
+                            print(" ")
+                            time.sleep(1.5)
+                            util.clear()
+                    except FileExistsError:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
-                        with open("downloadable_data/Prescriptions/myprescriptions." + data_type, 'w',
+                        with open("downloaded_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
                             f.write("Your prescriptions are as follows:\n"
                                     "\n")
@@ -780,8 +832,10 @@ class Patient:
                             print(" ")
                             util.loader('Downloading')
                             print("\n")
-                            print("Your prescription has been downloaded successfully\n")
-
+                            print("...Your prescription has been downloaded successfully\n")
+                            print(" ")
+                            time.sleep(1.5)
+                            util.clear()
             # options
             if presc_opts in [0, 1, 2]:
                 if presc_opts == 0:

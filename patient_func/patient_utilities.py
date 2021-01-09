@@ -1,13 +1,13 @@
+import time
 import itertools
 import threading
-import time
 import sys
 import os
 
 
 def loader(message):
     done = False
-    #animation
+    #  animation
 
     def animate():
         for c in itertools.cycle(['|', '/', '-', '\\']):
