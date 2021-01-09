@@ -107,11 +107,11 @@ class Patient:
                     db.exec_many(
                         "INSERT INTO Users(firstName,lastName,email,password,accountType,signUpDate, date_of_birth) Values (?,?,?,?,?,?,?)",
                         a)
+                    util.clear()
                     print('You have successfully requested an account. Please wait for confirmation from us:)')
                     task = threading.Thread(target=Emails.registration_email, args=(email, fName, lName, "patient"),
                                             daemon=True)
                     task.start()
-                    util.clear()
                     break
             elif not isValidDate:
                 print("Sorry this input is not accepted. Please re-enter your DoB in YYYY-MM-DD format")

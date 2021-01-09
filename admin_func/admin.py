@@ -116,36 +116,58 @@ class Admin:
     def admin_options(self):
         Admin.clear()
         self.print_welcome()
+
+        # instructions
+        ui.info(ui.faint, "\nInfo:"
+                          "\n'Manage patient' to search for patient records by DOB or last name. "
+                          "\n\tOnce a patient record is found, you can: edit patient details, "
+                          "medical history and account status."
+                          "\n'Manage GP' to sign as selected GP user, "
+                          "edit specific GP account information and account status."
+                          "\n'Register new GP' to appoint a new GP."
+                          "\n'Assign new admin' to appoint a new user with admin privileges."
+                          "\n'View reports' to track user metrics. \n")
+
+        # State management
         selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
     def log_out(self):
+
+        # redirect to login
         del self.state_gen
 
     def manage_gp(self):
         Admin.clear()
         ui.info_section(ui.blue, 'Manage GP Menu')
 
-        # show GPs in system
+        # Show GP table
+        # Query GP information
         self.db = db.Database()
         gp_acct_query = f"SELECT firstname, lastName, email, is_active, userID FROM users WHERE accountType = 'gp'"
         gp_acct_result = self.db.fetch_data(gp_acct_query)
         self.db.close_db()
+        # Construct dataframe
         gp_dataframe_header = ['First Name', 'Last Name', 'email', 'Active?', 'ID']
         gp_dataframe = DataFrame(gp_acct_result)
         gp_dataframe.columns = gp_dataframe_header
+        # tabulate gp dataframe
         gp_table = tabulate(gp_dataframe, headers='keys', tablefmt='grid', showindex=False)
         print(gp_table + "\n")
 
         # allow admin user to choose desired gp account
         # extract GP IDs
         gp_id_list = gp_dataframe['ID'].tolist()
+        # add "back" State option
         gp_id_list.append("Back")
         # Extract GP names
         gp_fname_list = gp_dataframe['First Name'].tolist()
         gp_lname_list = gp_dataframe['Last Name'].tolist()
+        # join first names and last names
         gp_name_list = [' '.join(z) for z in zip(gp_fname_list, gp_lname_list)]
+        # join salutation and gp names
         gp_list = ["Dr. " + gp_name for gp_name in gp_name_list]
+        # add "back" State option
         gp_list.append("Back")
         # Create dictionary with GP IDs as keys and names as values
         gp_dict = {k: v for k, v in zip(gp_list, gp_id_list)}
@@ -154,15 +176,16 @@ class Admin:
         # get id for chosen GP
         gp_id = gp_dict[gp_person]
 
-        # check if gp_id is received or whether admin user should be redirected to admin main menu
+        # check if gp_id received, otherwise redirect admin user to admin menu
         if isinstance(gp_id, int):
+
             Admin.clear()
             ui.info_section(ui.blue, 'Manage GP Options')
             # show selected gp
             chosen_gp_df = gp_dataframe.loc[gp_dataframe['ID'] == gp_id]
             chosen_gp_table = tabulate(chosen_gp_df, headers='keys', tablefmt='grid', showindex=False)
             print(chosen_gp_table + "\n")
-            # admin user selects what they want to do with desired gp account
+            # admin user selects what to do with chosen gp account -> state management
             selected = util.user_select("Please choose what you would like to do with the GP account show above: ",
                                         self.state_gen.get_state_options())
             if selected == "Edit GP account Information":
@@ -184,7 +207,7 @@ class Admin:
         Admin.clear()
         ui.info_section(ui.blue, 'Edit GP account')
 
-        # Refresh chose_gp table with only chosen GP
+        # recreate chose_gp table with only chosen GP
         self.db = db.Database()
         gp_acct_query = f"SELECT firstname, lastName, email, is_active, userID FROM users WHERE accountType = 'gp' " \
                         f"AND userID={gp_id}"
@@ -211,6 +234,7 @@ class Admin:
         Admin.clear()
         ui.info_section(ui.blue, "Change GP's name?")
 
+        # name input validation
         while True:
             new_firstname = ui.ask_string("Please enter the GP's new first name: ").capitalize()
             if new_firstname.isalpha():
@@ -224,10 +248,13 @@ class Admin:
             else:
                 print("Please only include letters.")
 
+        # confirm user intent to change name
         name_changed_confirm = ui.ask_yes_no("Are you sure you want to change the name for this GP's account "
                                              "to the above?", default=False)
+        # if intent not confirmed, redirect
         if not name_changed_confirm:
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
+        # ...otherwise,change name
         else:
             self.db = db.Database()
             self.db.exec_one("""UPDATE Users SET firstname=?,LastName=? WHERE userID=?""",
@@ -237,31 +264,41 @@ class Admin:
             ui.info_2(ui.standout, f"Successfully updated GP's name to: {new_firstname} {new_lastname}. "
                                    f"Please wait whilst you are redirected.")
             sleep(3)
+
+            # State management
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
 
     def change_gp_registered_email_address(self, gp_id, chosen_gp_table):
         Admin.clear()
         ui.info_section(ui.blue, "Change GP's email ?")
 
+        # email input validation
         change_email = True
         self.db = db.Database()
         email_list = self.db.email_list()
         while change_email:
             regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
             new_email = ui.ask_string("Please enter the GP's new email: ")
+            # check email meets required format
             if not re.search(regex, new_email):
                 print("Invalid Email. Please try again.")
+            # check email does not already exist in system
             elif new_email in email_list:
                 print('This email has already been registered. Please try again')
             else:
+            # if requirements met, accept email
                 new_email = new_email.lower()
                 change_email = False
                 break
 
+        # confirm intent to change email
         email_changed_confirm = ui.ask_yes_no("Are you sure you want to change the email for this GP's account "
                                               "to the above?", default=False)
+
+        # if intent is not confirmed, redirect user...
         if not email_changed_confirm:
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
+        # ...otherwise, update database with new email
         else:
             self.db = db.Database()
             self.db.exec_one("""UPDATE Users SET email=? WHERE userID=?""", [new_email, gp_id])
@@ -269,13 +306,19 @@ class Admin:
             ui.info_section(ui.blue, "")
             ui.info_2(ui.standout, f"Successfully updated GP's email. Please wait whilst you are redirected.")
             sleep(3)
+
+            # state management
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
 
     def reset_gp_password(self, gp_id, chosen_gp_table):
         Admin.clear()
         ui.info_section(ui.blue, "Reset GP's password?")
+
+        # confirm intent to reset password
         reset_password_confirm = ui.ask_yes_no("Are you sure you want to reset the password for this account?",
                                                default=False)
+
+        # if intent to rest password confirmed,
         if reset_password_confirm:
             # retrieve GP's current password
             self.db = db.Database()
@@ -284,6 +327,7 @@ class Admin:
             old_password = old_password[0]['password']
             self.db.close_db()
 
+            # If old password found,
             if old_password:
                 # password validation
                 is_long_enough = False
@@ -291,9 +335,10 @@ class Admin:
                     # Prompt user for new password
                     new_password = ui.ask_password('Password: ')
                     new_password = new_password.encode('utf-8')
-                    # do this if ladder the other way, atm not getting past 1st rung if satisfied
+                    # check length of password
                     if len(new_password) < 5:
                         print("The minimum length for a password is 5 characters. Please try again.")
+                    # check password is not same as previous password
                     elif bcrypt.checkpw(new_password, old_password):
                         print('Your new password cannot be the same as your old password. Please try again.')
                     else:
@@ -310,8 +355,9 @@ class Admin:
                 ui.info_section(ui.blue, "")
                 ui.info_2(ui.standout, f"Successfully reset GP's password. Please wait whilst you are redirected.")
                 sleep(3)
-                # redirect
+                # State management
                 self.to_edit_gp_account_information(gp_id, chosen_gp_table)
+
         # if user has change of heart before changing password, redirect
         else:
             self.to_edit_gp_account_information(gp_id, chosen_gp_table)
@@ -319,22 +365,29 @@ class Admin:
     def remove_gp_account(self, gp_id):
         Admin.clear()
         ui.info_section(ui.blue, 'Remove GP account?')
+
+        # confirm intent
         delete_gp_confirm = ui.ask_yes_no("Are you sure you want to permanently remove this GP account?", default=False)
+
+        # if intent confirmed
         if delete_gp_confirm:
+            # update database
             self.db = db.Database()
             delete_gp_query = f"DELETE FROM Users WHERE userID= {gp_id}"
             self.db.exec(delete_gp_query)
             self.db.close_db()
+            # inform user
             ui.info_2(ui.standout, f"This account has been deleted.")
+            # State management
             self.state_gen.change_state("Manage GP")
+
+        # If user changes mind
         else:
             self.handle_state_selection("Back")
 
     def deactivate_gp_account(self, gp_id):
         Admin.clear()
         ui.info_section(ui.blue, 'Deactivate GP account?')
-
-        # handling if GP is deactivated
 
         # confirm deactivation intent
         deactivate_gp_confirm = ui.ask_yes_no("Are you sure you want to deactivate this GP account?", default=False)
@@ -876,6 +929,8 @@ class Admin:
     def view_reports(self):
         Admin.clear()
         ui.info_section(ui.blue, "Performance metrics")
+
+        # State management
         selected = util.user_select("Please choose the trackable metric you would like to view below.",
                                     self.state_gen.get_state_options())
         self.handle_state_selection(selected)
@@ -1164,8 +1219,18 @@ class Admin:
         assign_admin_confirm = ui.ask_yes_no("Please confirm if you want to assign a new Admin account?",
                                              default=False)
         if assign_admin_confirm:
-            new_fname = ui.ask_string("Please enter the new Admin's first name: ").capitalize()
-            new_lname = ui.ask_string("Please enter the new Admin's last name: ").capitalize()
+            while True:
+                new_fname = ui.ask_string("Please enter the Admin's new first name: ").capitalize()
+                if new_fname.isalpha():
+                    break
+                else:
+                    print("Please only include letters.")
+            while True:
+                new_lname = ui.ask_string("Please enter the Admin's new last name: ").capitalize()
+                if new_lname.isalpha():
+                    break
+                else:
+                    print("Please only include letters.")
             email_repetition = True
             while email_repetition:
                 regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
