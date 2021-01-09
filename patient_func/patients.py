@@ -143,7 +143,7 @@ class Patient:
                 print(" ")
             # if high-risk but registered with us >30 days
             elif not self.high_risk_top_waitinglist_notification():
-                print(colored('*New Notification*', 'red',
+                print(colored('*COVID-19 status notification*', 'red',
                               attrs=['bold']))
                 print("-- You have been identified as a high risk patient to COVID-19 and have been placed on our "
                       "waiting list.\n-- This classification has been made based on your age making you more "
@@ -498,7 +498,7 @@ class Patient:
                 datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
                 < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
             vulnerable_individual = True
-            print(colored('*New Notification*', 'red',
+            print(colored('*COVID-19 status notification*', 'red',
                           attrs=['bold']))
             print("You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
                   "first dose of the " + chosen_vac + " vaccination.\nThis classification has been made based on your "
@@ -526,7 +526,7 @@ class Patient:
                 datetime.timedelta(60 * 365) and datetime.datetime.strptime(sign_up_date, '%d-%m-%Y').date() \
                 < datetime.datetime.now().date() - datetime.timedelta(1 * 31):
             high_risk_top_waitinglist = True
-            print(colored('*New Notification*', 'red',
+            print(colored('*COVID-19 status notification*', 'red',
                           attrs=['bold']))
             print(
                 "-- You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
@@ -548,7 +548,7 @@ class Patient:
         if datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() > datetime.datetime.now().date() - \
                 datetime.timedelta(60 * 365):
             low_risk_patient = True
-            print(colored('*New Notification*', 'red',
+            print(colored('*COVID-19 status notification*', 'green',
                           attrs=['bold']))
             print("In accordance with our system, you have been classified as a low-risk patient to COVID-19.\n"
                   "However, you will receive an invite to have a vaccination in due course but we are currently "
@@ -583,13 +583,13 @@ class Patient:
         end_time = tup[1]
         vaccination_time = end_time[:10]
         if datetime.datetime.strptime(vaccination_time, '%Y-%m-%d').date() < datetime.datetime.now().date():
-            print(colored('*New Notification*', 'red',
+            print(colored('*COVID-19 status notification*', 'green',
                           attrs=['bold']))
             print("-- Congratulations! You have now received you first dose of the "
                   "COVID-19 vaccine.\n-- We will contact you again in 3 months time to receive your second dose.\n")
             immunised = True
         else:
-            print(colored('*New Notification*', 'red',
+            print(colored('*COVID-19 status notification*', 'red',
                           attrs=['bold']))
             print("-- You have an upcoming appointment to receive a COVID-19 vaccination.\n-- Please check your "
                   "'View appointments' tab for further details. \n")
