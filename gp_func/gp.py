@@ -515,9 +515,9 @@ class Gp:
         if clinical_notes[0]["clinical_notes"] is not None:
             ui.info("There are already notes for this appointment:")
             ui.info_2(f"Clinical notes: \n", ui.indent(clinical_notes[0]['clinical_notes'], 6))
-            user_options = ["append to current notes", "rewrite clinical notes (overwrite)", "back"]
+            user_options = ["Append to current notes", "Rewrite clinical notes (overwrite)", "Back"]
             rewrite_or_append = util.user_select("What would you like to do?", choices=user_options)
-            if rewrite_or_append == "back":
+            if rewrite_or_append == "Back":
                 self.handle_state_selection(rewrite_or_append)
             else:
                 ui.info_1(ui.standout, f"Mode: {rewrite_or_append}")
@@ -527,7 +527,7 @@ class Gp:
         # multi line input
         notes = util.get_multi_line_input("Please write your clinical notes here:")
 
-        if rewrite_or_append == "append to current notes":  # if append need to append.
+        if rewrite_or_append == "Append to current notes":  # if append need to append.
             notes = "\n".join([clinical_notes[0]["clinical_notes"], notes])
             ui.info_1("We've appended your new notes to the previous notes:")
         else:
@@ -650,7 +650,7 @@ class Gp:
                     f"Exception occurred when saving prescription to database. insert stmt = {prescription_insert_stmt}")
                 ui.error("Sorry, an error occurred when saving. Please try again later.")
 
-        user_options = ["write another prescription", "back"]
+        user_options = ["Write another prescription", "Back"]
         selected = util.user_select("How would you like to proceed?", choices=user_options)
         if selected == "Write another prescription":
             self.to_write_prescriptions(appt_id)
