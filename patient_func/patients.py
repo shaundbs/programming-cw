@@ -313,7 +313,6 @@ class Patient:
                 break
             apt.append("Back")
             # Redirects to appointment management.
-            util.clear()
             option = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
             option = list.index(apt, option)
             if option < len(apt) - 1:
@@ -336,6 +335,7 @@ class Patient:
                     while True:
                         option = ui.ask_yes_no("Do you want to be redirected to appointment list?", default=False)
                         if option:
+                            util.clear()
                             break
                 elif (appointmentData[-3] + appointmentData[-2]) == 0:
                     print("This appointment is not approved yet.")
@@ -366,6 +366,7 @@ class Patient:
         while True:
             apt = ["Book an appointment this month.", "Book an appointment next month.", "Back."]
             menu_choice = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
+            util.clear()
             menu_choice = list.index(apt, menu_choice)
             if menu_choice in [0, 1]:
                 if menu_choice == 0:
@@ -393,7 +394,6 @@ class Patient:
                             )
                             dn = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
                             last_booking_date = date_generator.date_sort(dn)
-                            util.clear()
                             try:
                                 # check if the date is in YYYY-MM-DD format
                                 year, month, day = select_date.split('-')
@@ -418,6 +418,7 @@ class Patient:
                                 if self.limit_appointment_bookings(select_date) == 0:
                                     if datetime.datetime.now().date() < fm_selected <= last_booking_date:
                                         # if all conditions are met list out appts
+                                        util.clear()
                                         print('The date {} is valid. Listing appointments... \n'.format(
                                             select_date))
                                         util.loader('Loading')
@@ -698,7 +699,7 @@ class Patient:
                             self.db.reschedule(a, self.tobecanceled)
                             self.tobecanceled = -1
                             print(
-                                "SUCCESS - \nYou have successfully reshceduled an appointments with Dr " + str(
+                                "SUCCESS - \nYou have successfully rescheduled an appointments with Dr " + str(
                                     gp_name[0]) + " " + str(
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             util.clear()
@@ -723,6 +724,7 @@ class Patient:
                 appointmentNo = int(appointmentNo)
                 Database().delete_appointment(appointmentNo)
                 print("You have successfully cancelled this appointment")
+            util.clear()
             break
 
     def view_prescription(self):
