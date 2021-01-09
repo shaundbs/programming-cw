@@ -297,10 +297,10 @@ class Gp:
             print(table_data)
             user_choices = ["Confirm all", "Reject all", "Confirm or reject an individual appointment", "Back"]
 
-            selected = ui.ask_choice("What would you like to do?", choices=user_choices)
+            selected = ui.ask_choice("What would you like to do?", choices=user_choices, sort=False)
 
             # CHOICES HANDLING
-            if selected == user_choices[0]:  # confirm all
+            if selected == "Confirm all":  # confirm all
                 success = util.db_update(res, "appointment", "appointment_id", **{"is_confirmed": 1})
                 if success:
                     ui.info(ui.green, "All appointments successfully confirmed. Sending status update emails to "
@@ -313,7 +313,7 @@ class Gp:
                 else:
                     ui.info("There was an error, processing your request, please try later")
 
-            elif selected == user_choices[1]:  # reject all
+            elif selected == "Reject all":  # reject all
                 success = util.db_update(res, "appointment", "appointment_id", **{"is_rejected": 1})
                 if success:
                     ui.info(ui.green, "All appointments successfully rejected. Sending status update emails to "
@@ -325,7 +325,7 @@ class Gp:
                 else:
                     ui.info("There was an error, processing your request, please try later")
 
-            elif selected == user_choices[2]:  # action individually
+            elif selected == "Confirm or reject an individual appointment":  # action individually
                 ui.info_1(selected)
                 selected_row = util.select_table_row(res, table_data,
                                                      "Select an appointment to confirm or reject. Please enter an "
@@ -334,10 +334,10 @@ class Gp:
                 # choose accept or reject or back
                 further_options = ["Confirm", "Reject", "Back"]
                 selected = ui.ask_choice("What would you like to do with this appointment?", choices=further_options)
-                if selected == further_options[2]:  # back
+                if selected == "Back":  # back
                     res = None  # remove result to exit from while loop if back chosen
                     self.to_confirm_appointments()
-                elif selected == further_options[0]:  # accept
+                elif selected == "Confirm":  # accept
                     success = util.db_update([selected_row], "appointment", "appointment_id", **{"is_confirmed": 1})
                     if success:
                         ui.info(ui.green,
@@ -348,7 +348,7 @@ class Gp:
 
                     else:
                         ui.info("There was an error, processing your request, please try later")
-                elif selected == further_options[1]:  # reject
+                elif selected == "Reject":  # reject
                     success = util.db_update([selected_row], "appointment", "appointment_id", **{"is_rejected": 1})
                     if success:
                         ui.info(ui.green,
