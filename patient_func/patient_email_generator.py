@@ -22,12 +22,9 @@ class Emails:
         msg['To'] = rec
 
         # Create the body of the message.
-        text = "Hi " + firstName + " " + lastName + " thank you for registering with Gower St. Surgery" \
-               "the e-health management service.\n \n Your account has been successfully set up with " + accountType \
-               + " " \
-               "priviledges. You can 1. Login \n 2. Book appointments \n 3. Reschedule appointments \n" \
-               "4. Cancel appointments \n 5. Book a session with one of our external specialists \n" \
-               " \n \n Log back into the application begin </p>\n "
+        text = "Hi " + firstName + " " + lastName + " thank you for registering with Gower St. Surgery." \
+        "Please await confirmation of your registration from one of our admins/GPs and once confirmed you will be able "
+        "to log back into the application and manage your healthcare with us"
 
         html = """\
         <html lang="en">
@@ -61,12 +58,8 @@ class Emails:
         font-size: 14px; padding: 1em">
         <p>Hi <b>""" + str(firstName) + """  """ + str(lastName) + """</b>, thank you for registering with Gower St. Surgery,
         the e-health management service. <br><br>
-        Your account has been successfully set up with <b>""" + str(accountType) + """</b> privileges. You can: <br><br>
-        1. Login <br>
-        2. Book appointments <br>
-        3. Reschedule/cancel appointments <br>
-        4. Book a session with one of our external specialists <br>
-        5. View your prescriptions and medical history <br><br> Log back into the application to begin </p>
+        Please await confirmation of your registration from one of our admins/GPs and once confirmed you will be able
+        to log back into the application and manage your healthcare with us.</p>
         </td>
         </tr>
         </table>
