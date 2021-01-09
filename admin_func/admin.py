@@ -944,25 +944,9 @@ class Admin:
         Admin.clear()
         ui.info_section(ui.blue, "GP metrics report")
 
-        no_gp_query = f"SELECT (select count(userid) from Users where trim(accountType) = 'gp' AND is_active='1') " \
-                      f"AS no_active_gps, " \
-                      f"(select count(userid) from Users where trim(accountType) = 'gp' AND is_active='0') " \
-                      f"AS no_inactive_gps, " \
-                      f"(select count(userid) from Users where trim(accountType) = 'gp') " \
-                      f"AS no_total_gps"
-
-        active_gp_names_query = f"select firstName || ' ' || lastName as gp_name from Users where " \
-                                f"trim(accountType) = 'gp' and is_active = 1"
-        inactive_gp_names_query = f"select firstName || ' ' || lastName as gp_name from Users where " \
-                                  f"trim(accountType) = 'gp' and is_active = 0"
-        all_gp_names_query = f"select firstName || ' ' || lastName as gp_name from Users where " \
-                             f"trim(accountType) = 'gp'"
-
         all_gp_query = f'SELECT u.firstName ||" "|| u.lastName AS gp_name, ' \
                        f'CASE when is_active is null then "-" when is_active = 1 then "Yes" ' \
                        f'when is_active = 0 then "No" END AS "Account Active?", ' \
-                       f'CASE when date_of_birth is null then "-" ' \
-                       f'when date_of_birth is not null then date_of_birth END AS DOB, ' \
                        f'signUpDate, ' \
                        f'userId as GP_ID ' \
                        f'FROM Users u ' \
@@ -1000,11 +984,10 @@ class Admin:
         # dataframe for all GPs and activity status
         all_gp_header_1 = colored('GP: ', 'cyan', attrs=['bold'])
         all_gp_header_2 = colored('Account active? ', 'cyan', attrs=['bold'])
-        all_gp_header_3 = colored('DOB: ', 'cyan', attrs=['bold'])
-        all_gp_header_4 = colored('Sign up date: ', 'cyan', attrs=['bold'])
-        all_gp_header_5 = colored('ID: ', 'cyan', attrs=['bold'])
+        all_gp_header_3 = colored('Sign up date: ', 'cyan', attrs=['bold'])
+        all_gp_header_4 = colored('ID: ', 'cyan', attrs=['bold'])
         all_gp_header = []
-        all_gp_header.extend([all_gp_header_1, all_gp_header_2, all_gp_header_3, all_gp_header_4, all_gp_header_5])
+        all_gp_header.extend([all_gp_header_1, all_gp_header_2, all_gp_header_3, all_gp_header_4])
         all_gp_table = util.df_creator(all_gp_header, 'GPs', all_gp_result)
         print(all_gp_table + "\n")
 
@@ -1052,20 +1035,31 @@ class Admin:
                          f'signUpDate ' \
                          f'FROM Users u WHERE accountType="patient"'
 
+        # pending_appt_query = f"SELECT appointment_id, " \
+        #                       f"u.firstName ||' '|| u.lastName AS patient_name, " \
+        #                       f"a.patient_id, " \
+        #                       f"a.gp_id " \
+        #                       f"FROM Appointment a " \
+        #                       f"LEFT JOIN Users u ON a.patient_id=u.userId " \
+        #                       f"LEFT JOIN Users on a.gp_id=u.userId " \
+        #                       f"WHERE is_confirmed = 0 AND is_rejected = 0"
+
         pending_appt_query = f"SELECT appointment_id, " \
-                              f"u.firstName ||' '|| u.lastName AS patient_name, " \
-                              f"a.patient_id, " \
-                              f"a.gp_id " \
-                              f"FROM Appointment a " \
-                              f"LEFT JOIN Users u ON a.patient_id=u.userId " \
-                              f"LEFT JOIN Users on a.gp_id=u.userId " \
-                              f"WHERE is_confirmed = 0 AND is_rejected = 0"
+                             f"u.firstName ||' '|| u.lastName AS patient_name, " \
+                             f"a.patient_id, " \
+                             f"u2.firstName ||' '|| u2.lastName AS gp_name, " \
+                             f"a.gp_id " \
+                             f"FROM Appointment a " \
+                             f"LEFT JOIN Users u ON a.patient_id=u.userId " \
+                             f"left join Users u2 on a.gp_id=u2.userId " \
+                             f"WHERE is_confirmed = 0 AND is_rejected = 0;"
+
 
         appt_referrals_query = f"SELECT appointment_id, " \
                                f"u.firstName ||' '|| u.lastName AS patient_name, " \
                                f"s.firstName ||' '|| s.lastName AS specialist_name, " \
                                f"s.hospital, d.name as 'Department' " \
-                               f"FROM Appointment a LEFT JOIN users u ON a.gp_id=u.userId " \
+                               f"FROM Appointment a LEFT JOIN users u ON a.patient_id=u.userId " \
                                f"LEFT JOIN Specialists s on a.referred_specialist_id=s.specialist_id " \
                                f"LEFT JOIN Department d on d.department_id=s.department_id " \
                                f"WHERE referred_specialist_id is not NULL"
@@ -1089,14 +1083,26 @@ class Admin:
         patients_table = util.df_creator(patients_header, 'Patients', patients_result)
         print(patients_table + "\n")
 
+        # # dataframe for pending appointments
+        # pending_appt_header_1 = colored('Appointment number: ', 'cyan', attrs=['bold'])
+        # pending_appt_header_2 = colored('Patient: ', 'cyan', attrs=['bold'])
+        # pending_appt_header_3 = colored('Patient ID: ', 'cyan', attrs=['bold'])
+        # pending_appt_header_4 = colored('GP ID: ', 'cyan', attrs=['bold'])
+        # pending_appt_header = []
+        # pending_appt_header.extend([pending_appt_header_1, pending_appt_header_2,
+        #                             pending_appt_header_3, pending_appt_header_4])
+        # pending_appt_table = util.df_creator(pending_appt_header, 'Pending Appointments', pending_appt_result)
+        # print(pending_appt_table + "\n")
+
         # dataframe for pending appointments
         pending_appt_header_1 = colored('Appointment number: ', 'cyan', attrs=['bold'])
         pending_appt_header_2 = colored('Patient: ', 'cyan', attrs=['bold'])
         pending_appt_header_3 = colored('Patient ID: ', 'cyan', attrs=['bold'])
-        pending_appt_header_4 = colored('GP ID: ', 'cyan', attrs=['bold'])
+        pending_appt_header_4 = colored('GP: ', 'cyan', attrs=['bold'])
+        pending_appt_header_5 = colored('GP ID: ', 'cyan', attrs=['bold'])
         pending_appt_header = []
         pending_appt_header.extend([pending_appt_header_1, pending_appt_header_2,
-                                    pending_appt_header_3, pending_appt_header_4])
+                                    pending_appt_header_3, pending_appt_header_4, pending_appt_header_5])
         pending_appt_table = util.df_creator(pending_appt_header, 'Pending Appointments', pending_appt_result)
         print(pending_appt_table + "\n")
 
