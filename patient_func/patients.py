@@ -240,6 +240,7 @@ class Patient:
                                 break
                             elif ask_for_help == 5:
                                 util.clear()
+                                self.print_welcome()
                                 break
                         else:
                             print("Integer out of range\n")
@@ -284,6 +285,7 @@ class Patient:
             if option != "Back.":
                 util.clear()
                 print("No additional information yet.")
+                self.print_welcome()
             else:
                 break
 
@@ -470,6 +472,7 @@ class Patient:
                             break
             elif menu_choice == 2:
                 util.clear()
+                self.print_welcome()
                 break
             else:
                 print("System Failure: please restart")
@@ -720,7 +723,7 @@ class Patient:
                                     gp_name[0]) + " " + str(
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             util.clear()
-                    self.patient_home()
+                    self.print_welcome()
             except ValueError:
                 print("Please select a valid option.")
 
@@ -857,7 +860,8 @@ class Patient:
                     print_prescription("txt")
                     util.clear()
                 elif presc_opts == 2:
-                    self.patient_home()
+                    util.clear()
+                    self.print_welcome()
         except ValueError:
             print(" ")
             util.loader('Loading')
