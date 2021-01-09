@@ -183,7 +183,7 @@ class Patient:
                                 print("\n")
                                 print(colored('*Request Appointment Help Screen*', 'yellow',
                                               attrs=['bold']))
-                                print("--This sections offers help and guidance with regards to patients requesting "
+                                print("--This section offers help and guidance with regards to patients requesting "
                                       "appointments\n\nConditions for requesting appointments:\n\n1.You can only request "
                                       "appointments for "
                                       "weekdays (weekends excluded)\n2.You can only request up until the last working day"
@@ -203,7 +203,7 @@ class Patient:
                                 print("\n")
                                 print(colored('*View Appointments Help Screen*', 'yellow',
                                               attrs=['bold']))
-                                print("--This sections offers help and guidance with regards to patients viewing "
+                                print("--This section offers help and guidance with regards to patients viewing "
                                       "appointments\n\n-In the viewing appointments tab patients can see information"
                                       " regarding upcoming appointments, these appointments are classified as either"
                                       " 'requested' or 'confirmed'\n-Requested appointments can be cancelled and this "
@@ -219,7 +219,7 @@ class Patient:
                                 print("\n")
                                 print(colored('*View Referrals Help Screen*', 'yellow',
                                               attrs=['bold']))
-                                print("--This sections offers help and guidance with regards to patients viewing "
+                                print("--This section offers help and guidance with regards to patients viewing "
                                       "referrals\n\n-This is a simple feature that displays information of referrals"
                                       " to our external medical professionals\n-This information includes"
                                       " the specialist's name, the department they work in and the hospital or medical"
@@ -234,7 +234,7 @@ class Patient:
                                 print("\n")
                                 print(colored('*View Prescriptions Help Screen*', 'yellow',
                                               attrs=['bold']))
-                                print("--This sections offers help and guidance with regards to patients viewing "
+                                print("--This section offers help and guidance with regards to patients viewing "
                                       "prescriptions\n\n-If the patient navigates to this tab, a table is printed "
                                       "containing information about their past prescriptions.\n-The patient then has"
                                       " option to save and print the prescription summary as either a .csv or .txt file"
