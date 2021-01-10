@@ -1260,7 +1260,7 @@ class Admin:
                 if not re.search(regex, email):
                     print("Invalid Email. Please try again.")
                 elif email not in email_list:
-                    email = email.lower()
+                    new_email = email.lower()
                     email_repetition = False
                 else:
                     print("This email address has already been registered. Please try again.")
