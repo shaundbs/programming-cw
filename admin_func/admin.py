@@ -1229,6 +1229,7 @@ class Admin:
         ui.info_section(ui.blue, "Assign a new Admin user")
         assign_admin_confirm = ui.ask_yes_no("Please confirm if you want to assign a new Admin account?",
                                              default=False)
+
         if assign_admin_confirm:
             while True:
                 new_fname = ui.ask_string("Please enter the Admin's new first name: ").capitalize()
@@ -1242,14 +1243,23 @@ class Admin:
                     break
                 else:
                     print("Please only include letters.")
+            email_list = Database().email_list()
             email_repetition = True
+
+            global email
             while email_repetition:
                 regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
-                new_email = input("Please enter the Admin's new email:")
-                if not re.search(regex, new_email):
+
+                email = input('Email: ')
+                if not re.search(regex, email):
                     print("Invalid Email. Please try again.")
-                else:
+                elif email not in email_list:
+                    email = email.lower()
                     email_repetition = False
+                else:
+                    print("This email address has already been registered. Please try again.")
+
+
 
             new_password = ui.ask_password("Please enter a new password: ")
             # encode password
@@ -1269,8 +1279,8 @@ class Admin:
                              [new_fname, new_lname, new_email, hashed_password, format_date, "admin", is_registered,
                               is_active])
             self.db.close_db()
-            ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.\n")
-            util.loader('Loading')
+            ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.")
+            sleep(2)
             self.state_gen.change_state("Admin Options")
 
         else:
