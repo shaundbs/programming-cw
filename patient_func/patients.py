@@ -306,6 +306,7 @@ class Patient:
             print(" ")
             util.loader('Loading')
             print("\n")
+            util.clear()
             ui.info_section(ui.blue, '\nWelcome to the View Appointments Dashboard')
             # Fetch appointments from db.
             self.db.exec_one(
@@ -785,7 +786,7 @@ class Patient:
             util.loader('Loading')
             print("\n")
             util.clear()
-            ui.info_section(ui.blue, '\nWelcome to the View Prescriptions  Dashboard')
+            ui.info_section(ui.blue, '\nWelcome to the View Prescriptions Dashboard')
             # print prescriptions out as one table
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
