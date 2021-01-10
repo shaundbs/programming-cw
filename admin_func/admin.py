@@ -16,6 +16,7 @@ import datetime
 from datetime import date, datetime as Datetime
 from state_manager import StateGenerator
 from gp_func.gp import Gp
+from sys import exit
 
 states = {
     # admin menu
@@ -80,7 +81,6 @@ class Admin:
     def __init__(self, user_id):
         # Create object from userId object from DB
         self.user_id = user_id
-        print(self.user_id)
         # Get firstname and lastname of admin user
         self.db = db.Database()
         details_query = f"SELECT firstname, LASTNAME FROM USERS WHERE USERID = {user_id}"
@@ -134,9 +134,15 @@ class Admin:
         self.handle_state_selection(selected)
 
     def log_out(self):
-
-        # redirect to login
+        # remove state tracking from the object.
+        Admin.clear()
         del self.state_gen
+        # Exit program with animation
+        print(" ")
+        util.loader("Logging out")
+        print(" ")
+        exit()
+
 
     def manage_gp(self):
         Admin.clear()
