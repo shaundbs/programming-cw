@@ -168,7 +168,7 @@ class Patient:
                         help_options = prv[:4]
                         help_options.append("Back")
                         for i in help_options:
-                            print(str(incrementer) + ". " + str(i))
+                            print(str(incrementer) + " " + str(i))
                             incrementer += 1
                         print(" ")
                         ask_for_help = int(input("Which feature would you like help with?: "))
