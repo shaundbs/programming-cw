@@ -1280,9 +1280,8 @@ class Admin:
                               is_active])
             self.db.close_db()
             ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.")
-            sleep(2)
+            util.loader('Loading')	          
             self.state_gen.change_state("Admin Options")
-
         else:
             self.state_gen.change_state("Admin Options")
 
