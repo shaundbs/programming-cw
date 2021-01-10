@@ -19,6 +19,8 @@ import threading
 from . import patient_utilities as util
 import time
 import sys
+import logging
+
 
 class Patient:
     patient_id = 0
@@ -79,8 +81,10 @@ class Patient:
                 year, month, day = DoB.split('-')
                 isValidDate = True
                 datetime.datetime(int(year), int(month), int(day))
-            except ValueError:
+            except SyntaxError:
                 isValidDate = False
+                # log exception details
+                logging.exception("Exception occurred whilst validating user date of birth: ")
             if isValidDate:
                 fm_selected = datetime.datetime.strptime(
                     DoB, '%Y-%m-%d').date()
@@ -249,8 +253,10 @@ class Patient:
                         else:
                             print("Integer out of range\n")
                             continue
-                    except ValueError:
+                    except TypeError:
                         print("Please enter numerical values only\n")
+                        # log exception details
+                        logging.exception("Exception occurred whilst the user attempted to ask for help: ")
                         continue
             elif option == prv[5]:
                 util.clear()
@@ -258,7 +264,6 @@ class Patient:
                 util.loader("Logging out")
                 print(" ")
                 sys.exit()
-
 
     def view_referrals(self):
         """
@@ -333,9 +338,9 @@ class Patient:
                 # appointmentData is in the format like (1, 'Olivia', 'Cockburn', '12/19/2020 13:00:00', '12/19/2020 14:00:00', 0, 0).
                 util.clear()
                 appointmentData = self.appointmentList[option]
-                print('Appointment Date: '+appointmentData[3][:10])
-                print('Time Slot: '+appointmentData[3][-8:-3]+" - "+appointmentData[4][-8:-3])
-                print('GP: Dr ' + appointmentData[1] + " "+ appointmentData[2])
+                print('Appointment Date: ' + appointmentData[3][:10])
+                print('Time Slot: ' + appointmentData[3][-8:-3] + " - " + appointmentData[4][-8:-3])
+                print('GP: Dr ' + appointmentData[1] + " " + appointmentData[2])
                 if appointmentData[-1] == 1:
                     print("This appointment is completed.")
                     aptid = (appointmentData[0],)
@@ -416,8 +421,11 @@ class Patient:
                                 datetime.datetime(int(year), int(month), int(day))
                                 fm_selected = datetime.datetime.strptime(
                                     select_date, '%Y-%m-%d').date()
-                            except ValueError:
+                            except SyntaxError:
                                 isValidDate = False
+                                # log exception details
+                                logging.exception("Exception occurred during the validation of user appointment request"
+                                                  "date: ")
                             if not isValidDate:
                                 # if not request user tries again
                                 print("Sorry this value is not accepted - please use the YYYY-MM-DD format")
@@ -438,6 +446,7 @@ class Patient:
                                             select_date))
                                         util.loader('Loading')
                                         self.select_slots(select_date)
+                                        break
                                     elif fm_selected < datetime.datetime.now().date():
                                         print("Sorry, we are unable to book appointments for dates in the past")
                                     elif fm_selected == datetime.datetime.now().date():
@@ -658,6 +667,7 @@ class Patient:
                 available_session[i[0]] = [[i[4], i[1]]]
 
         # Prompt user to select slots.
+        util.clear()
         print("\n\nPlease select an appointment time:")
         sessions = ["09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00",
                     "13:00-14:00", "14:00-15:00", "15:00-16:00", "16:00-17:00"]
@@ -712,7 +722,7 @@ class Patient:
                     option = list.index(["Yes", "No"], option)
                     if option == 0:
                         print("- Appointment Date: " + select_date)
-                        print("- Time Slot: " + session[booked_slot-1])
+                        print("- Time Slot: " + session[booked_slot - 1])
                         print("- GP: Dr " + gp_name[0] + " " + gp_name[1])
                         if self.tobecanceled > 0:
                             self.db.reschedule(a, self.tobecanceled)
@@ -723,7 +733,6 @@ class Patient:
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             time.sleep(2)
                             util.clear()
-                            self.print_welcome()
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
@@ -733,9 +742,10 @@ class Patient:
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             time.sleep(2)
                             util.clear()
-                    self.print_welcome()
+                            break
             except ValueError:
-                print("Please select a valid option.")
+                # log appointment timeslot exception
+                print("Exception occurred when the patient tried selecting an appointment timeslot: ")
 
     def cancel_appointment(self, appointmentNo):
         while True:
@@ -760,7 +770,8 @@ class Patient:
                 "ON a.patient_id = u.userId "
                 "WHERE u.userId = '""" + str(self.patient_id) + """'""")
             output = self.db.c.fetchall()
-            index_8 = ["Medicine Name", "Treatment Desc", "Frequency of presc renewal (days)", "Start Date", "Expiry Date",
+            index_8 = ["Medicine Name", "Treatment Desc", "Frequency of presc renewal (days)", "Start Date",
+                       "Expiry Date",
                        "Appointment ID"]
             df4 = DataFrame(output)
             df4.columns = index_8
@@ -820,6 +831,8 @@ class Patient:
                             print("...Your prescription has been downloaded successfully\n")
                             print(" ")
                             time.sleep(1.5)
+                            # log FileExistsException
+                            logging.exception("File already exists locally on patient's desktop: ")
                 elif data_type == "txt":
                     try:
                         directory = "downloaded_data"
@@ -858,6 +871,9 @@ class Patient:
                             print("...Your prescription has been downloaded successfully\n")
                             print(" ")
                             time.sleep(1.5)
+                            # log FileExistsException
+                            logging.exception("File already exists locally on patient's desktop: ")
+
             # options
             if presc_opts in [0, 1, 2]:
                 if presc_opts == 0:
@@ -877,6 +893,8 @@ class Patient:
             print(" ")
             # no prescription in the DB so return ---
             print("\nSorry - you currently do not have any prescriptions from our GP's to display\n")
+            # log exception here if it occurs
+            logging.exception("Patient had no prescription to view but still attempted to retrieve these:")
 
     def display_opening_hours(self, selected):
         # get datetime object of the first and last appointments on that day = Opening hours

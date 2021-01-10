@@ -867,45 +867,56 @@ class Admin:
             result = db1.c.fetchall()
             row = len(result)
             df = DataFrame(result)
-            col_one_list = df['Medical_historyNo'].tolist()
-            x = 1
-
             if row == 1:
 
-                while x == 1:
-                    nr = int(input('Enter the MedicalHistoryNr you would like to delete (see above): '))
-                    if nr in col_one_list:
-
-                        db1 = Database()
-                        db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
-                                        prescribed_medication=? WHERE Medical_historyNo=?""",
-                                     ("Empty", "Empty", "Empty", "Empty", nr,))
-                        ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
-                                               f"Please wait whilst you are redirected.\n")
-                        util.loader('Loading')
-                        x = 2
+                input_isvalid = True
+                while input_isvalid:
+                    user_Input = input("Enter an ID Number from the table above to see a Patients Medical History:")
+                    if not user_Input:
+                        print('Error: Invalid input')
+                    if user_Input.isdigit():
+                        nr = int(user_Input)
+                        col_one_list = df['Medical_historyNo'].tolist()
+                        if nr not in col_one_list:
+                            print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
+                        else:
+                            input_isvalid = False
                     else:
                         print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
-                        x = 1
 
-                self.handle_state_selection("Back")
+                db1 = Database()
+                db1.exec_one("""UPDATE MedicalHistory SET illness=?,time_afflicted=?,description=?, 
+                                prescribed_medication=? WHERE Medical_historyNo=?""",
+                             ("Empty", "Empty", "Empty", "Empty", nr,))
+                ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
+                                       f"Please wait whilst you are redirected.\n")
+                util.loader('Loading')
+
+                self.delete_medical_history()
             else:
-                while x == 1:
-                    nr = int(input('Enter the MedicalHistoryNr you would like to delete (see above): '))
-                    if nr in col_one_list:
-                        db1 = Database()
-                        db1.exec_one("DELETE FROM MedicalHistory WHERE Medical_historyNo=?", (nr,))
-                        ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
-                                               f"Please wait whilst you are redirected.\n")
-                        util.loader('Loading')
-                        x = 2
-                    else:
-                        print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
-                        x = 1
+
+                input_isvalid = True
+                while input_isvalid:
+                    user_Input = input("Enter an ID Number from the table above to see a Patients Medical History:")
+                    if not user_Input:
+                        print('Error: Invalid input')
+                    if user_Input.isdigit():
+                        nr = int(user_Input)
+                        col_one_list = df['Medical_historyNo'].tolist()
+                        if nr not in col_one_list:
+                            print("Invalid Input, Please select an a MedicalHistoryNr from the table above:")
+                        else:
+                            input_isvalid = False
+                db1 = Database()
+                db1.exec_one("DELETE FROM MedicalHistory WHERE Medical_historyNo=?", (nr,))
+                ui.info_2(ui.standout, f"Selected  Medical History was deleted from the Patients record."
+                                       f"Please wait whilst you are redirected.\n")
+                util.loader('Loading')
                 self.delete_medical_history()
         elif selected == "Back":
             self.handle_state_selection("Back")
-
+            
+            
     def deactivate_patient_account(self):
         self.display_patient_persrecord()
         ui.info_section(ui.blue, 'Deactivate Personal Account Options')
