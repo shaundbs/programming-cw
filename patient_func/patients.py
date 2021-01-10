@@ -438,6 +438,7 @@ class Patient:
                                             select_date))
                                         util.loader('Loading')
                                         self.select_slots(select_date)
+                                        break
                                     elif fm_selected < datetime.datetime.now().date():
                                         print("Sorry, we are unable to book appointments for dates in the past")
                                     elif fm_selected == datetime.datetime.now().date():
@@ -658,6 +659,7 @@ class Patient:
                 available_session[i[0]] = [[i[4], i[1]]]
 
         # Prompt user to select slots.
+        util.clear()
         print("\n\nPlease select an appointment time:")
         sessions = ["09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00",
                     "13:00-14:00", "14:00-15:00", "15:00-16:00", "16:00-17:00"]
@@ -723,7 +725,6 @@ class Patient:
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             time.sleep(2)
                             util.clear()
-                            self.print_welcome()
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
@@ -733,7 +734,7 @@ class Patient:
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             time.sleep(2)
                             util.clear()
-                    self.print_welcome()
+                            break
             except ValueError:
                 print("Please select a valid option.")
 
