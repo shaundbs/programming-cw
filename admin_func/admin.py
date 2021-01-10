@@ -1279,7 +1279,7 @@ class Admin:
                              [new_fname, new_lname, new_email, hashed_password, format_date, "admin", is_registered,
                               is_active])
             self.db.close_db()
-            ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.")
+            ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.\n")
             util.loader('Loading')	          
             self.state_gen.change_state("Admin Options")
         else:
