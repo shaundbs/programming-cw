@@ -734,6 +734,7 @@ class Patient:
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             time.sleep(2)
                             util.clear()
+                            break
             except ValueError:
                 print("Please select a valid option.")
 
