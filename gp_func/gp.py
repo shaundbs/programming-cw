@@ -144,8 +144,8 @@ class Gp:
         ui.info("Days that you have appointments are highlighted in brackets []")
 
         # user_choices = ["view day", "view another month", "back"]
-        selected = ui.ask_choice("What would you like to do next?",
-                                 choices=self.state_gen.get_state_options())
+        selected = util.user_select("What would you like to do next?",
+                                    choices=self.state_gen.get_state_options())
         if selected == "View day schedule":
             self.curr_appt_date = util.get_user_date()
             while datetime.strptime(self.curr_appt_date, '%Y-%m-%d').weekday() > 4:
@@ -274,7 +274,7 @@ class Gp:
             else:
                 print("Sorry, you have holiday dates unavailable")
 
-        selected = ui.ask_choice("Where to?", choices=self.state_gen.get_state_options())
+        selected = util.user_select("Where to?", choices=self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
     # CONFIRM APPOINTMENTS
@@ -297,7 +297,7 @@ class Gp:
             print(table_data)
             user_choices = ["Confirm all", "Reject all", "Confirm or reject an individual appointment", "Back"]
 
-            selected = ui.ask_choice("What would you like to do?", choices=user_choices, sort=False)
+            selected = util.user_select("What would you like to do?", choices=user_choices, sort=False)
 
             # CHOICES HANDLING
             if selected == "Confirm all":  # confirm all
@@ -333,7 +333,7 @@ class Gp:
 
                 # choose accept or reject or back
                 further_options = ["Confirm", "Reject", "Back"]
-                selected = ui.ask_choice("What would you like to do with this appointment?", choices=further_options)
+                selected = util.user_select("What would you like to do with this appointment?", choices=further_options)
                 if selected == "Back":  # back
                     res = None  # remove result to exit from while loop if back chosen
                     self.to_confirm_appointments()
