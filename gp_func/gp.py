@@ -134,6 +134,7 @@ class Gp:
         # create calendar
         c = calendar.TextCalendar()
         display_month = c.formatmonth(int(month[:4]), int(month[5:]))
+        #highlight appointment days
         for appt in res:
             if appt["day"][0] == "0":
                 display_month = display_month.replace(" %s " % appt["day"][1], "[%s]" % appt["day"][1])
@@ -141,11 +142,11 @@ class Gp:
                 display_month = display_month.replace(" %s " % appt["day"], "[%s]" % appt["day"])
 
         ui.info(display_month)
-        ui.info("Days that you have appointments are highlighted in brackets []")
+        ui.info("Days that you have confirmed appointments are highlighted in brackets []")
 
-        # user_choices = ["view day", "view another month", "back"]
         selected = util.user_select("What would you like to do next?",
                                     choices=self.state_gen.get_state_options())
+        #get user date and go to day view or refresh page and choose another month
         if selected == "View day schedule":
             self.curr_appt_date = util.get_user_date()
             while datetime.strptime(self.curr_appt_date, '%Y-%m-%d').weekday() > 4:
@@ -160,6 +161,7 @@ class Gp:
 
     def view_day_schedule(self):
         date = self.curr_appt_date
+        #get time off and appointment info for selected day
         get_appts_sql_query = f"SELECT is_confirmed, strftime('%d/%m/%Y',s.starttime) as date, " \
                               f"strftime('%Y-%m-%d %H:%M:%S', s.starttime)  as 'appointment time' FROM slots s left " \
                               f"outer " \
@@ -177,6 +179,7 @@ class Gp:
         time_off = self.db.fetch_data(get_time_off_sql_query)
         appointments = self.db.fetch_data(get_appts_sql_query)
 
+        #determine slot status
         for slot in slots:
             slot_start = datetime.strptime(slot["startTime"], '%Y-%m-%d %H:%M:%S')
             slot_end = datetime.strptime(slot["endTime"], '%Y-%m-%d %H:%M:%S')
@@ -206,8 +209,7 @@ class Gp:
     def schedule_time_off(self):
         util.sys_clear()
         now = datetime.now()
-        # now = datetime.strptime("2020-01-01", '%Y-%m-%d')
-
+        #get user input and handle
         ui.info("When you would you like your time-off to start?")
         date_not_valid = True
         while date_not_valid:
@@ -238,11 +240,10 @@ class Gp:
         appointments = self.db.fetch_data(clash_query)
         start_stamp = datetime.strptime(start_time, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S')
         end_stamp = (datetime.strptime(end_time, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
-        print(end_stamp)
 
         time_off_query = f"INSERT INTO gp_time_off (gp_id, startTime, endTime)" \
                          f"VALUES ({self.user_id}, '{start_stamp}', '{end_stamp}')"
-
+        #give option to book if free
         if not appointments:
 
             yes = ui.ask_yes_no(f"These dates are available. Are you sure you would like to book time off"
@@ -253,8 +254,7 @@ class Gp:
             else:
                 print("Booking cancelled")
 
-            # TODO ERROR HANDLING
-
+        #if clashes exist check if they are confirmed or not, if unconfirmed offer to cancel
         elif appointments:
             print("You have the following clashing appointments: \n")
             table_data = util.output_sql_rows(appointments, ["startTime", "is_confirmed"])
