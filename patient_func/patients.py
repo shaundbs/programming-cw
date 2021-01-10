@@ -813,7 +813,7 @@ class Patient:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
                             for i in output:
-                                thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                                thewriter.writerow([i[0], i[1], str(i[2]), i[3], i[4], str(i[5])])
                             f.close()
                             print(" ")
                             util.loader('Downloading')
@@ -829,7 +829,7 @@ class Patient:
                             thewriter = csv.writer(f)
                             thewriter.writerow(index_8)
                             for i in output:
-                                thewriter.writerow([i[0], i[1], i[2], str(i[3]), i[4], i[5], str(i[6])])
+                                thewriter.writerow([i[0], i[1], str(i[2]), i[3], i[4], str(i[5])])
                             f.close()
                             print(" ")
                             util.loader('Downloading')
