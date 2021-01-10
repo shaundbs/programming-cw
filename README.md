@@ -4,9 +4,8 @@ Programming coursework for COMP066
 ## Installation
 Requirements:
 * [Python 3.7.3](https://www.python.org/downloads/release/python-373/) 
-* [pip](https://pip.pypa.io/en/stable/) 
-You can also the package manager [pip](https://pip.pypa.io/en/stable/) to install requirements on unix and windows operating systems. You must have Python 3 installed.
-
+* [pip](https://pip.pypa.io/en/stable/)  
+Install the required libraries using [pip](https://pip.pypa.io/en/stable/):
 ```bash
 pip install -r requirements.txt
 ```
