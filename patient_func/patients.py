@@ -745,7 +745,7 @@ class Patient:
                             break
             except ValueError:
                 # log appointment timeslot exception
-                print("Exception occurred when the patient tried selecting an appointment timeslot: ")
+                logging.exception("Exception occurred when the patient tried selecting an appointment timeslot.")
 
     def cancel_appointment(self, appointmentNo):
         while True:
