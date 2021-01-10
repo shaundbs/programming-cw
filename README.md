@@ -2,14 +2,9 @@
 
 Programming coursework for COMP066
 ## Installation
-To run in a virtual environment on unix operating systems run the following command from within the root folder:
-```bash
-source venv/bin/activate
-```
-Windows:
-```bash
- windowsvenv/Scripts/activate.bat
-```
+Requirements:
+* [Python 3.7.3](https://www.python.org/downloads/release/python-373/) 
+* [pip](https://pip.pypa.io/en/stable/) 
 You can also the package manager [pip](https://pip.pypa.io/en/stable/) to install requirements on unix and windows operating systems. You must have Python 3 installed.
 
 ```bash
