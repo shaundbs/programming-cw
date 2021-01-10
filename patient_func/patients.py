@@ -282,11 +282,11 @@ class Patient:
                 break
             output.append("Back.")
             option = ui.ask_choice("Choose a referral:", choices=output, sort=False)
+            util.clear()
             if option != "Back.":
-                util.clear()
                 print("No additional information yet.")
-                self.print_welcome()
             else:
+                self.print_welcome()
                 break
 
     def view_appointment(self):
@@ -369,6 +369,7 @@ class Patient:
                         self.cancel_appointment(appointmentData[0])
             else:
                 util.clear()
+                self.print_welcome()
                 break
 
     def request_appointment(self):
