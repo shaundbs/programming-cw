@@ -278,6 +278,7 @@ class Patient:
             print(" ")
             util.loader('Loading')
             print("\n")
+            util.clear()
             for i in self.referralsList:
                 output.append("You are referred to our specialist Dr. " + str(i[1]) + " " + str(
                     i[2]) + " at Department " + str(i[4]) + " of Hopsital " + str(i[3]) + ".")
@@ -764,6 +765,7 @@ class Patient:
             print(" ")
             util.loader('Loading')
             print("\n")
+            util.clear()
             # print prescriptions out as one table
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
