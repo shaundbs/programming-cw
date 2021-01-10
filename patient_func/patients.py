@@ -146,7 +146,7 @@ class Patient:
             elif not self.high_risk_top_waitinglist_notification():
                 print(colored('*COVID-19 status notification*', 'red',
                               attrs=['bold']))
-                print("-- You have been identified as a high risk patient to COVID-19 and have been placed on our "
+                print("-- You have been identified as a high-risk patient to COVID-19 and have been placed on our "
                       "waiting list.\n- This classification has been made based on your age making you more "
                       "susceptible to the virus.\n- You will be invited to receive a vaccination with us "
                       "in due course.\n")
@@ -531,14 +531,14 @@ class Patient:
             print(colored('*COVID-19 status notification*', 'red',
                           attrs=['bold']))
             print(
-                "-- You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
+                "-- You have been identified as a high-risk patient to COVID-19 and have been invited to receive your "
                 "first dose of the " + chosen_vac + " vaccination.\n- This classification has been made based on your "
                                                     "age and you have been on the waiting list for over 30 days (30 days since the date that you "
                                                     "registered with us).\n- Please request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
                                                     " or 'COVID-19 Immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
         else:
             vulnerable_individual = False
-            print("You have not been identified as a high risk patient to COVID-19. However you will be invited to "
+            print("You have not been identified as a high-risk patient to COVID-19. However you will be invited to "
                   "receive a vaccination in due course. Please stay at home and protect the NHS :)\n")
         return vulnerable_individual
 
@@ -560,7 +560,7 @@ class Patient:
             print(colored('*COVID-19 status notification*', 'red',
                           attrs=['bold']))
             print(
-                "-- You have been identified as a high risk patient to COVID-19 and have been invited to receive your "
+                "-- You have been identified as a high-risk patient to COVID-19 and have been invited to receive your "
                 "first dose of the " + chosen_vac + " vaccination.\n- This classification has been made based on your "
                                                     "age and you have been on the waiting list for over 30 days (30 days since the date that you "
                                                     "registered with us).\n- Please request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
