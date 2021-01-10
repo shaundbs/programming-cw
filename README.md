@@ -8,7 +8,7 @@ source venv/bin/activate
 ```
 Windows:
 ```bash
- venv/Scripts/activate.bat
+ windowsvenv/Scripts/activate.bat
 ```
 You can also the package manager [pip](https://pip.pypa.io/en/stable/) to install requirements on unix and windows operating systems. You must have Python 3 installed.
 
