@@ -794,7 +794,6 @@ class Patient:
                             print("...Your prescription has been downloaded successfully\n")
                             print(" ")
                             time.sleep(1.5)
-                            util.clear()
                     except FileExistsError:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
@@ -811,7 +810,6 @@ class Patient:
                             print("...Your prescription has been downloaded successfully\n")
                             print(" ")
                             time.sleep(1.5)
-                            util.clear()
                 elif data_type == "txt":
                     try:
                         directory = "downloaded_data"
@@ -834,7 +832,6 @@ class Patient:
                             print("...Your prescription has been downloaded successfully\n")
                             print(" ")
                             time.sleep(1.5)
-                            util.clear()
                     except FileExistsError:
                         #  unless directory already exists
                         # save to existing Prescription folder as a .csv
@@ -851,15 +848,16 @@ class Patient:
                             print("...Your prescription has been downloaded successfully\n")
                             print(" ")
                             time.sleep(1.5)
-                            util.clear()
             # options
             if presc_opts in [0, 1, 2]:
                 if presc_opts == 0:
                     print_prescription("csv")
                     util.clear()
+                    self.print_welcome()
                 elif presc_opts == 1:
                     print_prescription("txt")
                     util.clear()
+                    self.print_welcome()
                 elif presc_opts == 2:
                     util.clear()
                     self.print_welcome()
