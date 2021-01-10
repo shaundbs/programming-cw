@@ -525,7 +525,7 @@ class Admin:
         selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
-
+    
     def approve_all_patients(self):
         approve_all()
         selected = util.user_select("Please choose one of the options below.", self.state_gen.get_state_options())
@@ -548,6 +548,7 @@ class Admin:
         self.admin_options()
 
     # manage patient functionality
+    # Find the Patient personal details and medical record and return them as two  dateframes
     @staticmethod
     def seepatientrecord(df):
         input_isvalid = True
@@ -606,7 +607,8 @@ class Admin:
             df2 = DataFrame(result)
             df2.columns = index2
             return id, df1, df2
-
+    
+    # Display and prrint the  Patient personal details and medical record.
     def display_patient_record(self):
         Admin.clear()
         db1 = Database()
@@ -634,6 +636,7 @@ class Admin:
         print(tabulate(df1, headers='keys', tablefmt='grid', showindex=False))
         print(colored('Patient Medical History', 'green', attrs=['bold']))
         print(tabulate(df2, headers='keys', tablefmt='grid', showindex=False))
+    # Display and print only  Patient personal details
 
     def display_patient_persrecord(self):
         Admin.clear()
@@ -651,6 +654,7 @@ class Admin:
         print(colored('Patient Personal Record', 'green', attrs=['bold']))
         print(tabulate(df1, headers='keys', tablefmt='grid', showindex=False))
 
+     # Search the patient details by Date of birth or last name
     def manage_patient(self):
 
         os.system('clear')
@@ -715,7 +719,8 @@ class Admin:
                 self.to_manage_patient_account()
         elif selected == "Back":
             self.handle_state_selection("Admin Options")
-
+    
+    # State for all the patient managment option as Admin when a patient is selected
     def manage_patient_account(self):
         self.display_patient_record()
         ui.info_section(ui.blue, 'Manage Patient Account Options')
@@ -734,7 +739,8 @@ class Admin:
             self.to_download_patient_record()
         elif selected == "Back":
             self.handle_state_selection("Admin Options")
-
+            
+    # Edit all the patient's personal details (Name, Date of birth, email)
     def edit_patient_details(self):
         self.display_patient_persrecord()
         ui.info_section(ui.blue, 'Edit Patient Personal Account Options')
@@ -798,6 +804,7 @@ class Admin:
         elif selected == "Back":
             self.handle_state_selection("Back")
 
+    # Add to the patient's Medical history
     def add_medical_history(self):
         self.display_patient_record()
         ui.info_section(ui.blue, 'Add Medical History')
@@ -853,6 +860,7 @@ class Admin:
         elif selected == "Back":
             self.handle_state_selection("Back")
 
+     # Add to the patient's Medical history
     def delete_medical_history(self):
         self.display_patient_record()
         ui.info_section(ui.blue, 'Delete Medical History')
@@ -916,7 +924,7 @@ class Admin:
         elif selected == "Back":
             self.handle_state_selection("Back")
             
-            
+     # Deactivate a patient's Account.
     def deactivate_patient_account(self):
         self.display_patient_persrecord()
         ui.info_section(ui.blue, 'Deactivate Personal Account Options')
@@ -931,7 +939,8 @@ class Admin:
             self.deactivate_patient_account()
         elif selected == "Back":
             self.handle_state_selection("Manage Patient Account")
-
+            
+     # Reactivate a patient's Account.
     def reactivate_patient_account(self):
         self.display_patient_persrecord()
 
@@ -1188,7 +1197,7 @@ class Admin:
         self.handle_state_selection(selected)
 
 
-
+    
     def download_patient_record(self):
         self.display_patient_persrecord()
 
@@ -1240,7 +1249,9 @@ class Admin:
             self.download_patient_record()
         elif selected == "Back":
             self.handle_state_selection("Manage Patient Account")
-
+           
+       
+     # Assign an new Admin Account.
     def assign_new_admin(self):
         Admin.clear()
         ui.info_section(ui.blue, "Assign a new Admin user")
