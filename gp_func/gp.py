@@ -563,7 +563,7 @@ class Gp:
             self.to_show_appointment_details()
         else:
             # go back or rewrite?
-            options = ["Try writing clinical notes again", "back"]
+            options = ["Try writing clinical notes again", "Back"]
             selected = util.user_select("What would you like to do now?", choices=options)
             if selected == "Back":
                 self.handle_state_selection("back")
