@@ -1,5 +1,6 @@
 import sqlite3
 from os import system
+import os
 from time import sleep
 
 from pandas import DataFrame
@@ -47,7 +48,7 @@ def confirm_patient():
 
 
     clear()
-    print(tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=False))
+    print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
 
     global validation_required
     global user_ids
