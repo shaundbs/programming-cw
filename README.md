@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-Run main.py using from the programs root folder:
+Run main.py from the programs root folder:
 ```python
 python main.py
 ```
