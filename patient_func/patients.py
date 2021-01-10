@@ -438,6 +438,7 @@ class Patient:
                                             select_date))
                                         util.loader('Loading')
                                         self.select_slots(select_date)
+                                        break
                                     elif fm_selected < datetime.datetime.now().date():
                                         print("Sorry, we are unable to book appointments for dates in the past")
                                     elif fm_selected == datetime.datetime.now().date():
