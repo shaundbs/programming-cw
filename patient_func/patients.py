@@ -178,6 +178,7 @@ class Patient:
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
+                                util.clear()
                                 print(colored('*Request Appointment Help Screen*', 'yellow',
                                               attrs=['bold']))
                                 print("--This section offers help and guidance with regards to patients requesting "
@@ -198,6 +199,7 @@ class Patient:
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
+                                util.clear()
                                 print(colored('*View Appointments Help Screen*', 'yellow',
                                               attrs=['bold']))
                                 print("--This section offers help and guidance with regards to patients viewing "
@@ -214,6 +216,7 @@ class Patient:
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
+                                util.clear()
                                 print(colored('*View Referrals Help Screen*', 'yellow',
                                               attrs=['bold']))
                                 print("--This section offers help and guidance with regards to patients viewing "
@@ -229,6 +232,7 @@ class Patient:
                                 print(" ")
                                 util.loader('Loading')
                                 print("\n")
+                                util.clear()
                                 print(colored('*View Prescriptions Help Screen*', 'yellow',
                                               attrs=['bold']))
                                 print("--This section offers help and guidance with regards to patients viewing "
