@@ -18,7 +18,6 @@ python main.py
 ```
 ## Third-party packages
 This project uses the following packages:
-* [SQLite3](https://docs.python.org/3/library/sqlite3.html)
 * [Bcrypt](https://pypi.org/project/bcrypt/) 
 * [Transitions](https://pypi.org/project/transitions/) 
 * [Pick](https://pypi.org/project/pick/) 
