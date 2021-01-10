@@ -20,7 +20,11 @@ def welcome():
     ui.info_section(
         "Welcome to University College Hospital(UCH) - Online System.\n\nTel: 020 3456 7890\nAddress: University "
         "College Hospital, 235 Euston Road, London, NW1 2BU.")
-
+    ui.info("* For testing purpose only:")
+    ui.info("- Patient Email: patient@test.com")
+    ui.info("- GP Email: gp@test.com")
+    ui.info("- Admin Email: admin@test.com")
+    ui.info("- Password(for all above): Persona123\n")
 
 class Panel:
     def __init__(self):
