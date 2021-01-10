@@ -438,6 +438,7 @@ class Patient:
                                             select_date))
                                         util.loader('Loading')
                                         self.select_slots(select_date)
+                                        break
                                     elif fm_selected < datetime.datetime.now().date():
                                         print("Sorry, we are unable to book appointments for dates in the past")
                                     elif fm_selected == datetime.datetime.now().date():
@@ -733,6 +734,7 @@ class Patient:
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             time.sleep(2)
                             util.clear()
+                            break
                     self.print_welcome()
             except ValueError:
                 print("Please select a valid option.")
