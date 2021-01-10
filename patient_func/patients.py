@@ -723,7 +723,6 @@ class Patient:
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             time.sleep(2)
                             util.clear()
-                            self.print_welcome()
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
@@ -733,7 +732,6 @@ class Patient:
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
                             time.sleep(2)
                             util.clear()
-                    self.print_welcome()
             except ValueError:
                 print("Please select a valid option.")
 
