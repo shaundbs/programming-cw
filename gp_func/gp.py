@@ -297,7 +297,7 @@ class Gp:
             print(table_data)
             user_choices = ["Confirm all", "Reject all", "Confirm or reject an individual appointment", "Back"]
 
-            selected = util.user_select("What would you like to do?", choices=user_choices, sort=False)
+            selected = util.user_select("What would you like to do?", choices=user_choices)
 
             # CHOICES HANDLING
             if selected == "Confirm all":  # confirm all
