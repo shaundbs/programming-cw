@@ -163,6 +163,7 @@ class Patient:
             elif option == prv[3]:
                 self.view_prescription()
             elif option == prv[4]:
+                ui.info_section(ui.blue, '\nWelcome to the Help Dashboard')
                 print(colored('*Help*', 'yellow',
                               attrs=['bold']))
                 print("Please select an feature that you need assistance with:\n")
@@ -270,7 +271,12 @@ class Patient:
         docstring
         """
         util.clear()
+        print(" ")
+        util.loader('Loading')
+        print("\n")
+        util.clear()
         while True:
+            ui.info_section(ui.blue, '\nWelcome to the View Referrals Dashboard')
             # Fetch referrals from db.
             self.db.exec_one(
                 "SELECT a.referred_specialist_id, s.firstName, s.lastName, s.hospital, d.name FROM Appointment a, Specialists s, Department d WHERE  s.department_id = d.department_id AND a.referred_specialist_id = s.specialist_id AND patient_id = ? AND a.referred_specialist_id IS NOT NULL",
@@ -280,10 +286,6 @@ class Patient:
             for i in result:
                 self.referralsList.append(list(i))
             output = []
-            print(" ")
-            util.loader('Loading')
-            print("\n")
-            util.clear()
             for i in self.referralsList:
                 output.append("You are referred to our specialist Dr. " + str(i[1]) + " " + str(
                     i[2]) + " at Department " + str(i[4]) + " of Hopsital " + str(i[3]) + ".")
@@ -301,6 +303,10 @@ class Patient:
 
     def view_appointment(self):
         while True:
+            print(" ")
+            util.loader('Loading')
+            print("\n")
+            ui.info_section(ui.blue, '\nWelcome to the View Appointments Dashboard')
             # Fetch appointments from db.
             self.db.exec_one(
                 "SELECT a.appointment_Id, u.firstName, u.lastName, s.startTime, s.endTime, a.is_confirmed, a.is_rejected,a.is_completed FROM Appointment a, Slots s, Users u WHERE a.gp_id = u.userId AND a.slot_id = s.slot_id And a.patient_id = ? ORDER BY startTime",
@@ -309,9 +315,6 @@ class Patient:
             result = self.db.c.fetchall()
             for i in result:
                 self.appointmentList.append(i)
-            print(" ")
-            util.loader('Loading')
-            print("\n")
 
             # Print appointments and options.
             apt = []
@@ -384,6 +387,7 @@ class Patient:
 
     def request_appointment(self):
         while True:
+            ui.info_section(ui.blue, '\nWelcome to the Appointment Requests Dashboard')
             apt = ["Book an appointment this month.", "Book an appointment next month.", "Back."]
             menu_choice = ui.ask_choice("Choose an appointment", choices=apt, sort=False)
             util.clear()
@@ -781,6 +785,7 @@ class Patient:
             util.loader('Loading')
             print("\n")
             util.clear()
+            ui.info_section(ui.blue, '\nWelcome to the View Prescriptions  Dashboard')
             # print prescriptions out as one table
             print(colored('Prescription Information', 'green',
                           attrs=['bold']))
