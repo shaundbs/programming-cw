@@ -1,6 +1,6 @@
 # E-health management system
 
-Programming coursework for COMP068
+Programming coursework for COMP066
 ## Installation
 To run in a virtual environment on unix operating systems run the following command from within the root folder:
 ```bash
@@ -28,4 +28,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
-Qsoftltd
+[Apache-2.0](https://choosealicense.com/licenses/apache-2.0/)
