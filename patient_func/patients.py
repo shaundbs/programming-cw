@@ -473,7 +473,7 @@ class Patient:
                                 continue
                             else:
                                 print(
-                                    "This input will not be accepted im afraid - Please re-enter in YYYY-MM-DD format")
+                                    "This input will not be accepted i'm afraid - Please re-enter in YYYY-MM-DD format")
                         elif date_booker == 1:
                             break
             elif menu_choice == 2:
@@ -691,6 +691,7 @@ class Patient:
                 booked_slot = int(input("Enter your option : "))
 
                 if booked_slot == (len(result) + 1):
+                    util.clear()
                     break
                 elif booked_slot in range(9):
                     # Assign GP6 to this appointment temporarily.
@@ -720,7 +721,9 @@ class Patient:
                                 "SUCCESS - \nYou have successfully rescheduled an appointments with Dr " + str(
                                     gp_name[0]) + " " + str(
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                            time.sleep(2)
                             util.clear()
+                            self.print_welcome()
                         else:
                             self.db.exec_one(
                                 "INSERT INTO Appointment(patient_id,slot_id,gp_id,reason) Values (?,?,?,?)", a)
@@ -728,6 +731,7 @@ class Patient:
                                 "SUCCESS - \nYou have successfully requested an appointments with Dr " + str(
                                     gp_name[0]) + " " + str(
                                     gp_name[1]) + ", You will be alerted once your appointment is confirmed")
+                            time.sleep(2)
                             util.clear()
                     self.print_welcome()
             except ValueError:
@@ -749,7 +753,7 @@ class Patient:
         # Fetch prescriptions from db.
         try:
             self.db.exec(
-                "SELECT p.medicine_name, p.treatment_description, p.pres_frequency_in_days, p.startDate, p.expiryDate, p.prescription_id, p.appointment_id FROM Prescription AS P "
+                "SELECT p.medicine_name, p.treatment_description, p.pres_frequency_in_days, p.startDate, p.expiryDate, p.appointment_id FROM Prescription AS P "
                 "LEFT JOIN Appointment as a "
                 "ON a.appointment_id = p.appointment_id "
                 "LEFT JOIN Users as u "
@@ -757,7 +761,7 @@ class Patient:
                 "WHERE u.userId = '""" + str(self.patient_id) + """'""")
             output = self.db.c.fetchall()
             index_8 = ["Medicine Name", "Treatment Desc", "Frequency of presc renewal (days)", "Start Date", "Expiry Date",
-                       "Prescription ID", "Appointment ID"]
+                       "Appointment ID"]
             df4 = DataFrame(output)
             df4.columns = index_8
             df4.index += 1
