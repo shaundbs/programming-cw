@@ -1209,12 +1209,8 @@ class Admin:
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
         self.handle_state_selection(selected)
 
-
-    
     def download_patient_record(self):
         self.display_patient_persrecord()
-
-
 
         ui.info_section(ui.blue, 'Download Patient Record')
         selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
@@ -1238,13 +1234,13 @@ class Admin:
                 "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
                 "MedicalHistory WHERE userID = ?",
                 (self.ID,))
-            result= db2.c.fetchall()
+            result = db2.c.fetchall()
             index2 = ["MedicalHistoryID", "UserID", "illness", "time_afflicted", "description", "prescribed_medication"]
             df2 = DataFrame(result)
             df2.columns = index2
             curr_date = datetime.datetime.now()
             format_date = curr_date.strftime("%m_%d_%Y_%H_%M_%S_")
-            file_name = format_date+no_space_name+"_Patient_record.csv"
+            file_name = format_date + no_space_name + "_Patient_record.csv"
             curr_dir = os.path.abspath(os.getcwd())
             dir_name = "downloaded_data"
             # check file path and directory exists, if not create it
@@ -1262,9 +1258,64 @@ class Admin:
             self.download_patient_record()
         elif selected == "Back":
             self.handle_state_selection("Manage Patient Account")
-           
-       
-     # Assign an new Admin Account.
+
+    # Assign an new Admin Account.
+    def download_patient_record(self):
+        self.display_patient_persrecord()
+
+        ui.info_section(ui.blue, 'Download Patient Record')
+        selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
+
+        if selected == "Download the Patient Record":
+            db1 = Database()
+            db1.exec_one(
+                "SELECT userID, firstname, LastName, date_of_birth, email, accountType, is_registered, is_active, "
+                "signUpDate  FROM Users WHERE userID = ?",
+                (self.ID,))
+            result = db1.c.fetchall()
+            index1 = ["UserID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
+                      "Signed UP"]
+            df1 = DataFrame(result)
+            df1.columns = index1
+
+            no_space_name = result[0]['firstName'] + "_" + result[0]['lastName']
+
+            db2 = Database()
+            db2.exec_one(
+                "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
+                "MedicalHistory WHERE userID = ?",
+                (self.ID,))
+            result = db2.c.fetchall()
+            index2 = ["MedicalHistoryID", "UserID", "illness", "time_afflicted", "description", "prescribed_medication"]
+            df2 = DataFrame(result)
+            df2.columns = index2
+            curr_date = datetime.datetime.now()
+            format_date = curr_date.strftime("%m_%d_%Y_%H_%M_%S_")
+            file_name = format_date + no_space_name + "_Patient_record.csv"
+            curr_dir = os.path.abspath(os.getcwd())
+            dir_name1 = "downloaded_data"
+            dir_name2 = "Medical_history"
+            parent_dir = os.path.abspath(os.getcwd())
+            path = os.path.join(parent_dir, dir_name1)
+            path_join = os.path.join(path, dir_name2)
+
+            # check file path and directory exists, if not create it
+            save_path = os.path.join(curr_dir, path_join)
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            csv_file = os.path.join(save_path, file_name)
+            result = df1.append(df2, sort=False)
+            result.to_csv(csv_file, index=False)
+
+            print(save_path)
+            ui.info_2(ui.standout, f"Patients Record was downloaded and saved in the path above."
+                                   f"Please wait whilst you are redirected.")
+            sleep(3)
+            self.download_patient_record()
+        elif selected == "Back":
+            self.handle_state_selection("Manage Patient Account")
+
+    # Assign an new Admin Account.
     def assign_new_admin(self):
         Admin.clear()
         ui.info_section(ui.blue, "Assign a new Admin user")
@@ -1295,7 +1346,7 @@ class Admin:
                 new_email = email.lower()
                 if not re.search(regex, email):
                     print("Invalid Email. Please try again.")
-                elif email not in email_list:
+                elif new_email not in email_list:
                     email_repetition = False
                 else:
                     print("This email address has already been registered. Please try again.")
