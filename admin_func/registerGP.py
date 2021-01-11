@@ -134,7 +134,3 @@ def confirmation():
         except UnboundLocalError:
             logging.exception("Exception occurred while trying to send confirmation of GP registration email")
             print("\nSorry, unable to send email...\n")
-
-
-if __name__ == "__main__":
-    registerGP()

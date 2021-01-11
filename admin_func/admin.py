@@ -1326,8 +1326,3 @@ class Admin:
         else:
             self.state_gen.change_state("Admin Options")
 
-
-# for testing admin functionality
-if __name__ == "__main__":
-    Admin(2)
-
