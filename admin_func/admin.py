@@ -1292,10 +1292,10 @@ class Admin:
                 regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
 
                 email = input('Email: ')
+                new_email = email.lower()
                 if not re.search(regex, email):
                     print("Invalid Email. Please try again.")
                 elif email not in email_list:
-                    new_email = email.lower()
                     email_repetition = False
                 else:
                     print("This email address has already been registered. Please try again.")

@@ -803,10 +803,11 @@ class Patient:
                         #  create directory for downloaded files
                         directory = "downloaded_data"
                         directory2 = "Prescriptions"
-                        parent_dir = '../programming-cw'
+                        parent_dir = os.path.abspath(os.getcwd())
                         path = os.path.join(parent_dir, directory)
                         final_path = os.path.join(path, directory2)
-                        os.makedirs(final_path)
+                        if not os.path.exists(final_path):
+                            os.makedirs(final_path)
                         # save prescription in directory  as a .csv
                         with open("downloaded_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
@@ -822,23 +823,8 @@ class Patient:
                             print(" ")
                             time.sleep(1.5)
                     except FileExistsError:
-                        #  unless directory already exists
-                        # save to existing Prescription folder as a .csv
-                        with open("downloaded_data/Prescriptions/myprescriptions." + data_type, 'w',
-                                  newline='') as f:
-                            thewriter = csv.writer(f)
-                            thewriter.writerow(index_8)
-                            for i in output:
-                                thewriter.writerow([i[0], i[1], str(i[2]), i[3], i[4], str(i[5])])
-                            f.close()
-                            print(" ")
-                            util.loader('Downloading')
-                            print("\n")
-                            print("...Your prescription has been downloaded successfully\n")
-                            print(" ")
-                            time.sleep(1.5)
-                            # log FileExistsException
-                            logging.exception("File already exists locally on patient's desktop: ")
+                        logging.exception("File already exists: ")
+                        print("File exists")
                 elif data_type == "txt":
                     try:
                         directory = "downloaded_data"
@@ -846,7 +832,8 @@ class Patient:
                         parent_dir = '../programming-cw'
                         path = os.path.join(parent_dir, directory)
                         final_path = os.path.join(path, directory2)
-                        os.makedirs(final_path)
+                        if not os.path.exists(final_path):
+                            os.makedirs(final_path)
                         # save to Prescription folder as a .txt
                         with open("downloaded_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
@@ -862,23 +849,8 @@ class Patient:
                             print(" ")
                             time.sleep(1.5)
                     except FileExistsError:
-                        #  unless directory already exists
-                        # save to existing Prescription folder as a .csv
-                        with open("downloaded_data/Prescriptions/myprescriptions." + data_type, 'w',
-                                  newline='') as f:
-                            f.write("Your prescriptions are as follows:\n"
-                                    "\n")
-                            f.write("\n")
-                            f.write(df4.to_string(header=index_8, index=True))
-                            f.close()
-                            print(" ")
-                            util.loader('Downloading')
-                            print("\n")
-                            print("...Your prescription has been downloaded successfully\n")
-                            print(" ")
-                            time.sleep(1.5)
-                            # log FileExistsException
-                            logging.exception("File already exists locally on patient's desktop: ")
+                        logging.exception("File already exists: ")
+                        print("File exists")
 
             # options
             if presc_opts in [0, 1, 2]:
