@@ -7,6 +7,7 @@ import time
 import itertools
 import sys
 import os
+import logging
 
 def user_select(prompt: str, choices: list):
     selected = None
@@ -83,10 +84,15 @@ def df_creator(header_array, table_name, query_result):
     :return: table that can be printed
     """
     df = DataFrame(query_result)
-    df.columns = header_array
+    try:
+        df.columns = header_array
+    except ValueError:
+        # log exception
+        logging.exception("Exception occurred whilst the patient pending_appt: ")
     table = tabulate(df, headers='keys', tablefmt='grid', showindex=False)
     ui.info(ui.red, ui.bold, f"{table_name}")
     return table
+
 
 def get_multi_line_input(user_prompt):
     """

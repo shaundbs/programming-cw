@@ -9,6 +9,7 @@ from termcolor import colored
 
 from .admin_email_generator import Emails
 from . import admin_utilities as util
+import logging
 
 
 def clear():
@@ -44,9 +45,10 @@ def confirm_patient():
 
     df = DataFrame(records)
     index = ["ID", "First Name", "Last Name", "Email", "Date Signed Up"]
-    df.columns = index
-
-
+    try:
+        df.columns = index
+    except:
+        logging.exception("Exception occurred whilst the patient pending_appt: ")
     clear()
     print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
 
