@@ -325,6 +325,17 @@ class Admin:
         reset_password_confirm = ui.ask_yes_no("Are you sure you want to reset the password for this account?",
                                                default=False)
 
+        # while True:
+        #     pWord = ui.ask_password('Password:')
+        #     if len(pWord) < 8:
+        #         print("Please note that the minimum length of password is 8.")
+        #     else:
+        #         confirmpwd = ui.ask_password('Confirm your password:')
+        #         if pWord == confirmpwd:
+        #             break
+        #         else:
+        #             print("Sorry, you created different passwords. Please try again.\n")
+
         # if intent to rest password confirmed,
         if reset_password_confirm:
             # retrieve GP's current password
@@ -332,6 +343,7 @@ class Admin:
             old_password_query = f"SELECT password from Users WHERE userID = {gp_id}"
             old_password = self.db.fetch_data(old_password_query)
             old_password = old_password[0]['password']
+            old_password = old_password.encode('utf-8')
             self.db.close_db()
 
             # If old password found,
@@ -340,7 +352,7 @@ class Admin:
                 is_long_enough = False
                 while not is_long_enough:
                     # Prompt user for new password
-                    new_password = ui.ask_password('Password: ')
+                    new_password = ui.ask_password('New Password: ')
                     new_password = new_password.encode('utf-8')
                     # check length of password
                     if len(new_password) < 5:
@@ -349,7 +361,12 @@ class Admin:
                     elif bcrypt.checkpw(new_password, old_password):
                         print('Your new password cannot be the same as your old password. Please try again.')
                     else:
-                        is_long_enough = True
+                        new_password_confirm = ui.ask_password('Confirm your password:')
+                        new_password_confirm = new_password_confirm.encode('utf-8')
+                        if new_password == new_password_confirm:
+                            is_long_enough = True
+                        else:
+                            print("Your new password does not match the password confirmation. Please try again.\n")
 
                 # hash password
                 salt = bcrypt.gensalt()
