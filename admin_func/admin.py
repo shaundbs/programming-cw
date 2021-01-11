@@ -1265,61 +1265,64 @@ class Admin:
            
        
      # Assign an new Admin Account.
-    def download_patient_record(self):
-        self.display_patient_persrecord()
+    def assign_new_admin(self):
+        Admin.clear()
+        ui.info_section(ui.blue, "Assign a new Admin user")
+        assign_admin_confirm = ui.ask_yes_no("Please confirm if you want to assign a new Admin account?",
+                                             default=False)
+
+        if assign_admin_confirm:
+            while True:
+                new_fname = ui.ask_string("Please enter the Admin's new first name: ").capitalize()
+                if new_fname.isalpha():
+                    break
+                else:
+                    print("Please only include letters.")
+            while True:
+                new_lname = ui.ask_string("Please enter the Admin's new last name: ").capitalize()
+                if new_lname.isalpha():
+                    break
+                else:
+                    print("Please only include letters.")
+            email_list = Database().email_list()
+            email_repetition = True
+
+            global email
+            while email_repetition:
+                regex = '^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
+
+                email = input('Email: ')
+                new_email = email.lower()
+                if not re.search(regex, email):
+                    print("Invalid Email. Please try again.")
+                elif email not in email_list:
+                    email_repetition = False
+                else:
+                    print("This email address has already been registered. Please try again.")
 
 
 
-        ui.info_section(ui.blue, 'Download Patient Record')
-        selected = util.user_select("Please choose an option: ", self.state_gen.get_state_options())
-
-        if selected == "Download the Patient Record":
-            db1 = Database()
-            db1.exec_one(
-                "SELECT userID, firstname, LastName, date_of_birth, email, accountType, is_registered, is_active, "
-                "signUpDate  FROM Users WHERE userID = ?",
-                (self.ID,))
-            result = db1.c.fetchall()
-            index1 = ["UserID", "First Name", "Last Name", "date_of_birth", "email", "Role", "Registered", "Active",
-                      "Signed UP"]
-            df1 = DataFrame(result)
-            df1.columns = index1
-
-            no_space_name = result[0]['firstName'] + "_" + result[0]['lastName']
-
-            db2 = Database()
-            db2.exec_one(
-                "SELECT Medical_historyNo, userID, illness , time_afflicted, description, prescribed_medication FROM "
-                "MedicalHistory WHERE userID = ?",
-                (self.ID,))
-            result= db2.c.fetchall()
-            index2 = ["MedicalHistoryID", "UserID", "illness", "time_afflicted", "description", "prescribed_medication"]
-            df2 = DataFrame(result)
-            df2.columns = index2
+            new_password = ui.ask_password("Please enter a new password: ")
+            # encode password
+            new_password = new_password.encode('UTF-8')
+            # hash password
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(new_password, salt)
             curr_date = datetime.datetime.now()
-            format_date = curr_date.strftime("%m_%d_%Y_%H_%M_%S_")
-            file_name = format_date+no_space_name+"_Patient_record.csv"
-            curr_dir = os.path.abspath(os.getcwd())
-            dir_name1 = "downloaded_data"
-            dir_name2 = "Medical_history"
-            parent_dir = os.path.abspath(os.getcwd())
-            path = os.path.join(parent_dir, dir_name1)
-            path_join = os.path.join(path, dir_name2)
+            format_date = curr_date.strftime("%m/%d/%Y %H:%M:%S")
+            is_registered = 1
+            is_active = 1
 
-            # check file path and directory exists, if not create it
-            save_path = os.path.join(curr_dir, path_join)
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
-            csv_file = os.path.join(save_path, file_name)
-            result = df1.append(df2, sort=False)
-            result.to_csv(csv_file, index=False)
-
-            print(save_path)
-            ui.info_2(ui.standout, f"Patients Record was downloaded and saved in the path above."
-                                   f"Please wait whilst you are redirected.")
-            sleep(3)
-            self.download_patient_record()
-        elif selected == "Back":
-            self.handle_state_selection("Manage Patient Account")
-
+            self.db = db.Database()
+            self.db.exec_one("""INSERT INTO users(firstName, lastName, email, password,signUpDate, accountType, 
+            is_registered, is_active)
+                                VALUES(?,?,?,?,?,?,?,?)""",
+                             [new_fname, new_lname, new_email, hashed_password, format_date, "admin", is_registered,
+                              is_active])
+            self.db.close_db()
+            ui.info_2(ui.standout, f"Successfully assigned a new Admin. Please wait whilst you are redirected.\n")
+            util.loader('Loading')	          
+            self.state_gen.change_state("Admin Options")
+        else:
+            self.state_gen.change_state("Admin Options")
 
