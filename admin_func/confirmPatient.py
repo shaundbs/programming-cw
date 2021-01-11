@@ -76,24 +76,28 @@ def approve_all():
     connection = sqlite3.connect('database/ehealth.db')
     cursor = connection.cursor()
 
-    for i in range(len(validation_required)):
-        cursor = connection.cursor()
-        update_query = "UPDATE Users SET is_registered = ?, is_active = ?  WHERE userId = ?"
-        data = (1, 1, user_ids[i])
-        cursor.execute(update_query, data)
-        connection.commit()
-        patients_validated.append(validation_required[i])
+    if len(validation_required) == 0:
+        print("No patients to approve.")
+    else:
 
-    connection.close()
-    print("All patients successfully approved!\n")
-    util.loader("Sending confirmation emails")
-    email = emails[i]
-    firstName = fullname_list[i][0]
-    lastName = fullname_list[i][1]
+        for i in range(len(validation_required)):
+            cursor = connection.cursor()
+            update_query = "UPDATE Users SET is_registered = ?, is_active = ?  WHERE userId = ?"
+            data = (1, 1, user_ids[i])
+            cursor.execute(update_query, data)
+            connection.commit()
+            patients_validated.append(validation_required[i])
+        
+        connection.close()
+        print("All patients successfully approved!\n")
+        util.loader("Sending confirmation emails")
+        email = emails[i]
+        firstName = fullname_list[i][0]
+        lastName = fullname_list[i][1]
 
-    Emails.validation_email(email, firstName, lastName, 'patient')
-    clear()
-    print(
+        Emails.validation_email(email, firstName, lastName, 'patient')
+        clear()
+        print(
         f"\nNumber of patients approved: {len(patients_validated)}")
 
 
