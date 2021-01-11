@@ -1,8 +1,0 @@
-*.db
-.vscode
-*.pyc
-*.log
-*workspace.xml
-*.pyc
-*.xml
-/.idea
