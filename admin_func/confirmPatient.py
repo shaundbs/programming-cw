@@ -64,7 +64,6 @@ def confirm_patient():
         emails.append(i[3])
     if len(validation_required) == 0:
         print("\nThere are no patients currently requiring approval!")
-
         no_patients()
 
     connection.close()
@@ -181,6 +180,3 @@ def validate():
 def no_patients():
     util.loader('Loading')
 
-
-if __name__ == "__main__":
-    confirm_patient()
