@@ -47,7 +47,7 @@ def confirm_patient():
     index = ["ID", "First Name", "Last Name", "Email", "Date Signed Up"]
     try:
         df.columns = index
-    except:
+    except ValueError:
         logging.exception("Exception occurred whilst the patient pending_appt: ")
     clear()
     print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
