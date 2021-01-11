@@ -535,7 +535,7 @@ class Patient:
                 "first dose of the " + chosen_vac + " vaccination.\n- This classification has been made based on your "
                                                     "age and you have been on the waiting list for over 30 days (30 days since the date that you "
                                                     "registered with us).\n- Please request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
-                                                    " or 'COVID-19 Immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
+                                                    " or 'COVID-19 immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
         else:
             vulnerable_individual = False
             print("You have not been identified as a high-risk patient to COVID-19. However you will be invited to "
@@ -564,7 +564,7 @@ class Patient:
                 "first dose of the " + chosen_vac + " vaccination.\n- This classification has been made based on your "
                                                     "age and you have been on the waiting list for over 30 days (30 days since the date that you "
                                                     "registered with us).\n- Please request an appointment with one of our GP's and citing 'COVID-19 vaccination'"
-                                                    " or 'COVID-19 Immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
+                                                    " or 'COVID-19 immunisation' so that you may be protected.\n- We look forward to hearing from you.\n")
         else:
             high_risk_top_waitinglist = False
         return high_risk_top_waitinglist
