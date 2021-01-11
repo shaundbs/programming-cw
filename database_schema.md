@@ -73,4 +73,4 @@
 ### [Bcrypt:](http://zetcode.com/python/bcrypt/)
 1. encode before use: line.encode('utf-8'), 
 1. salt = **bcrypt.gensalt()**; hashed = **bcrypt.hashpw(passwd, salt)**; if **bcrypt.checkpw(passwd, hashed)**:
-### [Tkinter:](https://www.youtube.com/watch?v=YXPyB4XeYLA&feature=youtu.be)
+
