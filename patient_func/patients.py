@@ -803,10 +803,11 @@ class Patient:
                         #  create directory for downloaded files
                         directory = "downloaded_data"
                         directory2 = "Prescriptions"
-                        parent_dir = '../programming-cw'
+                        parent_dir = os.path.abspath(os.getcwd())
                         path = os.path.join(parent_dir, directory)
                         final_path = os.path.join(path, directory2)
-                        os.makedirs(final_path)
+                        if not os.path.exists(final_path):
+                            os.makedirs(final_path)
                         # save prescription in directory  as a .csv
                         with open("downloaded_data/Prescriptions/myprescriptions." + data_type, 'w',
                                   newline='') as f:
